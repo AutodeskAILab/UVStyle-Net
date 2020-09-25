@@ -1,0 +1,15 @@
+TODOs:
+
+Solid MNIST Dataset:
+
+- [x] Port data augmentation to C++ using ASM
+- [ ] Complete SolidMNIST dataset generation including filleting, degree elevation/knot refinement, spatial deformation augmentations
+- [ ] Completely remove Fusion as a dependency by using ASM Tk to generate profile curves from fonts
+
+Convolution:
+- [ ] Weighted convolution using first fundamental form
+- [ ] Coordinate convolution using determinant of first fundamental form as an additional channel in the input
+- [ ] Trimming mask multiplied with feature maps
+- [ ] Coordinate convolution using trimming mask as an additional channel in the input
+- [ ] Trimming curves as edge features
+- [ ] Ablation study

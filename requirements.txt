@@ -1,0 +1,13 @@
+torch
+scikit-learn
+dgl-cu101
+matplotlib
+pillow
+torchvision
+tabulate
+tensorboard
+h5py
+streamlit
+pandas
+trimesh
+plotly
