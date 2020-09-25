@@ -45,21 +45,7 @@ $ pip install -r requirements.txt
 
 ## SolidMNIST Data
 
-Data should be extracted to `dataset/bin/train` and `dataset/bin/test`. This can be done manually or with the following script.
-
-Requires:
-
-- 7z
-    - `$ sudo apt-get install p7zip-full` (linux)
-    - `$ brew install p7zip` (mac)
-- AWS CLI
-    - should be ready installed/confgured on AWS EC2 instance
-    - see [wiki](https://wiki.autodesk.com/pages/viewpage.action?spaceKey=MINT&title=AI+Engineering+Self-Service+AWS+Resources) and [blog post](https://engineering.autodesk.com/blog/how-to-use-the-aws-cli-from-multiple-accounts-simultaneously-in-highly-secure-assumeiamrole-policy-environments/) to install/configure locally
-
-```bash
-$ bash dataset/download_data.sh
-```
-
+Data should be extracted to `dataset/bin/train` and `dataset/bin/test`.
 ## Training/Testing
 
 - `train_classifier.py` (SolidMNIST)
