@@ -116,6 +116,3 @@ chamfer.egg-info/
 .vs
 datagen/FontWires/pcacis_gticks.txt
 *.pyproj
-
-# tensorboard logs
-runs/
