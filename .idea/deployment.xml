@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="ubuntu@aws:22 agent" showNewOnTargetInSync="false">
+    <serverData>
+      <paths name="ubuntu@aws:22 agent">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/NURBSNet" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@aws:22 agent (1)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/NURBSNet" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/dataset/bin" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@aws:22 agent (3)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/dataset/bin" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@aws:22 agent (4)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/NURBSNet" local="$PROJECT_DIR$" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/dataset/bin" />
+            <excludedPath local="true" path="$PROJECT_DIR$/runs" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@aws:22 agent (5)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/NURBSNet" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="ubuntu@aws:22 agent (6)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/ubuntu/NURBSNet" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
