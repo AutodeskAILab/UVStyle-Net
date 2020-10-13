@@ -3,6 +3,7 @@ import dgl
 import streamlit as st
 import torch
 import trimesh
+from torch.nn.functional import cosine_similarity
 
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
 from helper import load_checkpoint
@@ -52,27 +53,23 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
 
     loss = crit(*style_emb)
     loss.backward()
-    feat_grads = []
+    normal_angles = []
     st.sidebar.subheader('XYZ + Normals')
-    selection = [st.sidebar.checkbox(label=str(i), value=i > 2) for i in range(6)]
-    idx = torch.arange(6)[selection]
-    for grads in torch.split(feat.grad, bg.batch_num_nodes().tolist()):
-        grads = grads[:, :, :, idx]
-        if len(idx) > 1:
-            combined_grads = grads.norm(dim=-1)
-        else:
-            combined_grads = grads
-        feat_grads.append(combined_grads.flatten())
+    for feats, grads in zip(torch.split(feat, bg.batch_num_nodes().tolist()), torch.split(feat.grad, bg.batch_num_nodes().tolist())):
+        normals = feats[:, :, :, 3:6].flatten(end_dim=-2)
+        normal_grads = grads[:, :, :, 3:6].flatten(end_dim=-2)
+        angles = torch.acos(cosine_similarity(normals, normals + normal_grads))
+        normal_angles.append(angles)
     grads = torch.split(feat.grad, bg.batch_num_nodes().tolist())
     a = uv_samples_plot(*graph_to_xyz_mask(g0),
-                        sample_colors=feat_grads[0],
+                        sample_colors=normal_angles[0],
                         xyz_grads=grads[0][:, :, :, :3].reshape([-1, 3]),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh0,
                         mesh_alpha=mesh_alpha)
     b = uv_samples_plot(*graph_to_xyz_mask(g1),
-                        sample_colors=feat_grads[1],
+                        sample_colors=normal_angles[1],
                         xyz_grads=grads[1][:, :, :, :3].reshape([-1, 3]),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
@@ -89,7 +86,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
     feat = bg.ndata['x'].to(device)
     feat.requires_grad = True
     in_feat = feat.permute(0, 3, 1, 2)
-    model(bg, in_feat)
+    model(bg.to(device), in_feat)
     activations = {}
     for acts in [model.nurbs_activations, model.gnn_activations]:
         activations.update(acts)
@@ -107,7 +104,10 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
 
 
 if __name__ == '__main__':
-    mesh_path = '/Users/t_meltp/solid-mnist/mesh/test'
+    device = torch.device('cuda:0')
+    mesh_path = '/home/pete/brep_style/solidmnist/mesh/test'
+    model_checkpoint = '/home/pete/brep_style/grams_and_models/solidmnist/uvnet/best_0.pt'
+
     text = st.sidebar.text_area(label='Enter letter names (separate lines)',
                                 value='c_Viaoda Libre_lower\ns_Aldrich_upper')
     st.sidebar.subheader('Options')
@@ -136,7 +136,6 @@ if __name__ == '__main__':
                           value=1.) for i in range(7)
     ]
     dset = SolidMNIST(root_dir='dataset/bin', split='test')
-    model_checkpoint = 'dump/Classifier.gin_grouping.cnn.mask_channel.area_channel_False.non_linear.128.64.squaresym_0.3/checkpoints/best_0.pt'
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
 
@@ -150,8 +149,10 @@ if __name__ == '__main__':
     mesh1 = trimesh.load(f'{mesh_path}/{names[1]}.stl') if show_mesh else None
 
     # weights = torch.ones(7, requires_grad=True)
-    weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True)
-    a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
+    weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True, device=device)
+    a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint,
+                                     device=device,
+                                     scale_grads=grads_slider,
                                      mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
                                      marker_size=marker_slider)
     st.plotly_chart(a)

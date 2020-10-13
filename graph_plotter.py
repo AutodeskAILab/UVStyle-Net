@@ -74,11 +74,11 @@ def uv_samples_plot(xyz, mask,
         xyz = xyz[mask == 1]
         sample_colors = sample_colors[mask == 1]
 
-    scatter = go.Scatter3d(x=xyz[:, 0],
-                           y=xyz[:, 1],
-                           z=xyz[:, 2],
+    scatter = go.Scatter3d(x=xyz[:, 0].detach().cpu(),
+                           y=xyz[:, 1].detach().cpu(),
+                           z=xyz[:, 2].detach().cpu(),
                            marker=dict(
-                               color=sample_colors,
+                               color=sample_colors.detach().cpu(),
                                # colorscale="RdYlBu",
                                colorscale="Plotly3",
                                colorbar=dict(
@@ -106,6 +106,7 @@ def uv_samples_plot(xyz, mask,
     if xyz_grads is not None:
         if mask is not None:
             xyz_grads = xyz_grads[mask == 1]
+        xyz_grads = xyz_grads.detach().cpu()
         xyz_grads = StandardScaler(with_mean=False).fit_transform(xyz_grads) * scale_xyz_grads
         # hist = ff.create_distplot([xyz_grads[:, 0].tolist(), xyz_grads[:, 1].tolist(), xyz_grads[:, 2].tolist()], bin_size=0.5, group_labels=['x', 'y', 'z'])
         # st.plotly_chart(go.Figure(hist))
