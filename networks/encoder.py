@@ -141,7 +141,7 @@ class UVNetSurfaceEncoder(nn.Module):
             x = inp[:, [0, 1, 2, 6], :, :]  # xyz, mask
         else:
             x = inp[:, :7, :, :]  # xyz, normals, mask
-        self.activations = {'feats': x[:, :6, :, :]}
+        self.activations = {'feats': inp[:, :7, :, :]}
         batch_size = x.size(0)
         x = self.conv1(x)
         self.activations['conv1'] = x
