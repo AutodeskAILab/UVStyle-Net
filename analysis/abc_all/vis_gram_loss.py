@@ -41,10 +41,10 @@ if __name__ == '__main__':
     base_idx = name_idx[base_text]
     compare_idx = list(map(lambda n: name_idx[n], compare_text.split('\n')))
 
-    st.sidebar.image(imgs[base_idx], format='PNG', width=300)
+    st.sidebar.image(imgs[base_idx], output_format='PNG', width=300)
 
     for idx in [base_idx] + compare_idx:
-        st.image(imgs[idx], format='PNG', width=300)
+        st.image(imgs[idx], output_format='PNG', width=300)
         losses = gram_loss(base_idx, idx, grams)
         bar = go.Bar(x=np.arange(len(losses)),
                      y=losses)
