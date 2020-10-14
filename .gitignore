@@ -119,3 +119,5 @@ datagen/FontWires/pcacis_gticks.txt
 
 # tensorboard logs
 runs/
+
+.idea/
