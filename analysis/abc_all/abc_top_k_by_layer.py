@@ -52,4 +52,5 @@ if __name__ == '__main__':
                        embedding=combined,
                        queries=combined[query_idx],
                        query_idx=query_idx,
-                       k=11)
+                       k=11,
+                       plot='pyplot')
