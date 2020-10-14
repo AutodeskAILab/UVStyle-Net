@@ -97,4 +97,4 @@ def setup_logging(filename: str, level_str="info", filemode="w"):
 
 def num_workers_platform():
     is_windows = any(platform.win32_ver())
-    return 0 if is_windows else 4
+    return 0 if is_windows else 8
