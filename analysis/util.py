@@ -13,6 +13,7 @@ from plotly import graph_objs as go, express as px
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_distances, paired_cosine_distances
 from sklearn.neighbors._kd_tree import KDTree
+import matplotlib.pyplot as plt
 
 
 class Grams(object):
@@ -183,7 +184,7 @@ class KNNGrid(object):
 
 
 class KNNGridWithDistances(object):
-    def __init__(self, kd_tree, images, raw_emb, resize=256):
+    def __init__(self, kd_tree, images, raw_emb, resize=1024):
         self.images = images
         self.kd_tree = kd_tree
         self.img_size = resize
@@ -227,6 +228,32 @@ class KNNGridWithDistances(object):
                                  text=text,
                                  mode='text',
                                  textfont={'size': 16, 'color': "DarkOrange"}))
+        return fig
+
+    def get_matplotlib(self, queries, k=5, query_idx=None, with_distance=True):
+        grid_array, distances = self._get_image(queries, k=k)
+        fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
+        ax.imshow(grid_array)
+
+        ax.set_xticks(np.arange(k) * (self.img_size + 2) + (self.img_size / 2))
+        ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=24)
+
+        ax.set_yticks(np.arange(len(queries)) * (self.img_size + 2) + (self.img_size / 2))
+        ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=24)
+
+        if with_distance:
+            x = np.arange(k)
+            y = np.arange(distances.shape[0])
+            xy = np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))])
+            text = list(map(lambda d: f'{d:.2f}', distances.flatten().tolist()))
+
+            space = self.img_size
+            for t, pos in zip(text, xy):
+                x, y = pos
+                ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='orange', Fontsize=20)
+
+        fig.set_size_inches(21, 15)
+        fig.tight_layout()
         return fig
 
 
@@ -300,11 +327,15 @@ def weight_layers(grams, weights):
 
 
 class StQueryDisplay(object):
-    def __init__(self, imgs, embedding, queries, query_idx, k=5):
+    def __init__(self, imgs, embedding, queries, query_idx, k=5, plot='plotly'):
         kd_tree = KDTree(embedding)
-        knn_grid = KNNGridWithDistances(kd_tree, imgs, embedding, resize=128)
-        grid = knn_grid.get_plotly(queries, query_idx=query_idx, k=k)
-        st.plotly_chart(grid)
+        knn_grid = KNNGridWithDistances(kd_tree, imgs, embedding, resize=256)
+        if plot == 'plotly':
+            grid = knn_grid.get_plotly(queries, query_idx=query_idx, k=k)
+            st.plotly_chart(grid)
+        elif plot == 'pyplot':
+            grid = knn_grid.get_matplotlib(queries, query_idx=query_idx, k=k)
+            st.pyplot(grid)
 
 
 class IdMap(object):
