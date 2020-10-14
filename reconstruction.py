@@ -27,6 +27,10 @@ def compute_activation_stats(bg, layer, activations):
             x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
             var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
             std = torch.sqrt(var)  # F x 6
+
+            nans_x, nans_y = torch.where(std.isnan())
+            std[nans_x, nans_y] = 0
+
             epsilon = 1e-5
             normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
             mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
