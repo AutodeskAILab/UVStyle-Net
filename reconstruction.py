@@ -1,13 +1,11 @@
 import helper
 import logging
 import numpy as np
-import os
 import os.path as osp
 import torch
 from torch import distributions as dist
 from torch import optim
 import torch.nn as nn
-import torch.nn.functional as F
 from PIL import Image
 import pandas as pd
 
@@ -21,6 +19,11 @@ def compute_activation_stats(bg, layer, activations):
             masked_activations = graph_activations * mask
             N = mask.sum(dim=-1)  # F x 1
             mean = masked_activations.sum(dim=-1) / N  # F x 6
+
+            # handle faces that are completely masked (contain 0 samples)
+            nans_x, nans_y = torch.where(mean.isnan())
+            mean[nans_x, nans_y] = 0
+
             x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
             var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
             std = torch.sqrt(var)  # F x 6
@@ -32,9 +35,15 @@ def compute_activation_stats(bg, layer, activations):
             # F = num faces
             # d = num filters/dimensions
             # graph_activations shape: F x d x 10 x 10
-            x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            if layer[:3] == 'GIN':
+                x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
+            else:
+                x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+
+            # inorm is per solid for GIN layers and per face for others (excl. feats)
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             x = inorm(x)
+
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
         if layer == 'feats':
