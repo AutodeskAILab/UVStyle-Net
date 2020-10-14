@@ -35,12 +35,12 @@ def compute_activation_stats(bg, layer, activations):
             # F = num faces
             # d = num filters/dimensions
             # graph_activations shape: F x d x 10 x 10
-            if layer[:3] == 'GIN':
+            if layer == 'fc' or layer[:3] == 'GIN':
                 x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
             else:
                 x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
 
-            # inorm is per solid for GIN layers and per face for others (excl. feats)
+            # inorm is per solid for fc/GIN layers and per face for others (excl. feats)
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             x = inorm(x)
 
