@@ -3,24 +3,23 @@ import pandas as pd
 import numpy as np
 
 if __name__ == '__main__':
-    without_inorm = pd.read_csv('uvnet_no_inorm_layer_probe_scores_with_err.csv')
-    with_inorm = pd.read_csv('../layer_probes/uvnet_layer_probe_scores_with_err.csv')
 
-    xticks = np.arange(len(with_inorm))
+    dfs = {
+        'Without INorm': pd.read_csv('uvnet_solidmnist_font_subset_no_inorm_layer_probe_scores_with_err.csv'),
+        'With INorm': pd.read_csv('uvnet_solidmnist_font_subset_layer_probe_scores_with_err.csv'),
+        'New Grams': pd.read_csv('uvnet_solidmnist_font_subset_new_grams_layer_probe_scores_with_err.csv')
+    }
 
-    plt.bar(x=xticks - 0.2,
-            height=without_inorm['linear_probe'],
-            width=0.4,
-            yerr=without_inorm['linear_probe_err'],
-            label='Without INorm')
-    plt.bar(x=xticks + 0.2,
-            height=with_inorm['linear_probe'],
-            width=0.4,
-            yerr=with_inorm['linear_probe_err'],
-            label='With INorm')
+    for i, (version, df) in enumerate(dfs.items()):
+        xticks = np.arange(len(df)) * 4
+        plt.bar(x=xticks + i,
+                height=df['linear_probe'],
+                yerr=df['linear_probe_err'],
+                label=version)
+
     plt.legend()
     ax = plt.gca()  # type: plt.Axes
-    ax.set_xticks(xticks)
+    ax.set_xticks(xticks[:-1] + 1)
     ax.set_xticklabels(labels=[
         '0_feats',
         '1_conv',
@@ -30,7 +29,6 @@ if __name__ == '__main__':
         '5_GIN',
         '6_GIN'
     ])
-    plt.plot([5.2, 5.2], [0.9629, 0.963], '-', color='black')
     plt.ylim([.8, 1.])
     plt.tight_layout()
     plt.savefig('inorm_plot.pdf')

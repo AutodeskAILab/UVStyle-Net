@@ -49,31 +49,54 @@ class Model(nn.Module):
 
 
 def compute_activation_stats(bg, layer, activations):
-    means = []
-    sigmas = []
-    covs = []
     grams = []
     for graph_activations in torch.split(activations, bg.batch_num_nodes().tolist()):
-        # F = num faces
-        # d = num filters/dimensions
-        # graph_activations shape: F x d x 10 x 10
-        x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-        x = torch.cat(list(x), dim=-1)  # x shape: d x 100F
-        inorm = torch.nn.InstanceNorm1d(x.shape[0])
-        x = inorm(x.unsqueeze(0)).squeeze()
-        img_size = x.shape[-1]  # img_size = 100F
+        if layer == 'feats':
+            mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
+            graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
+            masked_activations = graph_activations * mask
+            N = mask.sum(dim=-1)  # F x 1
+            mean = masked_activations.sum(dim=-1) / N  # F x 6
+
+            # handle faces that are completely masked (contain 0 samples)
+            nans_x, nans_y = torch.where(mean.isnan())
+            mean[nans_x, nans_y] = 0
+
+            x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
+            var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
+            std = torch.sqrt(var)  # F x 6
+
+            nans_x, nans_y = torch.where(std.isnan())
+            std[nans_x, nans_y] = 0
+
+            epsilon = 1e-5
+            normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
+            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
+            x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+        else:
+            # F = num faces
+            # d = num filters/dimensions
+            # graph_activations shape: F x d x 10 x 10
+            if layer == 'fc' or layer[:3] == 'GIN':
+                x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
+            else:
+                x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+
+            # inorm is per solid for fc/GIN layers and per face for others (excl. feats)
+            inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            x = inorm(x)
+
+        x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
+
+        if layer == 'feats':
+            img_size = mask.sum()
+        else:
+            img_size = x.shape[-1]  # img_size = 100F
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
-        mean = torch.mean(x, 1, keepdim=True)  # mean shape: d x 1
-        x = (x - mean)  # x shape: d x 100F
-        cov = torch.matmul(x, x.transpose(0, 1)) / (img_size - 1)  # cov shape: d x d
-        means.append(mean.flatten())
-        covs.append(cov.flatten())
-        sigmas.append(cov.diag())
-        grams.append(gram.flatten())
-    return torch.stack(means).detach().cpu(),\
-           torch.stack(sigmas).detach().cpu(),\
-           torch.stack(covs).detach().cpu(),\
-           torch.stack(grams).detach().cpu()
+        triu_idx = torch.triu_indices(*gram.shape)
+        triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
+        grams.append(triu)
+    return torch.stack(grams).detach().cpu()
 
 
 def log_activation_stats(bg, all_layers_activations):
@@ -120,9 +143,9 @@ def test(model, loader, device):
     np.save(out_dir + '/content_embeddings', content_embeddings)
     all_stats = {}
     for layer, layer_stats in stats.items():
-        mean, sigma, cov, gram = zip(*layer_stats)
+        # gram = zip(*layer_stats)
         all_stats[layer] = {
-            'gram': torch.cat(gram),
+            'gram': torch.cat(layer_stats),
         }
 
     for i, (layer, layer_stats) in enumerate(all_stats.items()):
@@ -160,7 +183,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_font_subset'
+    out_dir = 'analysis/uvnet_data/solidmnist_font_subset_new_grams'
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")

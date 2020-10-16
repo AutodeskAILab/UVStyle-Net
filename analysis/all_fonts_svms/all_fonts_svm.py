@@ -3,7 +3,7 @@ import pickle
 
 import numpy as np
 import pandas as pd
-import progressbar
+from tqdm import tqdm
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_distances
 from sklearn.model_selection import cross_val_score
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     print('fitting SVMs...')
     scores = {}
     errs = {}
-    for clazz in progressbar.progressbar(sorted(list(set(grams.labels)))):
+    for clazz in tqdm(sorted(list(set(grams.labels)))):
         cls = SVC(kernel='precomputed', class_weight='balanced')
         score = cross_val_score(estimator=cls,
                                 X=kernel_matrix,
