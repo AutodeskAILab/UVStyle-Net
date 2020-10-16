@@ -59,7 +59,7 @@ class NURBSFeatureExtractor(nn.Module):
             x = inp[:, :7, :, :]  # xyz, normals, mask
         batch_size = x.size(0)
         self.activations = {}
-        self.activations['feats'] = x[:, :6, :, :]
+        self.activations['feats'] = inp[:, :7, :, :]
         x = self.conv1(x)
         self.activations['conv1'] = x
         x = self.conv2(x)
