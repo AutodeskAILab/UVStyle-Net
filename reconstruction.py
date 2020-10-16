@@ -35,16 +35,21 @@ def compute_activation_stats(bg, layer, activations):
             normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
             mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
             x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+        elif layer[:4] == 'conv':
+            x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            mean = x.mean(dim=-1)
+            std = x.std(dim=-1)
+            # inorm is per face
+            inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            normalized = inorm(x)
+            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
+            x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
         else:
-            # F = num faces
-            # d = num filters/dimensions
+            # fc and GIN layers
             # graph_activations shape: F x d x 10 x 10
-            if layer == 'fc' or layer[:3] == 'GIN':
-                x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
-            else:
-                x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
 
-            # inorm is per solid for fc/GIN layers and per face for others (excl. feats)
+            # inorm is per solid
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             x = inorm(x)
 
@@ -57,6 +62,7 @@ def compute_activation_stats(bg, layer, activations):
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
         triu_idx = torch.triu_indices(*gram.shape)
         triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
+        assert not triu.isnan().any()
         grams.append(triu)
     return torch.stack(grams).detach().cpu()
 
@@ -248,7 +254,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
         all_stats[layer] = {
             'gram': torch.cat(layer_stats),
         }
-    out_dir = 'analysis/uvnet_data/abc_all'
+    out_dir = 'analysis/uvnet_data/abc_all_mu_sigma_in_convs'
     for i, (layer, layer_stats) in enumerate(all_stats.items()):
         grams = layer_stats['gram'].numpy()
         np.save(out_dir + f'/{i}_{layer}_grams', grams)
