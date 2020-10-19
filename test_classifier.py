@@ -73,19 +73,28 @@ def compute_activation_stats(bg, layer, activations):
             normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
             mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
             x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+        elif layer[:4] == 'conv':
+            x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            mean = x.mean(dim=-1)
+            std = x.std(dim=-1)
+            # inorm is per face
+            inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            normalized = inorm(x)
+            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
+            x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
         else:
-            # F = num faces
-            # d = num filters/dimensions
-            # graph_activations shape: F x d x 10 x 10
-            if layer == 'fc' or layer[:3] == 'GIN':
-                x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
-            else:
-                x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            # fc and GIN layers
+            # graph_activations shape: F x d x 1
+            mean = graph_activations.mean(dim=0)
+            std = graph_activations.mean(dim=0)
+            f = graph_activations.shape[0]
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
 
-            # inorm is per solid for fc/GIN layers and per face for others (excl. feats)
+            # inorm is per solid
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             x = inorm(x)
-
+            mean_std = torch.cat([mean, std]).unsqueeze(0).repeat(1, 1, f)
+            x = torch.cat([mean_std, x], dim=1)  # F x 3d
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
         if layer == 'feats':
@@ -95,6 +104,7 @@ def compute_activation_stats(bg, layer, activations):
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
         triu_idx = torch.triu_indices(*gram.shape)
         triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
+        assert not triu.isnan().any()
         grams.append(triu)
     return torch.stack(grams).detach().cpu()
 
@@ -183,7 +193,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_font_subset_new_grams'
+    out_dir = 'analysis/uvnet_data/solidmnist_font_subset_face_norm_and_concat_for_all'
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
@@ -211,7 +221,7 @@ if __name__ == '__main__':
 
     # Create model and load weights
     state['args'].input_channels = 'xyz_normals'
-    
+
     model = Model(test_dset.num_classes, state['args']).to(device)
     model.load_state_dict(state['model'])
 
