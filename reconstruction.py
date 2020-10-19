@@ -35,17 +35,19 @@ def compute_activation_stats(bg, layer, activations):
 
             epsilon = 1e-5
             normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
-            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
-            x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+            # mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
+            # x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+            x = normalized
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-            mean = x.mean(dim=-1)
-            std = x.std(dim=-1)
+            # mean = x.mean(dim=-1)
+            # std = x.std(dim=-1)
             # inorm is per face
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             normalized = inorm(x)
-            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
-            x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
+            x = normalized
+            # mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
+            # x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 10 x 10
@@ -210,7 +212,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
     helper.create_dir(img_dir)
     model.eval()
     losses = []
-    out_dir = 'analysis/uvnet_data/abc_all_mu_sigma_in_convs'
+    out_dir = 'analysis/uvnet_data/abc_all_fnorm_only'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with torch.no_grad():
@@ -224,12 +226,12 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
             for activations in [model.surf_encoder.activations, model.graph_encoder.activations]:
                 batch_stats = log_activation_stats(bg, activations)
                 for layer, batch_layer_stats in batch_stats.items():
-                    with open(out_dir + '/' + layer + '_grams.txt', 'ab') as file:
-                        np.savetxt(file, batch_layer_stats)
-                    # if layer in stats.keys():
-                    #     stats[layer].append(batch_layer_stats)
-                    # else:
-                    #     stats[layer] = [batch_layer_stats]
+                    # with open(out_dir + '/' + layer + '_grams.txt', 'ab') as file:
+                    #     np.savetxt(file, batch_layer_stats)
+                    if layer in stats.keys():
+                        stats[layer].append(batch_layer_stats)
+                    else:
+                        stats[layer] = [batch_layer_stats]
             graph_files += graph_files_batch
             if save_pointclouds:
                 filename = [
@@ -254,16 +256,15 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
 
             losses.append(loss.item())
     avg_loss = np.mean(losses)
-    # print('writing stats...')
-    # all_stats = {}
-    # for layer, layer_stats in stats.items():
-    #     # gram = zip(*layer_stats)
-    #     all_stats[layer] = {
-    #         'gram': torch.cat(layer_stats),
-    #     }
-    # for i, (layer, layer_stats) in enumerate(all_stats.items()):
-    #     grams = layer_stats['gram'].numpy()
-    #     np.save(out_dir + f'/{i}_{layer}_grams', grams)
+    print('writing stats...')
+    all_stats = {}
+    for layer, layer_stats in stats.items():
+        all_stats[layer] = {
+            'gram': torch.cat(layer_stats),
+        }
+    for i, (layer, layer_stats) in enumerate(all_stats.items()):
+        grams = layer_stats['gram'].numpy()
+        np.save(out_dir + f'/{i}_{layer}_grams', grams)
 
     all_graph_files = list(map(lambda file: file.split('/')[-1], graph_files))
     pd.DataFrame(all_graph_files).to_csv(out_dir + '/graph_files.txt', index=False, header=None)
