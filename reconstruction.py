@@ -1,3 +1,5 @@
+import os
+
 import helper
 import logging
 import numpy as np
@@ -208,6 +210,9 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
     helper.create_dir(img_dir)
     model.eval()
     losses = []
+    out_dir = 'analysis/uvnet_data/abc_all_mu_sigma_in_convs'
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     with torch.no_grad():
         stats = {}
         graph_files = []
@@ -219,10 +224,12 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
             for activations in [model.surf_encoder.activations, model.graph_encoder.activations]:
                 batch_stats = log_activation_stats(bg, activations)
                 for layer, batch_layer_stats in batch_stats.items():
-                    if layer in stats.keys():
-                        stats[layer].append(batch_layer_stats)
-                    else:
-                        stats[layer] = [batch_layer_stats]
+                    with open(out_dir + '/' + layer + '_grams.txt', 'ab') as file:
+                        np.savetxt(file, batch_layer_stats)
+                    # if layer in stats.keys():
+                    #     stats[layer].append(batch_layer_stats)
+                    # else:
+                    #     stats[layer] = [batch_layer_stats]
             graph_files += graph_files_batch
             if save_pointclouds:
                 filename = [
@@ -247,17 +254,16 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
 
             losses.append(loss.item())
     avg_loss = np.mean(losses)
-    print('writing stats...')
-    all_stats = {}
-    for layer, layer_stats in stats.items():
-        # gram = zip(*layer_stats)
-        all_stats[layer] = {
-            'gram': torch.cat(layer_stats),
-        }
-    out_dir = 'analysis/uvnet_data/abc_all_mu_sigma_in_convs'
-    for i, (layer, layer_stats) in enumerate(all_stats.items()):
-        grams = layer_stats['gram'].numpy()
-        np.save(out_dir + f'/{i}_{layer}_grams', grams)
+    # print('writing stats...')
+    # all_stats = {}
+    # for layer, layer_stats in stats.items():
+    #     # gram = zip(*layer_stats)
+    #     all_stats[layer] = {
+    #         'gram': torch.cat(layer_stats),
+    #     }
+    # for i, (layer, layer_stats) in enumerate(all_stats.items()):
+    #     grams = layer_stats['gram'].numpy()
+    #     np.save(out_dir + f'/{i}_{layer}_grams', grams)
 
     all_graph_files = list(map(lambda file: file.split('/')[-1], graph_files))
     pd.DataFrame(all_graph_files).to_csv(out_dir + '/graph_files.txt', index=False, header=None)
