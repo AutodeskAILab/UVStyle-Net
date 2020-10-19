@@ -5,13 +5,16 @@ import numpy as np
 if __name__ == '__main__':
 
     dfs = {
-        'Without INorm': pd.read_csv('uvnet_solidmnist_font_subset_no_inorm_layer_probe_scores_with_err.csv'),
-        'With INorm': pd.read_csv('uvnet_solidmnist_font_subset_layer_probe_scores_with_err.csv'),
-        'New Grams': pd.read_csv('uvnet_solidmnist_font_subset_new_grams_layer_probe_scores_with_err.csv')
+        'Gram': pd.read_csv('uvnet_solidmnist_font_subset_no_inorm_layer_probe_scores_with_err.csv'),
+        'INorm Only': pd.read_csv('uvnet_solidmnist_font_subset_layer_probe_scores_with_err.csv'),
+        # 'New Grams': pd.read_csv('uvnet_solidmnist_font_subset_new_grams_layer_probe_scores_with_err.csv'),
+        'FNorm Only': pd.read_csv('uvnet_solidmnist_font_subset_face_norm_only_layer_probe_scores_with_err.csv'),
+        'FNorm + cat mu & sigma':
+            pd.read_csv('uvnet_solidmnist_font_subset_face_norm_and_concat_for_all_layer_probe_scores_with_err.csv'),
     }
 
     for i, (version, df) in enumerate(dfs.items()):
-        xticks = np.arange(len(df)) * 4
+        xticks = np.arange(len(df)) * (len(dfs) + 1)
         plt.bar(x=xticks + i,
                 height=df['linear_probe'],
                 yerr=df['linear_probe_err'],
