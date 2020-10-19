@@ -5,17 +5,17 @@ import plotly.graph_objs as go
 import streamlit as st
 from sklearn.decomposition import PCA
 
+sys.path.append('../../analysis')
 from constrained_optimization import optimize
 from util import Grams, OnTheFlyImages, StQueryDisplay, weight_layers, get_pca_3_70
 
-sys.path.append('../../analysis')
 
 if __name__ == '__main__':
     grams = Grams('../uvnet_data/abc_all')
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
-                                 verbose=True)
-    grams = list(pca_70.values())
+    # pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
+    #                              verbose=True)
+    # grams = list(pca_70.values())
 
     imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all', img_root='../abc_pngs')
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     negatives_text = st.sidebar.text_area(label='Negatives (space separated ids):',
                                           value='28541')
-    negatives_idx = list(map(int, negatives_text.split(' ')))
+    negatives_idx = list(map(int, negatives_text.split(' '))) if len(negatives_text) > 0 else []
 
     query_text = st.sidebar.text_input(label='query_idx',
                                        value='25460')
