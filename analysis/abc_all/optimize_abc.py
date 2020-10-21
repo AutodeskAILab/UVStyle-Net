@@ -13,9 +13,9 @@ from util import Grams, OnTheFlyImages, StQueryDisplay, weight_layers, get_pca_3
 if __name__ == '__main__':
     grams = Grams('../uvnet_data/abc_all')
 
-    # pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
-    #                              verbose=True)
-    # grams = list(pca_70.values())
+    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
+                                 verbose=True)
+    grams = list(pca_70.values())
 
     imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all', img_root='../abc_pngs')
 
@@ -54,9 +54,10 @@ if __name__ == '__main__':
     combined = weight_layers(grams, weights)
 
     del grams
-    print('pca...')
-    reduced = PCA(n_components=128).fit_transform(combined)
-    del combined
+    # print('pca...')
+    # reduced = PCA(n_components=70).fit_transform(combined)
+    # del combined
+    reduced = combined
 
     print('queries...')
     norm = np.linalg.norm(reduced, axis=-1, keepdims=True)

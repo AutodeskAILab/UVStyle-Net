@@ -21,8 +21,9 @@ def gram_loss(idx_a, idx_b, grams):
 
 
 if __name__ == '__main__':
-    grams = Grams('../uvnet_data/abc_all')
-    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all',
+    data_root = '../uvnet_data/abc_all_fnorm_only'
+    grams = Grams(data_root)
+    imgs = OnTheFlyImages(data_root=data_root,
                           img_root='../abc_pngs')
 
     name_idx = {

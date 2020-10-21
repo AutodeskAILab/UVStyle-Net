@@ -8,8 +8,9 @@ sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, StQueryDisplay, weight_layers, OnTheFlyImages
 
 if __name__ == '__main__':
-    grams = Grams(data_root='../uvnet_data/abc_all')
-    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all',
+    data_root = '../uvnet_data/abc_all_fnorm_only'
+    grams = Grams(data_root=data_root)
+    imgs = OnTheFlyImages(data_root=data_root,
                           img_root='../abc_pngs')
 
     name_idx = {
