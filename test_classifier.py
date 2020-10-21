@@ -163,7 +163,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_all_raw_grams'
+    out_dir = 'analysis/uvnet_data/solidmnist_all_inorm'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
