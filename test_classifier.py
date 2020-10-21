@@ -193,7 +193,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_font_subset_face_norm_and_concat_for_all'
+    out_dir = 'analysis/uvnet_data/solidmnist_all_fnorm'
     if not os.path.exists(out_dir):
         os.mkdir(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
