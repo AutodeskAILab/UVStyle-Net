@@ -211,7 +211,7 @@ if __name__ == '__main__':
     print('Args used during training:\n', state['args'])
 
     # Load dataset
-    test_dset = SolidMNISTSubset('dataset/bin', split="test")
+    test_dset = SolidMNIST('dataset/bin', split="test")
 
     test_loader = helper.get_dataloader(
         test_dset, state['args'].batch_size, train=False, collate_fn=my_collate)
