@@ -5,12 +5,9 @@ import numpy as np
 if __name__ == '__main__':
 
     dfs = {
-        'Gram': pd.read_csv('uvnet_solidmnist_font_subset_no_inorm_layer_probe_scores_with_err.csv'),
-        'INorm Only': pd.read_csv('uvnet_solidmnist_font_subset_layer_probe_scores_with_err.csv'),
-        # 'New Grams': pd.read_csv('uvnet_solidmnist_font_subset_new_grams_layer_probe_scores_with_err.csv'),
-        'FNorm Only': pd.read_csv('uvnet_solidmnist_font_subset_face_norm_only_layer_probe_scores_with_err.csv'),
-        'FNorm + cat mu & sigma':
-            pd.read_csv('uvnet_solidmnist_font_subset_face_norm_and_concat_for_all_layer_probe_scores_with_err.csv'),
+        'Gram': pd.read_csv('uvnet_solidmnist_all_raw_grams_layer_probe_scores_with_err.csv'),
+        'INorm Only': pd.read_csv('uvnet_solidmnist_all_inorm_layer_probe_scores_with_err.csv'),
+        'FNorm Only': pd.read_csv('uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err.csv'),
     }
 
     for i, (version, df) in enumerate(dfs.items()):
