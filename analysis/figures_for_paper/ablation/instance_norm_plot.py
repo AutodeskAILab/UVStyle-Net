@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     for i, (version, df) in enumerate(dfs.items()):
         if version in ['FNorm Only', 'FNorm + cat mu & sigma']:
-            xticks = np.arange(4) * (len(dfs) + 1)
+            xticks = np.arange(3) * (len(dfs) + 1)
             df = df.loc[:3]
         else:
             xticks = np.arange(len(df)) * (len(dfs) + 1)
