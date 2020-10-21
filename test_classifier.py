@@ -70,31 +70,20 @@ def compute_activation_stats(bg, layer, activations):
             std[nans_x, nans_y] = 0
 
             epsilon = 1e-5
-            normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
-            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
-            x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
+            x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-            mean = x.mean(dim=-1)
-            std = x.std(dim=-1)
             # inorm is per face
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            normalized = inorm(x)
-            mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
-            x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
+            x = inorm(x)
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 1
-            mean = graph_activations.mean(dim=0)
-            std = graph_activations.mean(dim=0)
-            f = graph_activations.shape[0]
             x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
 
             # inorm is per solid
             inorm = torch.nn.InstanceNorm1d(x.shape[1])
             x = inorm(x)
-            mean_std = torch.cat([mean, std]).unsqueeze(0).repeat(1, 1, f)
-            x = torch.cat([mean_std, x], dim=1)  # F x 3d
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
         if layer == 'feats':
