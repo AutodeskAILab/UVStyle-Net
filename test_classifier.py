@@ -57,16 +57,10 @@ def compute_activation_stats(bg, layer, activations):
             x = graph_activations * mask
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-            # inorm is per solid
-            inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            x = inorm(x.unsqueeze(0)).squeeze()
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 1
-            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
-            # inorm is per solid
-            inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            x = inorm(x)
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0) # 1 x d x F
 
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
@@ -185,7 +179,7 @@ if __name__ == '__main__':
     print('Args used during training:\n', state['args'])
 
     # Load dataset
-    test_dset = SolidMNISTSubset('dataset/bin', split="test")
+    test_dset = SolidMNIST('dataset/bin', split="test")
 
     test_loader = helper.get_dataloader(
         test_dset, state['args'].batch_size, train=False, collate_fn=my_collate)
