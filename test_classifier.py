@@ -63,6 +63,8 @@ def compute_activation_stats(bg, layer, activations):
             x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0) # 1 x d x F
 
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
+        inorm = torch.nn.InstanceNorm1d(x.shape[0])
+        x = inorm(x.unsqueeze(0)).squeeze()
 
         if layer == 'feats':
             img_size = mask.sum()
