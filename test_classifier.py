@@ -68,9 +68,27 @@ def compute_activation_stats(bg, layer, activations):
 
             nans_x, nans_y = torch.where(std.isnan())
             std[nans_x, nans_y] = 0
+            mu_sigma = torch.cat([mean, std], dim=-1)
+            inorm = torch.nn.InstanceNorm1d(mu_sigma.shape[1])
+            mu_sigma = inorm(mu_sigma.unsqueeze(0)).squeeze().transpose(0, 1)  # F x 12
+
+            g1 = torch.matmul(mu_sigma, mu_sigma.transpose(0, 1)) / mu_sigma.shape[-1]
+            triu_idx = torch.triu_indices(*g1.shape)
+            triu_1 = g1[triu_idx[0, :], triu_idx[1, :]].flatten()
 
             epsilon = 1e-5
             x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
+            x = x.permute(1, 0, 2).flatten(start_dim=1)
+
+            g2 = torch.matmul(x, x.transpose(0, 1)) / mask.sum()
+            triu_idx = torch.triu_indices(*g2.shape)
+            triu_2 = g2[triu_idx[0, :], triu_idx[1, :]].flatten()
+            x = torch.cat([triu_1, triu_2], dim=-1)
+
+            assert not x.isnan().any()
+            grams.append(x)
+            continue
+
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
             # inorm is per face
@@ -86,10 +104,7 @@ def compute_activation_stats(bg, layer, activations):
             x = inorm(x)
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
-        if layer == 'feats':
-            img_size = mask.sum()
-        else:
-            img_size = x.shape[-1]  # img_size = 100F
+        img_size = x.shape[-1]  # img_size = 100F
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
         triu_idx = torch.triu_indices(*gram.shape)
         triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
@@ -182,7 +197,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_all_fnorm'
+    out_dir = 'analysis/uvnet_data/solidmnist_subset_mu_sigma_inorm_concat_fnorm'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
@@ -200,7 +215,7 @@ if __name__ == '__main__':
     print('Args used during training:\n', state['args'])
 
     # Load dataset
-    test_dset = SolidMNIST('dataset/bin', split="test")
+    test_dset = SolidMNISTSubset('dataset/bin', split="test")
 
     test_loader = helper.get_dataloader(
         test_dset, state['args'].batch_size, train=False, collate_fn=my_collate)

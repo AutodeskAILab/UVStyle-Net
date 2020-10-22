@@ -7,9 +7,14 @@ from util import Grams
 
 if __name__ == '__main__':
     versions = [
-        'solidmnist_all_raw_grams',
-        'solidmnist_all_inorm',
-        'solidmnist_all_fnorm',
+        # 'solidmnist_all_raw_grams',
+        # 'solidmnist_all_inorm',
+        # 'solidmnist_all_fnorm',
+        # 'solidmnist_subset_feats_mu_sigma',
+        # 'solidmnist_subset_feats_mu_sigma_inorm',
+        # 'solidmnist_subset_feats_mu',
+        # 'solidmnist_subset_feats_mu_inorm',
+        'solidmnist_subset_mu_sigma_inorm_concat_fnorm'
     ]
     for version in versions:
         print(f'running {version}...')
