@@ -68,23 +68,23 @@ def compute_activation_stats(bg, layer, activations):
 
             nans_x, nans_y = torch.where(std.isnan())
             std[nans_x, nans_y] = 0
-            mu_sigma = torch.cat([mean, std], dim=-1)
-            inorm = torch.nn.InstanceNorm1d(mu_sigma.shape[1])
-            mu_sigma = inorm(mu_sigma.unsqueeze(0)).squeeze().transpose(0, 1)  # F x 12
-
-            g1 = torch.matmul(mu_sigma, mu_sigma.transpose(0, 1)) / mu_sigma.shape[-1]
+            # mu_sigma = torch.cat([mean, std], dim=-1)
+            inorm = torch.nn.InstanceNorm1d(std.shape[1])
+            std = inorm(std.unsqueeze(0)).squeeze().transpose(0, 1)  # 12 x F
+            g1 = torch.matmul(std, std.transpose(0, 1)) / std.shape[-1]
             triu_idx = torch.triu_indices(*g1.shape)
             triu_1 = g1[triu_idx[0, :], triu_idx[1, :]].flatten()
 
-            epsilon = 1e-5
-            x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
-            x = x.permute(1, 0, 2).flatten(start_dim=1)
-
-            g2 = torch.matmul(x, x.transpose(0, 1)) / mask.sum()
-            triu_idx = torch.triu_indices(*g2.shape)
-            triu_2 = g2[triu_idx[0, :], triu_idx[1, :]].flatten()
-            x = torch.cat([triu_1, triu_2], dim=-1)
-
+            # epsilon = 1e-5
+            # x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
+            # x = x.permute(1, 0, 2).flatten(start_dim=1)
+            #
+            # g2 = torch.matmul(x, x.transpose(0, 1)) / mask.sum()
+            # triu_idx = torch.triu_indices(*g2.shape)
+            # triu_2 = g2[triu_idx[0, :], triu_idx[1, :]].flatten()
+            # x = torch.cat([triu_1, triu_2], dim=-1)
+            #
+            x = triu_1
             assert not x.isnan().any()
             grams.append(x)
             continue
@@ -197,7 +197,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_subset_mu_sigma_inorm_concat_fnorm'
+    out_dir = 'analysis/uvnet_data/solidmnist_subset_feats_sigma_inorm'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
