@@ -19,16 +19,59 @@ class CosineLoss(torch.nn.Module):
         return 1 - (torch.dot(x0, x1) / (torch.norm(x0) * torch.norm(x1)))
 
 
-def compute_grams(activations, bg):
+def compute_grams(layer, activations, bg):
     grams = []
     for graph_activations in torch.split(activations, bg.batch_num_nodes().tolist()):
-        x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-        x = torch.cat(list(x), dim=-1)  # x shape: d x 100F
-        inorm = torch.nn.InstanceNorm1d(x.shape[0])
-        x = inorm(x.unsqueeze(0)).squeeze()
-        img_size = x.shape[-1]  # img_size = 100F
+        if layer == 'feats':
+            mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
+            graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
+            masked_activations = graph_activations * mask
+            N = mask.sum(dim=-1)  # F x 1
+            mean = masked_activations.sum(dim=-1) / N  # F x 6
+
+            # handle faces that are completely masked (contain 0 samples)
+            nans_x, nans_y = torch.where(mean.isnan())
+            mean[nans_x, nans_y] = 0
+
+            x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
+            var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
+
+            # handle sqrt to allow for 0s
+            non_zero_id_x, non_zero_id_y = torch.where(var != 0)
+            non_zeros = var[non_zero_id_x, non_zero_id_y]
+            std = torch.zeros_like(var)
+            std[non_zero_id_x, non_zero_id_y] = torch.sqrt(non_zeros)
+            std2 = torch.sqrt(var)  # F x 6
+            assert (std == std2).all()
+            nans_x, nans_y = torch.where(std.isnan())
+            std[nans_x, nans_y] = 0
+
+            epsilon = 1e-5
+            x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
+        elif layer[:4] == 'conv':
+            x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            # inorm is per face
+            inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            x = inorm(x)
+        else:
+            # fc and GIN layers
+            # graph_activations shape: F x d x 1
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
+
+            # inorm is per solid
+            inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            x = inorm(x)
+        x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
+
+        if layer == 'feats':
+            img_size = mask.sum()
+        else:
+            img_size = x.shape[-1]  # img_size = 100F
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
-        grams.append(gram.flatten())
+        triu_idx = torch.triu_indices(*gram.shape)
+        triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
+        assert not triu.isnan().any()
+        grams.append(triu)
     return torch.stack(grams)
 
 
@@ -65,15 +108,15 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
         feat_grads.append(combined_grads.flatten())
     grads = torch.split(feat.grad, bg.batch_num_nodes().tolist())
     a = uv_samples_plot(*graph_to_xyz_mask(g0),
-                        sample_colors=feat_grads[0],
-                        xyz_grads=grads[0][:, :, :, :3].reshape([-1, 3]),
+                        sample_colors=feat_grads[0].detach().cpu(),
+                        xyz_grads=grads[0][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh0,
                         mesh_alpha=mesh_alpha)
     b = uv_samples_plot(*graph_to_xyz_mask(g1),
-                        sample_colors=feat_grads[1],
-                        xyz_grads=grads[1][:, :, :, :3].reshape([-1, 3]),
+                        sample_colors=feat_grads[1].detach().cpu(),
+                        xyz_grads=grads[1][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh1,
@@ -89,7 +132,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
     feat = bg.ndata['x'].to(device)
     feat.requires_grad = True
     in_feat = feat.permute(0, 3, 1, 2)
-    model(bg, in_feat)
+    model(bg.to(device), in_feat)
     activations = {}
     for acts in [model.nurbs_activations, model.gnn_activations]:
         activations.update(acts)
@@ -97,7 +140,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
         layer: activations for layer, activations in activations.items()
     }
     grams = [
-        compute_grams(activations[layer], bg)
+        compute_grams(layer, activations[layer], bg)
         for layer in ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
     ]
     if weights is None:
@@ -107,7 +150,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
 
 
 if __name__ == '__main__':
-    mesh_path = '/Users/t_meltp/solid-mnist/mesh/test'
+    mesh_path = '/home/pete/brep_style/solidmnist/mesh/test'
     text = st.sidebar.text_area(label='Enter letter names (separate lines)',
                                 value='c_Viaoda Libre_lower\ns_Aldrich_upper')
     st.sidebar.subheader('Options')
@@ -136,7 +179,7 @@ if __name__ == '__main__':
                           value=1.) for i in range(7)
     ]
     dset = SolidMNIST(root_dir='dataset/bin', split='test')
-    model_checkpoint = 'dump/Classifier.gin_grouping.cnn.mask_channel.area_channel_False.non_linear.128.64.squaresym_0.3/checkpoints/best_0.pt'
+    model_checkpoint = '/home/pete/brep_style/grams_and_models/solidmnist/uvnet/best_0.pt'
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
 
@@ -150,9 +193,11 @@ if __name__ == '__main__':
     mesh1 = trimesh.load(f'{mesh_path}/{names[1]}.stl') if show_mesh else None
 
     # weights = torch.ones(7, requires_grad=True)
+    torch.autograd.set_detect_anomaly(True)
     weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True)
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
                                      mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
-                                     marker_size=marker_slider)
+                                     marker_size=marker_slider,
+                                     device='cuda:0')
     st.plotly_chart(a)
     st.plotly_chart(b)
