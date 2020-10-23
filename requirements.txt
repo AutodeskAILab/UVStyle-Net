@@ -11,3 +11,5 @@ streamlit
 pandas
 trimesh
 plotly
+pytorch-lightning
+pytorch-lightning-bolts
