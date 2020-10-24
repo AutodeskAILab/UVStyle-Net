@@ -30,8 +30,6 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
     stds = []
 
     for layer, X in zip(grams.layer_names, grams):
-        if layer == '0_feats':
-            continue
         X = StandardScaler().fit_transform(X)
         folds = StratifiedKFold(n_splits=5, shuffle=True).split(X, grams.labels)
         accs = []
