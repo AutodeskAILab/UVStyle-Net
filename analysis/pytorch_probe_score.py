@@ -66,6 +66,7 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
                                            patience=5)
 
             trainer = pl.Trainer(gpus=[0],
+                                 check_val_every_n_epoch=5,
                                  callbacks=[early_stopping],
                                  fast_dev_run=fast_dev_run)
             trainer.fit(model=model,
