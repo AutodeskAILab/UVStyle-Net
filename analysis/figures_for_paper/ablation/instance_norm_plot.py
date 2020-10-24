@@ -11,11 +11,7 @@ if __name__ == '__main__':
     }
 
     for i, (version, df) in enumerate(dfs.items()):
-        if version in ['FNorm Only', 'FNorm + cat mu & sigma']:
-            xticks = np.arange(3) * (len(dfs) + 1)
-            df = df.loc[:3]
-        else:
-            xticks = np.arange(len(df)) * (len(dfs) + 1)
+        xticks = np.arange(len(df)) * (len(dfs) + 1)
         plt.bar(x=xticks + i,
                 height=df['linear_probe'],
                 yerr=df['linear_probe_err'],
@@ -30,12 +26,13 @@ if __name__ == '__main__':
         '3_conv',
         '4_fc',
         '5_GIN',
-        '6_GIN'
+        '6_GIN',
+        'content'
     ]
-    xticks = np.arange(len(labels) + 1) * (len(dfs)+1) + 0.5
-    ax.set_xticks(xticks[:-1] + 1)
+    xticks = np.arange(len(labels)) * (len(dfs)+1) + 0.5
+    ax.set_xticks(xticks + 1)
     ax.set_xticklabels(labels)
-    plt.ylim([.8, 1.])
+    # plt.ylim([.8, 1.])
     plt.tight_layout()
     plt.savefig('inorm_plot.pdf')
     plt.show()
