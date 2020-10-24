@@ -63,7 +63,7 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
 
             # fit
             early_stopping = EarlyStopping(monitor='val_ce_loss',
-                                           patience=3)
+                                           patience=5)
 
             trainer = pl.Trainer(gpus=[0],
                                  callbacks=[early_stopping],
