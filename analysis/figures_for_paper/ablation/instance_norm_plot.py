@@ -32,9 +32,12 @@ if __name__ == '__main__':
         '5_GIN',
         '6_GIN',
     ]
-    xticks = np.arange(len(labels)) * (len(dfs)+1) + 0.5
+    xticks = np.arange(len(labels)) * (len(dfs)+1)
     ax.set_xticks(xticks + 1)
     ax.set_xticklabels(labels)
+    # random baseline
+    baseline = 1 / 378
+    ax.plot([-1, (len(labels))*(len(dfs) + 1) - 1], [baseline, baseline], '--', color='black')
     # plt.ylim([.8, 1.])
     plt.tight_layout()
     plt.savefig('inorm_plot.pdf')
