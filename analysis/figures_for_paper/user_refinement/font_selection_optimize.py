@@ -56,16 +56,21 @@ def compute(font, trial, upper):
 
 
 if __name__ == '__main__':
-    results_path = 'results_fonts_filtered_uvnet_selection_upper_lower'
+    results_path = 'results_solidmnist_all_fnorm_by_case'
 
     print('loading data...')
-    grams = Grams('../../uvnet_data/solidmnist_filtered_font_families')
-    reduced = pca_reduce(grams, 18, '../../cache/solidmnist_filtered_font_families')
+    grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
+    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_fnorm')
+
+    font_idx = {
+        font_name: i for i, font_name in zip(grams.labels, map(lambda n: n[2:-10], grams.graph_files))
+    }
 
     inputs = tqdm([
         (font, trial, upper)
-        for font in [137, 133, 153, 44, 134, 139, 79]
+        for font in [font_idx['Wire One']]
+        # for font in [font_idx['Viaoda Libre'], font_idx['Vast Shadow']]
         for trial in range(20, 50)
         for upper in [True, False]
     ])
-    Parallel(-1)(delayed(compute)(font, trial, upper) for font, trial, upper in inputs)
+    Parallel(-1)(delayed(compute)(*i) for i in inputs)
