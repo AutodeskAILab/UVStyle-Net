@@ -1,8 +1,8 @@
 import os
+from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
-from progressbar import progressbar
 from sklearn.neighbors._kd_tree import KDTree
 
 from all_fonts_svms.all_fonts_svm import pca_reduce
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     for font in range(len(set(y))):
         scores = []
         errs = []
-        for mu, sigma in progressbar(mus_sigmas, prefix=f'font: {font}'):
+        for mu, sigma in tqdm(mus_sigmas, prefix=f'font: {font}'):
             X = weight_layers_gaussian(X=reduced, mu=mu, sigma=sigma)
 
             score, err = hits_at_k_score(X, y, target=font, k=10, metric='cosine')
