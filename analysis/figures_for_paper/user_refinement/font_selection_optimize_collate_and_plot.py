@@ -97,13 +97,13 @@ def significance_test(mu_1, std_1, mu_2, std_2, n_trials, q=0.95):
 
 
 if __name__ == '__main__':
-    df = collate_df('results_fonts_filtered_uvnet_selection_upper_lower')
+    df = collate_df('results_solidmnist_all_fnorm_by_case')
     df = df.groupby(['font', 'case', 'pos_neg']).mean().reset_index()
 
     fig, axes = plt.subplots(nrows=len(df['font'].unique()) * 2,
                              ncols=1,
                              squeeze=True)  # type: plt.Figure, np.ndarray
-    grams = Grams('../uvnet_data/solidmnist_filtered_font_families')
+    grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
     fonts = {
         i: font_name for i, font_name in zip(grams.labels, map(lambda f: f[2:-10], grams.graph_files))
     }
@@ -120,7 +120,8 @@ if __name__ == '__main__':
                                     neg=neg)
         arrs.append(arr)
         gains.append(gain)
-    fig.set_size_inches(7, 80)
+    s = .9
+    fig.set_size_inches(7 * s, 20 * s)
     fig.tight_layout()
     fig.savefig('svm_user_optimization_filtered_selection_upper_lower.pdf')
     # fig.show()
@@ -133,7 +134,8 @@ if __name__ == '__main__':
                 ax=axes[0], pos=pos, neg=neg)
     add_heatmap(arr=np.std(np.stack(gains), axis=0),
                 ax=axes[1], pos=pos, neg=neg)
-    fig.set_size_inches(10, 6)
+    s = .8
+    fig.set_size_inches(10 * s, 6 * s)
     fig.tight_layout()
     fig.savefig('svm_user_optimization_filtered_selection_all_upper_lower.pdf')
     fig.show()
