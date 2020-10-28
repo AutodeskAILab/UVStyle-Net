@@ -156,15 +156,36 @@ class KNNGrid(object):
         self.kd_tree = kd_tree
         self.img_size = resize
 
-    def _get_image(self, queries, k=5):
+    def _get_image(self, queries, k=5, label_fn=None, thickness=10):
         match_idx = self.kd_tree.query(queries, k=k, return_distance=False)
         print(match_idx)
+        errors = np.zeros_like(match_idx)
+        if label_fn is not None:
+            labels = label_fn(match_idx)
+            for i in range(labels.shape[0]):
+                for j in range(labels.shape[1]):
+                    if labels[i, j] != labels[i, 0]:
+                        errors[i, j] = 1
+        print(errors)
         imgs = self.images[match_idx.flatten()]
         t = torchvision.transforms.Compose([
             torchvision.transforms.Resize((self.img_size, self.img_size)),
             torchvision.transforms.ToTensor()
         ])
-        img_tensors = list(map(t, imgs))
+
+        def to_tensor(img, error):
+            img_tensor = t(img)  # type: torch.Tensor
+            if error:
+                color = torch.tensor([1., 0., 0.])
+                x = img_tensor.permute(1, 2, 0)
+                x[:thickness, :, :] = color
+                x[-thickness:, :, :] = color
+                x[:, :thickness, :] = color
+                x[:, -thickness:, :] = color
+                return x.permute(2, 0, 1)
+            return img_tensor
+
+        img_tensors = [to_tensor(img, err) for img, err in zip(imgs, errors.flatten())]
         return torchvision.utils.make_grid(img_tensors, nrow=k).permute((1, 2, 0))
 
     def get_plotly(self, queries, k=5, query_idx=None):

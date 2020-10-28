@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 import torchvision
 from sklearn.neighbors._kd_tree import KDTree
 
@@ -12,9 +13,10 @@ def spherize(emb):
 
 
 if __name__ == '__main__':
-    uv_net_data_root = '../../uvnet_data/solidmnist_font_subset'
+    uv_net_data_root = '../../uvnet_data/solidmnist_font_subset_face_norm_only'
     pointnet_data_root = '../../pointnet2_data/solidmnist_font_subset'
     meshcnn_data_root = '../../meshcnn_data/solidmnist_font_subset'
+    img_path = '/home/pete/brep_style/solidmnist/test_pngs'
 
     grams = {
         'UV-Net': Grams(data_root=uv_net_data_root),
@@ -24,11 +26,11 @@ if __name__ == '__main__':
 
     images = {
         'UV-Net': OnTheFlyImages(data_root=uv_net_data_root,
-                         img_root='/Users/t_meltp/solid-mnist/mesh/test_pngs'),
+                                 img_root=img_path),
         'Pointnet++': OnTheFlyImages(data_root=pointnet_data_root,
-                             img_root='/Users/t_meltp/solid-mnist/mesh/test_pngs'),
+                                     img_root=img_path),
         'MeshCNN': OnTheFlyImages(data_root=meshcnn_data_root,
-                                  img_root='/Users/t_meltp/solid-mnist/mesh/test_pngs')
+                                  img_root=img_path)
     }
 
     layers = {
@@ -42,7 +44,7 @@ if __name__ == '__main__':
 
     fig, axes = plt.subplots(3, squeeze=True)
     for i, (model, gram) in enumerate(grams.items()):
-        query_idx = 121
+        query_idx = 53
         if model == 'Pointnet++':
             query_idx = id_map(query_idx)
         elif model == 'MeshCNN':
@@ -51,6 +53,7 @@ if __name__ == '__main__':
             query_idx = id_map(query_idx)
 
         results = []
+        errors = []
         for layer_selection in layers[model]:
             weights = np.zeros(len(gram))
             weights[layer_selection] = 1.
@@ -63,16 +66,32 @@ if __name__ == '__main__':
             print(imgs)
             print(gram.labels[imgs])
             results.append(imgs)
+            labels = gram.labels[imgs]
+            error = labels != labels[0, 0]
+            errors.append(error)
         results = np.concatenate(results, axis=-1).flatten()
         imgs_to_show = list(map(lambda r: images[model][r][0], results))
         imgs_to_show = map(torchvision.transforms.Resize((256, 256)), imgs_to_show)
-        img_tensors = list(map(torchvision.transforms.ToTensor(), imgs_to_show))
+        img_tensors = map(torchvision.transforms.ToTensor(), imgs_to_show)
+        def highlight_err(img, err):
+            if err:
+                thickness = 10
+                color = torch.tensor([1., 0., 0.])
+                x = img.permute(1, 2, 0)
+                x[:thickness, :, :] = color
+                x[-thickness:, :, :] = color
+                x[:, :thickness, :] = color
+                x[:, -thickness:, :] = color
+                return x.permute(2, 0, 1)
+            else:
+                return img
+
+        img_tensors = [highlight_err(img, err) for img, err in zip(img_tensors, np.array(errors).flatten())]
         grid = torchvision.utils.make_grid(img_tensors, nrow=6).permute((1, 2, 0))
         ax = axes[i]
         ax.imshow(grid)
-        ax.set_title(model, size='large')
 
-        ax.set_ylabel('Layer')
+        ax.set_ylabel(model)
         ax.set_yticks(np.arange(3) * 256 + 128)
         ax.set_yticklabels(layers[model])
 
