@@ -4,20 +4,17 @@ import numpy as np
 
 if __name__ == '__main__':
     df = pd.read_csv('dimension_reduction_probe_results.csv')
-    df_content = pd.read_csv('dimension_reduction_probe_results_content.csv')
-    df = pd.concat([df, df_content], axis=0, ignore_index=True)
-
     df['dims'] = df['dims'].apply(lambda d: str(int(d)) if d > 0 else 'Original')
 
     layer_names = [
-        '0_feats (36)',
-        '1_conv (4,096)',
-        '2_conv (16,384)',
-        '3_conv (65,536)',
-        '4_fc (4,096)',
-        '5_GIN (4,096)',
-        '6_GIN (4,096)',
-        'content (256)'
+        '0_feats (21)',
+        '1_conv (2,080)',
+        '2_conv (8,256)',
+        '3_conv (32,896)',
+        '4_fc (3,2896)',
+        '5_GIN (2,080)',
+        '6_GIN (2,080)',
+        'content (136)'
     ]
 
     fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
@@ -36,6 +33,7 @@ if __name__ == '__main__':
     ax.set_xticks(xticks)
     ax.set_xticklabels(['None', '70', '25', '10', '3'])
     ax.set_ylabel('Linear Probe Score')
+    fig.set_size_inches(6, 3)
     fig.tight_layout()
     fig.savefig('dimension_reduction_plot.pdf')
     fig.show()

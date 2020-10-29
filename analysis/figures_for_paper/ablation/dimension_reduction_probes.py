@@ -6,7 +6,7 @@ from layer_stats_analysis import probe_score
 from util import Grams
 
 if __name__ == '__main__':
-    grams = Grams('../../uvnet_data/solidmnist_font_subset')
+    grams = Grams('../../uvnet_data/solidmnist_font_subset_face_norm_only')
     labels = grams.labels
     dfs = []
     for dims in [None, 70, 25, 10, 3]:
