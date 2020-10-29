@@ -129,10 +129,16 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
     state['args'].input_channels = 'xyz_normals'
     model = Model(26, state['args']).to(device)
     model.load_state_dict(state['model'])
-    feat = bg.ndata['x'].to(device)
+
+    # add noise to avoid gradient bug with flat axis aligned surfaces
+    feat = bg.ndata['x']
+    positions = feat[:, :, :, :6]
+    positions = positions + torch.randn(positions.shape) * 0.001
+    feat[:, :, :, :6] = positions
+
     feat.requires_grad = True
     in_feat = feat.permute(0, 3, 1, 2)
-    model(bg.to(device), in_feat)
+    model(bg.to(device), in_feat.to(device))
     activations = {}
     for acts in [model.nurbs_activations, model.gnn_activations]:
         activations.update(acts)
@@ -194,7 +200,7 @@ if __name__ == '__main__':
 
     # weights = torch.ones(7, requires_grad=True)
     torch.autograd.set_detect_anomaly(True)
-    weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True)
+    weights = torch.tensor(weights_sliders, requires_grad=True)
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
                                      mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
                                      marker_size=marker_slider,
