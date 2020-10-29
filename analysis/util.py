@@ -352,11 +352,11 @@ class StQueryDisplay(object):
         kd_tree = KDTree(embedding)
         knn_grid = KNNGridWithDistances(kd_tree, imgs, embedding, resize=256)
         if plot == 'plotly':
-            grid = knn_grid.get_plotly(queries, query_idx=query_idx, k=k)
-            st.plotly_chart(grid)
+            self.grid = knn_grid.get_plotly(queries, query_idx=query_idx, k=k)
+            st.plotly_chart(self.grid)
         elif plot == 'pyplot':
-            grid = knn_grid.get_matplotlib(queries, query_idx=query_idx, k=k)
-            st.pyplot(grid)
+            self.grid = knn_grid.get_matplotlib(queries, query_idx=query_idx, k=k)
+            st.pyplot(self.grid)
 
 
 class IdMap(object):
