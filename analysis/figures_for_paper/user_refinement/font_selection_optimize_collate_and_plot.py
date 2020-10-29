@@ -121,7 +121,7 @@ if __name__ == '__main__':
         arrs.append(arr)
         gains.append(gain)
     s = .9
-    fig.set_size_inches(7 * s, 20 * s)
+    fig.set_size_inches(7 * s, 30 * s)
     fig.tight_layout()
     fig.savefig('svm_user_optimization_filtered_selection_upper_lower.pdf')
     # fig.show()
