@@ -10,19 +10,19 @@ if __name__ == '__main__':
         'FNorm Only': pd.read_csv('/home/pete/uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err.csv'),
     }
 
+    fig, ax = plt.subplots() # type: plt.Figure, plt.Axes
     for i, (version, df) in enumerate(dfs.items()):
         if version == 'FNorm Only':
             df = df.loc[0:3]
         else:
             df = df.loc[0:6]
         xticks = np.arange(len(df)) * (len(dfs) + 1)
-        plt.bar(x=xticks + i,
+        ax.bar(x=xticks + i,
                 height=df['linear_probe'],
                 yerr=df['linear_probe_err'],
                 label=version)
 
-    plt.legend()
-    ax = plt.gca()  # type: plt.Axes
+    ax.legend()
     labels = [
         '0_feats',
         '1_conv',
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     baseline = 1 / 378
     ax.plot([-1, (len(labels))*(len(dfs) + 1) - 1], [baseline, baseline], '--', color='black')
     # plt.ylim([.8, 1.])
-    plt.tight_layout()
-    plt.savefig('inorm_plot.pdf')
-    plt.show()
+    fig.set_size_inches(5, 2.5)
+    fig.tight_layout()
+    fig.savefig('inorm_plot.pdf')
+    fig.show()
