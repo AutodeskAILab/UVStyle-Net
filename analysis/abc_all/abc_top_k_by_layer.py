@@ -17,7 +17,7 @@ if __name__ == '__main__':
         name: i for i, name in enumerate(map(lambda n: n[:-4], grams.graph_files))
     }
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
+    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_fnorm_only',
                                  verbose=True)
 
     combined = np.concatenate(list(pca_70.values()), axis=-1)
@@ -33,8 +33,10 @@ if __name__ == '__main__':
     query_idx = list(map(lambda n: name_idx[n], text_idx_names.split('\n')))
 
     weight_combos = np.array([
-        np.ones(7) / 7,
-        *np.diag(np.ones(7)).tolist()
+        [1.] * 7,
+        [1., 1., 1., 0., 0., 0., 0.],
+        [1., 1., 1., 1., 0., 0., 0.],
+        [0., 0., 0., 0., 1., 1., 1.],
     ])
 
     for layer, weights in enumerate(weight_combos):
@@ -49,9 +51,10 @@ if __name__ == '__main__':
 
         print('top-k queries...')
         st.write(f'Layer {layer}')
-        StQueryDisplay(imgs=imgs,
-                       embedding=combined,
-                       queries=combined[query_idx],
-                       query_idx=query_idx,
-                       k=11,
-                       plot='pyplot')
+        query_display = StQueryDisplay(imgs=imgs,
+                              embedding=combined,
+                              queries=combined[query_idx],
+                              query_idx=['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                              k=11,
+                              plot='pyplot')
+        query_display.grid.savefig(f'abc_queries_{layer}.pdf')

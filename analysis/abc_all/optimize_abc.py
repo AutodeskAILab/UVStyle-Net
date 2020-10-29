@@ -11,13 +11,13 @@ from util import Grams, OnTheFlyImages, StQueryDisplay, weight_layers, get_pca_3
 
 
 if __name__ == '__main__':
-    grams = Grams('../uvnet_data/abc_all')
+    grams = Grams('../uvnet_data/abc_all_fnorm_only')
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_raw_grams_pcas',
+    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_fnorm_only',
                                  verbose=True)
     grams = list(pca_70.values())
 
-    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all', img_root='../abc_pngs')
+    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all_fnorm_only', img_root='../abc_pngs')
 
     positives_text = st.sidebar.text_area(label='Positives (space separated ids):',
                                           value='25460 22040')
@@ -54,9 +54,6 @@ if __name__ == '__main__':
     combined = weight_layers(grams, weights)
 
     del grams
-    # print('pca...')
-    # reduced = PCA(n_components=70).fit_transform(combined)
-    # del combined
     reduced = combined
 
     print('queries...')
@@ -65,6 +62,6 @@ if __name__ == '__main__':
     StQueryDisplay(imgs=imgs,
                    embedding=x,
                    queries=x[[query_idx]],
-                   query_idx=[query_idx],
+                   query_idx=[],
                    k=11,
                    plot='pyplot')
