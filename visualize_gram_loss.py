@@ -6,7 +6,7 @@ import trimesh
 
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
 from helper import load_checkpoint
-from solid_mnist import SolidMNISTSubset, SolidMNISTSingleLetter, SolidMNIST
+from solid_mnist import SolidMNISTSubset, SolidMNISTSingleLetter, SolidMNIST, rotate_x, rotate_z
 from test_classifier import Model
 from analysis.util import weight_layers
 
@@ -20,12 +20,25 @@ class CosineLoss(torch.nn.Module):
 
 
 def compute_grams(layer, activations, bg):
+    def inspect(name):
+        def _inspect(x):
+            if name in ['graph activations', 'masked activations', 'x_sub_mean', 'x']:
+                print(name, x.permute(0, 2, 1)[11, :, :3])
+            elif name in ['var', 'std']:
+                print(name, x[11, :3])
+            else:
+                print(name, x)
+
+        return _inspect
+
     grams = []
     for graph_activations in torch.split(activations, bg.batch_num_nodes().tolist()):
         if layer == 'feats':
             mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
             graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
+            graph_activations.register_hook(inspect('graph activations'))
             masked_activations = graph_activations * mask
+            masked_activations.register_hook(inspect('masked activations'))
             N = mask.sum(dim=-1)  # F x 1
             mean = masked_activations.sum(dim=-1) / N  # F x 6
 
@@ -34,25 +47,21 @@ def compute_grams(layer, activations, bg):
             mean[nans_x, nans_y] = 0
 
             x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
-            var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
-
-            # handle sqrt to allow for 0s
-            non_zero_id_x, non_zero_id_y = torch.where(var != 0)
-            non_zeros = var[non_zero_id_x, non_zero_id_y]
-            std = torch.zeros_like(var)
-            std[non_zero_id_x, non_zero_id_y] = torch.sqrt(non_zeros)
-            std2 = torch.sqrt(var)  # F x 6
-            assert (std == std2).all()
-            nans_x, nans_y = torch.where(std.isnan())
-            std[nans_x, nans_y] = 0
-
+            x_sub_mean.register_hook(inspect('x_sub_mean'))
+            var = torch.pow(x_sub_mean + 1e-5, 2).sum(dim=-1) / N  # F x 6
+            var.register_hook(inspect('var'))
+            std = torch.sqrt(var + 1e-2)  # F x 6
+            std.register_hook(inspect('std'))
             epsilon = 1e-5
-            x = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
+            x = ((graph_activations - mean[:, :, None])) * mask  # F x 6 x 100
+            x.register_hook(inspect('x'))
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            mean = x.mean(dim=-1, keepdim=True)  # F x d x 1
+            x = x - mean
             # inorm is per face
-            inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            x = inorm(x)
+            # inorm = torch.nn.InstanceNorm1d(x.shape[1])
+            # x = inorm(x)
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 1
@@ -93,6 +102,10 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
 
     bg, feat, style_emb = compute_grams_from_model_with_grads(dgl.batch([g0, g1]), model_checkpoint, weights, device)
 
+    def inspect(x):
+        print(f'feat grad: {x[:-3, :, :, :6]}, max: {x.max()}, mean: {x.mean()}')
+
+    # feat.register_hook(inspect)
     loss = crit(*style_emb)
     loss.backward()
     feat_grads = []
@@ -132,9 +145,9 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
 
     # add noise to avoid gradient bug with flat axis aligned surfaces
     feat = bg.ndata['x']
-    positions = feat[:, :, :, :6]
-    positions = positions + torch.randn(positions.shape) * 0.001
-    feat[:, :, :, :6] = positions
+    # positions = feat[:, :, :, :6]
+    # positions = positions + torch.randn(positions.shape) * 1e-1
+    # feat[:, :, :, :6] = positions
 
     feat.requires_grad = True
     in_feat = feat.permute(0, 3, 1, 2)
@@ -168,7 +181,7 @@ if __name__ == '__main__':
     marker_slider = st.sidebar.slider('Marker Size',
                                       min_value=0,
                                       max_value=10,
-                                      value=4,
+                                      value=3,
                                       step=1)
     show_mesh = st.sidebar.checkbox('Show Mesh',
                                     value=True)
@@ -176,13 +189,13 @@ if __name__ == '__main__':
                                    min_value=0.,
                                    max_value=1.,
                                    step=0.1,
-                                   value=0.7)
+                                   value=0.3)
     st.sidebar.subheader('Layer Weights')
     weights_sliders = [
         st.sidebar.slider(label=str(i),
                           min_value=0.,
                           max_value=1.,
-                          value=1.) for i in range(7)
+                          value=1. if i < 5 else 0.) for i in range(7)
     ]
     dset = SolidMNIST(root_dir='dataset/bin', split='test')
     model_checkpoint = '/home/pete/brep_style/grams_and_models/solidmnist/uvnet/best_0.pt'
