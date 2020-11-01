@@ -8,8 +8,9 @@ if __name__ == '__main__':
         # 'solidmnist_font_subset_no_inorm',
         # 'solidmnist_font_subset',
         # 'solidmnist_font_subset_new_grams',
-        'solidmnist_font_subset_face_norm_only',
-        'solidmnist_font_subset_face_norm_and_concat_for_all'
+        # 'solidmnist_font_subset_face_norm_only',
+        # 'solidmnist_font_subset_face_norm_and_concat_for_all'
+        'solidmnist_sub_mu_only'
     ]
     for version in versions:
         print(f'running {version}...')

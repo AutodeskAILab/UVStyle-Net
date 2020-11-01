@@ -55,8 +55,14 @@ def compute_activation_stats(bg, layer, activations):
             mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
             graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
             x = graph_activations * mask
+            mean = x.sum(dim=-1, keepdims=True) / mask.sum(dim=-1, keepdims=True)
+            nans_x, nans_y, nans_z = torch.where(mean.isnan())
+            mean[nans_x, nans_y, nans_z] = 0
+            x = x - mean
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            mean = x.mean(dim=-1, keepdims=True)
+            x = x - mean
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 1
@@ -161,7 +167,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_all_raw_grams'
+    out_dir = 'analysis/uvnet_data/solidmnist_all_sub_mu_only'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
