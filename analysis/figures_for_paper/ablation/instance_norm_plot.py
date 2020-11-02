@@ -5,9 +5,10 @@ import numpy as np
 if __name__ == '__main__':
 
     dfs = {
-        'Gram': pd.read_csv('/home/pete/uvnet_solidmnist_all_raw_grams_layer_probe_scores_with_err.csv'),
-        'INorm Only': pd.read_csv('/home/pete/uvnet_solidmnist_all_inorm_layer_probe_scores_with_err.csv'),
-        'FNorm Only': pd.read_csv('/home/pete/uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err.csv'),
+        'Gram': pd.read_csv('uvnet_solidmnist_all_raw_grams_layer_probe_scores_with_err_l2.csv'),
+        'INorm Only': pd.read_csv('uvnet_solidmnist_all_inorm_layer_probe_scores_with_err_l2.csv'),
+        'FNorm Only': pd.read_csv('uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err_l2.csv'),
+        'Sub Mu Only': pd.read_csv('uvnet_solidmnist_all_sub_mu_only_layer_probe_scores_with_err.csv'),
     }
 
     fig, ax = plt.subplots() # type: plt.Figure, plt.Axes
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         '6_GIN',
     ]
     xticks = np.arange(len(labels)) * (len(dfs)+1)
-    ax.set_xticks(xticks + 1)
+    ax.set_xticks(xticks + 1.5)
     ax.set_xticklabels(labels)
     # random baseline
     baseline = 1 / 378
