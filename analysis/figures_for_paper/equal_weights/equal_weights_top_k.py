@@ -6,7 +6,7 @@ from figures_for_paper.low_mid_upper.low_mid_high import spherize
 from util import Grams, weight_layers, KNNGrid, Images, IdMap, OnTheFlyImages
 
 if __name__ == '__main__':
-    uv_net_data_root = '../../uvnet_data/solidmnist_font_subset_face_norm_only'
+    uv_net_data_root = '../../uvnet_data/solidmnist_sub_mu_only'
     pointnet_data_root = '../../pointnet2_data/solidmnist_font_subset'
     meshcnn_data_root = '../../meshcnn_data/solidmnist_font_subset'
     img_path = '/home/pete/brep_style/solidmnist/test_pngs'
@@ -46,7 +46,12 @@ if __name__ == '__main__':
                            dest_file=meshcnn_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
 
-        layer = weight_layers(gram.grams, np.ones(len(gram)))
+        # select lower half of layers
+        n = len(gram) // 2
+        weights = np.zeros(len(gram))
+        weights[:n] = 1
+
+        layer = weight_layers(gram.grams, weights)
         layer = spherize(layer)
 
         knn_grid = KNNGrid(KDTree(layer), images[model])
