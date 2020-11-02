@@ -6,9 +6,9 @@ if __name__ == '__main__':
 
     dfs = {
         'Gram': pd.read_csv('uvnet_solidmnist_all_raw_grams_layer_probe_scores_with_err_l2.csv'),
-        'INorm Only': pd.read_csv('uvnet_solidmnist_all_inorm_layer_probe_scores_with_err_l2.csv'),
-        'FNorm Only': pd.read_csv('uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err_l2.csv'),
-        'Sub Mu Only': pd.read_csv('uvnet_solidmnist_all_sub_mu_only_layer_probe_scores_with_err.csv'),
+        'INorm': pd.read_csv('uvnet_solidmnist_all_inorm_layer_probe_scores_with_err_l2.csv'),
+        # 'FNorm Only': pd.read_csv('uvnet_solidmnist_all_fnorm_layer_probe_scores_with_err_l2.csv'),
+        'Face\nRe-centering': pd.read_csv('uvnet_solidmnist_all_sub_mu_only_layer_probe_scores_with_err.csv'),
     }
 
     fig, ax = plt.subplots() # type: plt.Figure, plt.Axes
@@ -34,13 +34,13 @@ if __name__ == '__main__':
         '6_GIN',
     ]
     xticks = np.arange(len(labels)) * (len(dfs)+1)
-    ax.set_xticks(xticks + 1.5)
+    ax.set_xticks(xticks + 1)
     ax.set_xticklabels(labels)
     # random baseline
     baseline = 1 / 378
     ax.plot([-1, (len(labels))*(len(dfs) + 1) - 1], [baseline, baseline], '--', color='black')
-    # plt.ylim([.8, 1.])
-    fig.set_size_inches(5, 2.5)
+    plt.ylim([0., .3])
+    fig.set_size_inches(5, 2)
     fig.tight_layout()
     fig.savefig('inorm_plot.pdf')
     fig.show()
