@@ -59,6 +59,7 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
 
             model = LogisticRegression(input_dim=X.shape[-1],
                                        learning_rate=1e-3,
+                                       l2_strength=1e-4,
                                        num_classes=len(set(grams.labels)))
 
             # fit
