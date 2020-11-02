@@ -33,7 +33,7 @@ if __name__ == '__main__':
     ax.set_ylim(.6, 1)
     ax.legend(loc='lower right')
     s = 0.9
-    fig.set_size_inches(6 * s, 3 * s)
+    fig.set_size_inches(6 * s, 2.5 * s)
     fig.tight_layout()
 
     fig.savefig('layer_probe_comparison.pdf')
