@@ -228,7 +228,7 @@ def main():
         state = helper.load_checkpoint(args.state)
         print(state["args"])
         test_dset = get_dataset("all", args)
-        test_loader = test_dset.get_dataloader(32, shuffle=False)
+        test_loader = test_dset.get_dataloader(args.batch_size, shuffle=False)
         model, step = get_model(state["args"])
         model = model.to(device)
         model.load_state_dict(state["model"])
