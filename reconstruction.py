@@ -18,44 +18,19 @@ def compute_activation_stats(bg, layer, activations):
         if layer == 'feats':
             mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
             graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
-            masked_activations = graph_activations * mask
-            N = mask.sum(dim=-1)  # F x 1
-            mean = masked_activations.sum(dim=-1) / N  # F x 6
-
-            # handle faces that are completely masked (contain 0 samples)
-            nans_x, nans_y = torch.where(mean.isnan())
-            mean[nans_x, nans_y] = 0
-
-            x_sub_mean = masked_activations - mean[:, :, None]  # F x 6 x 100
-            var = torch.pow(x_sub_mean, 2).sum(dim=-1) / N  # F x 6
-            std = torch.sqrt(var)  # F x 6
-
-            nans_x, nans_y = torch.where(std.isnan())
-            std[nans_x, nans_y] = 0
-
-            epsilon = 1e-5
-            normalized = ((graph_activations - mean[:, :, None]) / (std[:, :, None] + epsilon)) * mask  # F x 6 x 100
-            # mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)  # F x 12 x 100
-            # x = torch.cat([mean_std, normalized], dim=1)  # F x 18 x 100
-            x = normalized
+            x = graph_activations * mask
+            mean = x.sum(dim=-1, keepdims=True) / mask.sum(dim=-1, keepdims=True)
+            nans_x, nans_y, nans_z = torch.where(mean.isnan())
+            mean[nans_x, nans_y, nans_z] = 0
+            x = x - mean
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-            # mean = x.mean(dim=-1)
-            # std = x.std(dim=-1)
-            # inorm is per face
-            inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            normalized = inorm(x)
-            x = normalized
-            # mean_std = torch.cat([mean, std], dim=-1).unsqueeze(-1).repeat(1, 1, 100)
-            # x = torch.cat([mean_std, normalized], dim=1)  # F x 3d x 100
+            mean = x.mean(dim=-1, keepdims=True)
+            x = x - mean
         else:
             # fc and GIN layers
-            # graph_activations shape: F x d x 10 x 10
-            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)
-
-            # inorm is per solid
-            inorm = torch.nn.InstanceNorm1d(x.shape[1])
-            x = inorm(x)
+            # graph_activations shape: F x d x 1
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0) # 1 x d x F
 
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
@@ -63,6 +38,7 @@ def compute_activation_stats(bg, layer, activations):
             img_size = mask.sum()
         else:
             img_size = x.shape[-1]  # img_size = 100F
+
         gram = torch.matmul(x, x.transpose(0, 1)) / img_size
         triu_idx = torch.triu_indices(*gram.shape)
         triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
@@ -212,7 +188,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
     helper.create_dir(img_dir)
     model.eval()
     losses = []
-    out_dir = 'analysis/uvnet_data/abc_all_fnorm_only'
+    out_dir = 'analysis/uvnet_data/abc_sub_mu_only'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with torch.no_grad():
