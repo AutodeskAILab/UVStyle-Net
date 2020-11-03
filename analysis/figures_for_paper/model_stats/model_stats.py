@@ -19,4 +19,4 @@ if __name__ == '__main__':
             else:
                 s = math.sqrt(layer.shape[-1])
                 sizes.append(int((s * (s + 1)) / 2))
-        print(f'model: {model}, total size: {int(np.sum(sizes)) * 4:3,}, mean size: {int(np.mean(sizes)) * 4:3,}')
+        print(f'model: {model}, total size: {int(np.sum(sizes)) * 4:3,}, mean size: {int(np.mean(sizes)) * 4:3,}, max size: {int(np.max(sizes))}')
