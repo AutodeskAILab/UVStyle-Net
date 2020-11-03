@@ -17,6 +17,10 @@ from util import Grams, weight_layers
 
 
 def compute(font, trial, upper):
+    file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv'
+    if os.path.exists(file):
+        return
+
     pos_neg = []
     scores = []
     errs = []
@@ -50,27 +54,34 @@ def compute(font, trial, upper):
     })
 
     if not os.path.exists(results_path):
-        os.mkdir(results_path)
+        os.makedirs(results_path)
 
-    df.to_csv(f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv')
+    df.to_csv(file)
 
 
 if __name__ == '__main__':
-    results_path = 'results_solidmnist_all_fnorm_by_case'
+    results_path = 'results_solidmnist_all_sub_mu_only'
 
     print('loading data...')
-    grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
-    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_fnorm')
+    grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
+    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu_only')
 
+    print('processing...')
     font_idx = {
         font_name: i for i, font_name in zip(grams.labels, map(lambda n: n[2:-10], grams.graph_files))
     }
 
     inputs = tqdm([
         (font, trial, upper)
-        for font in [font_idx['Wire One']]
-        # for font in [font_idx['Viaoda Libre'], font_idx['Vast Shadow']]
-        for trial in range(20, 50)
-        for upper in [True, False]
+        for font in [
+            font_idx['Wire One'],
+            font_idx['Viaoda Libre'],
+            font_idx['Vast Shadow'],
+            font_idx['Signika'],
+            font_idx['Vampiro One'],
+            font_idx['Stalemate'],
+        ]
+        for trial in range(20)
+        for upper in [False]
     ])
     Parallel(-1)(delayed(compute)(*i) for i in inputs)
