@@ -14,7 +14,7 @@ if __name__ == '__main__':
         '4_fc (3,2896)',
         '5_GIN (2,080)',
         '6_GIN (2,080)',
-        'content (136)'
+        'UV-Net Embedding (136)'
     ]
 
     fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
