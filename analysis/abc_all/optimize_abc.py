@@ -11,13 +11,13 @@ from util import Grams, OnTheFlyImages, StQueryDisplay, weight_layers, get_pca_3
 
 
 if __name__ == '__main__':
-    grams = Grams('../uvnet_data/abc_all_fnorm_only')
+    grams = Grams('../uvnet_data/abc_sub_mu_only')
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_fnorm_only',
+    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_sub_mu_only',
                                  verbose=True)
     grams = list(pca_70.values())
 
-    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all_fnorm_only', img_root='../abc_pngs')
+    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_sub_mu_only', img_root='../abc_pngs')
 
     positives_text = st.sidebar.text_area(label='Positives (space separated ids):',
                                           value='25460 22040')

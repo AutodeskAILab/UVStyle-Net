@@ -8,7 +8,7 @@ sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, StQueryDisplay, weight_layers, OnTheFlyImages
 
 if __name__ == '__main__':
-    data_root = '../uvnet_data/abc_all_fnorm_only'
+    data_root = '../uvnet_data/abc_sub_mu_only'
     grams = Grams(data_root=data_root)
     imgs = OnTheFlyImages(data_root=data_root,
                           img_root='../abc_pngs')
@@ -17,7 +17,7 @@ if __name__ == '__main__':
         name: i for i, name in enumerate(map(lambda n: n[:-4], grams.graph_files))
     }
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_fnorm_only',
+    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_sub_mu_only',
                                  verbose=True)
 
     combined = np.concatenate(list(pca_70.values()), axis=-1)
