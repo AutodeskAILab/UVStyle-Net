@@ -23,7 +23,6 @@ if __name__ == '__main__':
                 yerr=df['linear_probe_err'],
                 label=version)
 
-    ax.legend()
     labels = [
         '0_feats',
         '1_conv',
@@ -32,10 +31,20 @@ if __name__ == '__main__':
         '4_fc',
         '5_GIN',
         '6_GIN',
+        'UV-Net'
     ]
-    xticks = np.arange(len(labels)) * (len(dfs)+1)
+    xticks = np.arange(len(labels) + 1) * (len(dfs)+1)
     ax.set_xticks(xticks + 1)
     ax.set_xticklabels(labels)
+
+    ax.bar(x=7*4+1,
+           height=0.007656926661729813,
+           yerr=0.0018307526143548228,
+           label='UV-Net\nEmbedding')
+
+    ax.legend(fontsize='small')
+
+
     # random baseline
     baseline = 1 / 378
     ax.plot([-1, (len(labels))*(len(dfs) + 1) - 1], [baseline, baseline], '--', color='black')
