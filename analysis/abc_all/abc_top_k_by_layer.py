@@ -33,7 +33,7 @@ if __name__ == '__main__':
                                                 'Lego - Part 1')
     query_idx = list(map(lambda n: name_idx[n], text_idx_names.split('\n')))
 
-    defaults = [0., 0., 0., 0., 1., 1., 1.]
+    defaults = [1., 1., 1., 1., 0., 0., 0.]
     weights = [st.sidebar.slider(label=str(i),
                                  min_value=0.,
                                  max_value=1.,
