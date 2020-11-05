@@ -11,7 +11,8 @@ if __name__ == '__main__':
     data_root = '../uvnet_data/abc_sub_mu_only'
     grams = Grams(data_root=data_root)
     imgs = OnTheFlyImages(data_root=data_root,
-                          img_root='../abc_pngs')
+                          img_root='../abc_pngs',
+                          black_to_white=True)
 
     name_idx = {
         name: i for i, name in enumerate(map(lambda n: n[:-4], grams.graph_files))

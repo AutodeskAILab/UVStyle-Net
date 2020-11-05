@@ -58,10 +58,11 @@ class Grams(object):
 
 
 class OnTheFlyImages(object):
-    def __init__(self, data_root, img_root, img_type='png'):
+    def __init__(self, data_root, img_root, img_type='png', black_to_white=False):
         self.data_root = data_root
         self.img_root = img_root
         self.img_type = img_type
+        self.black_to_white = black_to_white
         graph_files = pd.read_csv(os.path.join(self.data_root, 'graph_files.txt'), header=None)[0].tolist()
         img_files = map(lambda file_name: file_name[:-3] + self.img_type, graph_files)
         self.img_paths = np.array(list(map(lambda img_name: os.path.join(self.img_root, img_name), img_files)))
@@ -74,6 +75,15 @@ class OnTheFlyImages(object):
     def open_image(self, img_path):
         try:
             img = PIL.Image.open(img_path)
+            if self.black_to_white:
+                arr = np.array(img.convert('RGB'))
+                # black to white
+                x, y = np.where((arr == [0, 0, 0]).all(axis=-1))
+                arr[x, y, :] = [255, 255, 255]
+                # green to black
+                x, y = np.where((arr == [0, 255, 0]).all(axis=-1))
+                arr[x, y, :] = [0, 0, 0]
+                img = PIL.Image.fromarray(arr)
         except FileNotFoundError as e:
             print(f'WARNING cannot find {img_path}, using blank image - {e}', file=sys.stderr)
             img = PIL.Image.new(mode='P', size=(512, 512), color=(255, 255, 255))
