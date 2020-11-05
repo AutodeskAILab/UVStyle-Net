@@ -34,9 +34,9 @@ if __name__ == '__main__':
     }
 
     layers = {
-        'UV-Net': [[0], [2], [4]],
+        'UV-Net': [[0], [2], [3]],
         'Pointnet++': [[0], [5], [10]],
-        'MeshCNN': [[0], [2], [3]]
+        'MeshCNN': [[0], [1], [2]]
     }
 
     id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
