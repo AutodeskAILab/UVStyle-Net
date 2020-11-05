@@ -50,6 +50,10 @@ if __name__ == '__main__':
                            y=weights))
     st.plotly_chart(fig)
 
+    print('equal...')
+    equal = weight_layers(grams, np.ones_like(weights))
+    StQueryDisplay(imgs, equal, equal[[query_idx]], [], 11, plot='pyplot')
+
     st.subheader('Top-10 Queries')
     combined = weight_layers(grams, weights)
 
