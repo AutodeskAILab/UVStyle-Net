@@ -17,7 +17,9 @@ if __name__ == '__main__':
                                  verbose=True)
     grams = list(pca_70.values())
 
-    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_sub_mu_only', img_root='../abc_pngs')
+    imgs = OnTheFlyImages(data_root='../uvnet_data/abc_sub_mu_only',
+                          img_root='../abc_pngs',
+                          black_to_white=True)
 
     positives_text = st.sidebar.text_area(label='Positives (space separated ids):',
                                           value='25460 22040')
