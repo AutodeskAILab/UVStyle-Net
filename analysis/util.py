@@ -258,7 +258,7 @@ class KNNGridWithDistances(object):
                                  y=xy[:, 1] * 128 + 120,
                                  text=text,
                                  mode='text',
-                                 textfont={'size': 16, 'color': "DarkOrange"}))
+                                 textfont={'size': 16, 'color': "Red"}))
         return fig
 
     def get_matplotlib(self, queries, k=5, query_idx=None, with_distance=True):
@@ -281,7 +281,7 @@ class KNNGridWithDistances(object):
             space = self.img_size
             for t, pos in zip(text, xy):
                 x, y = pos
-                ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='orange', Fontsize=20)
+                ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='red', Fontsize=20)
 
         fig.set_size_inches(21, 15)
         fig.tight_layout()
