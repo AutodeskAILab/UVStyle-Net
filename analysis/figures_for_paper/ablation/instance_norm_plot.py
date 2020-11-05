@@ -35,7 +35,7 @@ if __name__ == '__main__':
     ]
     xticks = np.arange(len(labels) + 1) * (len(dfs)+1)
     ax.set_xticks(xticks + 1)
-    ax.set_xticklabels(labels)
+    ax.set_xticklabels(labels, fontsize='small')
 
     ax.bar(x=7*4+1,
            height=0.007656926661729813,
