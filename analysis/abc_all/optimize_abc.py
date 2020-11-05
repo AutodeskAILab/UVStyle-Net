@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objs as go
 import streamlit as st
 from sklearn.decomposition import PCA
-
+import re
 sys.path.append('../../analysis')
 from constrained_optimization import optimize
 from util import Grams, OnTheFlyImages, StQueryDisplay, weight_layers, get_pca_3_70
@@ -23,15 +23,13 @@ if __name__ == '__main__':
 
     positives_text = st.sidebar.text_area(label='Positives (space separated ids):',
                                           value='25460 22040')
-    positives_idx = list(map(int, positives_text.split(' ')))
+    positives_idx = list(map(int, re.split('\\s+', positives_text)))
 
     negatives_text = st.sidebar.text_area(label='Negatives (space separated ids):',
                                           value='28541')
-    negatives_idx = list(map(int, negatives_text.split(' '))) if len(negatives_text) > 0 else []
+    negatives_idx = list(map(int, re.split('\\s+', negatives_text))) if len(negatives_text) > 0 else []
 
-    query_text = st.sidebar.text_input(label='query_idx',
-                                       value='25460')
-    query_idx = int(query_text)
+    query_idx = positives_idx[0]
 
     st.sidebar.subheader('Positive Egs')
     for i in positives_idx:
@@ -52,22 +50,24 @@ if __name__ == '__main__':
                            y=weights))
     st.plotly_chart(fig)
 
-    print('equal...')
+    st.subheader('Uniform Layer Weights')
+    print('uniform:')
     equal = weight_layers(grams, np.ones_like(weights))
+    norm = np.linalg.norm(equal, axis=-1, keepdims=True)
+    equal = equal / norm
     StQueryDisplay(imgs, equal, equal[[query_idx]], [], 11, plot='pyplot')
 
-    st.subheader('Top-10 Queries')
+    st.subheader('Optimized Top-10 Queries')
     combined = weight_layers(grams, weights)
 
     del grams
-    reduced = combined
 
-    print('queries...')
-    norm = np.linalg.norm(reduced, axis=-1, keepdims=True)
-    x = reduced / norm
+    print('optimized:')
+    norm = np.linalg.norm(combined, axis=-1, keepdims=True)
+    combined = combined / norm
     StQueryDisplay(imgs=imgs,
-                   embedding=x,
-                   queries=x[[query_idx]],
+                   embedding=combined,
+                   queries=combined[[query_idx]],
                    query_idx=[],
                    k=11,
                    plot='pyplot')

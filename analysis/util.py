@@ -272,8 +272,11 @@ class KNNGridWithDistances(object):
         ax.set_xticks(np.arange(k) * (self.img_size + 2) + (self.img_size / 2))
         ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=24)
 
-        ax.set_yticks(np.arange(len(queries)) * (self.img_size + 2) + (self.img_size / 2))
-        ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=24)
+        if query_idx is not None and len(query_idx) > 0:
+            ax.set_yticks(np.arange(len(queries)) * (self.img_size + 2) + (self.img_size / 2))
+            ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=24)
+        else:
+            ax.set_yticks([])
 
         if with_distance:
             x = np.arange(k)
