@@ -40,7 +40,6 @@ if __name__ == '__main__':
                                  step=0.01,
                                  value=defaults[i])
                for i in range(len(grams))]
-
     weight_combos = np.array([weights])
 
     for layer, weights in enumerate(weight_combos):

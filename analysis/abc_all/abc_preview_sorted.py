@@ -7,7 +7,8 @@ from util import OnTheFlyImages
 
 if __name__ == '__main__':
     imgs = OnTheFlyImages(data_root='../uvnet_data/abc_all',
-                          img_root='/Users/t_meltp/abc/pngs/all')
+                          img_root='../abc_pngs',
+                          black_to_white=True)
     num_nodes = pd.read_csv('../uvnet_data/abc_num_nodes.csv')
 
     df = pd.DataFrame({
@@ -19,8 +20,9 @@ if __name__ == '__main__':
     merged = pd.merge(df, num_nodes, on='name')
     merged.sort_values('num_nodes', ascending=False, inplace=True)
 
-    start = int(st.sidebar.text_input(label='start:', value='0'))
+    start = int(st.sidebar.text_input(label='page:', value='0'))
     num = int(st.sidebar.text_input(label='limit:', value='100'))
+    start = start * num
     image_size = st.sidebar.slider(label='image size:',
                                    min_value=50,
                                    max_value=1000,
@@ -29,5 +31,5 @@ if __name__ == '__main__':
 
     idx = merged.index[start:start + num]
     for i in idx:
-        st.image(image=imgs[i], format='PNG', width=image_size)
+        st.image(image=imgs[i], output_format='PNG', width=image_size)
         st.text(merged['name'].loc[i])
