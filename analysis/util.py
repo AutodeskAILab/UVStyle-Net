@@ -77,12 +77,15 @@ class OnTheFlyImages(object):
             img = PIL.Image.open(img_path)
             if self.black_to_white:
                 arr = np.array(img.convert('RGB'))
-                # black to white
-                x, y = np.where((arr == [0, 0, 0]).all(axis=-1))
-                arr[x, y, :] = [255, 255, 255]
-                # green to black
-                x, y = np.where((arr == [0, 255, 0]).all(axis=-1))
-                arr[x, y, :] = [0, 0, 0]
+
+                black_x, black_y = np.where((arr == [0, 0, 0]).all(axis=-1))
+                green_x, green_y = np.where((arr == [0, 255, 0]).all(axis=-1))
+
+                arr = (arr * 1.5).astype(np.uint8)
+
+                arr[black_x, black_y, :] = [255, 255, 255]
+                arr[green_x, green_y, :] = [0, 0, 0]
+
                 img = PIL.Image.fromarray(arr)
         except FileNotFoundError as e:
             print(f'WARNING cannot find {img_path}, using blank image - {e}', file=sys.stderr)
