@@ -28,7 +28,7 @@ if __name__ == '__main__':
                label=model)
 
     ax.set_xticks(np.arange(len(df)))
-    ax.set_xticklabels(df['layer'], rotation='vertical')
+    ax.set_xticklabels(df['layer'], rotation='vertical', fontsize='small')
     ax.set_yticks(np.arange(7) / 5)
     ax.set_ylim(.6, 1)
     ax.legend(loc='lower right')
