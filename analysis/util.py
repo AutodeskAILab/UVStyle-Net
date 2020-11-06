@@ -81,7 +81,7 @@ class OnTheFlyImages(object):
                 black_x, black_y = np.where((arr == [0, 0, 0]).all(axis=-1))
                 green_x, green_y = np.where((arr == [0, 255, 0]).all(axis=-1))
 
-                arr = (arr * 1.5).astype(np.uint8)
+                arr = (arr + 50).astype(np.uint8)
 
                 arr[black_x, black_y, :] = [255, 255, 255]
                 arr[green_x, green_y, :] = [0, 0, 0]
