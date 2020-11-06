@@ -29,10 +29,10 @@ def compute(file):
 
 
 if __name__ == '__main__':
-    input_meshes_path = '/Users/t_meltp/solid-mnist/mesh/test_mixed_extracted'
-    output_meshes_path = '/Users/t_meltp/solid-mnist/mesh/test_pngs'
+    input_meshes_path = '/home/pete/brep_style/solidmnist/mesh/test'
+    output_meshes_path = '/home/pete/brep_style/solidmnist/new_pngs'
     if not os.path.exists(output_meshes_path):
-        os.mkdir(output_meshes_path)
+        os.makedirs(output_meshes_path)
     files = glob(input_meshes_path + '/*.stl')
     input = tqdm(files)
     Parallel(1)(delayed(compute)(file) for file in input)
