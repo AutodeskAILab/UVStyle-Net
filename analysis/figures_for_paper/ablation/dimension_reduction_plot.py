@@ -13,12 +13,12 @@ if __name__ == '__main__':
     df = pd.concat([load_df(d) for d in [None, 70, 25, 10, 3]])
     layer_names = {
         '0_feats': '0_feats (21)',
-        '1_conv1': '1_conv (2,080)',
-        '2_conv2': '2_conv (8,256)',
-        '3_conv3': '3_conv (32,896)',
+        '1_conv1': '1_conv1 (2,080)',
+        '2_conv2': '2_conv2 (8,256)',
+        '3_conv3': '3_conv3 (32,896)',
         '4_fc': '4_fc (3,2896)',
-        '5_GIN_1': '5_GIN (2,080)',
-        '6_GIN_2': '6_GIN (2,080)',
+        '5_GIN_1': '5_GIN1 (2,080)',
+        '6_GIN_2': '6_GIN2 (2,080)',
         'content': 'UV-Net Embedding\n(136)'
     }
 

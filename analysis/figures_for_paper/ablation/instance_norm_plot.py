@@ -25,12 +25,12 @@ if __name__ == '__main__':
 
     labels = [
         '0_feats',
-        '1_conv',
-        '2_conv',
-        '3_conv',
+        '1_conv1',
+        '2_conv2',
+        '3_conv3',
         '4_fc',
-        '5_GIN',
-        '6_GIN',
+        '5_GIN1',
+        '6_GIN2',
         'UV-Net'
     ]
     xticks = np.arange(len(labels) + 1) * (len(dfs)+1)

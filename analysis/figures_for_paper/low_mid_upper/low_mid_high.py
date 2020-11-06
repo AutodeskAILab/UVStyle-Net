@@ -39,6 +39,12 @@ if __name__ == '__main__':
         'MeshCNN': [[0], [1], [2]]
     }
 
+    layer_names = {
+        'UV-Net': ['0_feats', '2_conv2', '3_conv3'],
+        'Pointnet++': ['0_feats', '5_SA1_2_2', '10_SA2_1_1'],
+        'MeshCNN': ['0_feats', '1_conv1', '2_conv2']
+    }
+
     id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                    dest_file=pointnet_data_root + '/graph_files.txt')
 
@@ -93,11 +99,11 @@ if __name__ == '__main__':
 
         ax.set_ylabel(model)
         ax.set_yticks(np.arange(3) * 256 + 128)
-        ax.set_yticklabels(layers[model])
+        ax.set_yticklabels(layer_names[model], fontsize='small')
 
         ax.set_xticks(np.arange(6) * 256 + 128)
         ax.set_xticklabels(['Q', '1', '2', '3', '4', '5'])
-    fig.set_size_inches(4, 6)
+    fig.set_size_inches(4.5, 6)
     fig.tight_layout()
     fig.savefig(f'low_mid_high.pdf')
     plt.show()
