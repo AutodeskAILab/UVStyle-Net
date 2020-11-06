@@ -6,7 +6,7 @@ import streamlit as st
 import numpy as np
 
 if __name__ == '__main__':
-    data_root = '../uvnet_data/abc_all/'
+    data_root = '../uvnet_data/abc_sub_mu_only/'
     graph_files = np.loadtxt(f'{data_root}/graph_files.txt', dtype=np.str, delimiter='\n')
 
     text = st.text_area(label='Enter space separated ids:')
