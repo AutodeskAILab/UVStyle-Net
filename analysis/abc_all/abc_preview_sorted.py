@@ -32,4 +32,4 @@ if __name__ == '__main__':
     idx = merged.index[start:start + num]
     for i in idx:
         st.image(image=imgs[i], output_format='PNG', width=image_size)
-        st.text(merged['name'].loc[i])
+        st.text(f'{i}: {merged["name"].loc[i]}')
