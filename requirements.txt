@@ -13,3 +13,4 @@ trimesh
 plotly
 pytorch-lightning
 pytorch-lightning-bolts
+pyglet
