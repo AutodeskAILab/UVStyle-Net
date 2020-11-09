@@ -31,6 +31,7 @@ class ABCDataset(Dataset):
             size_percentage=None,
             in_memory=True,
             apply_square_symmetry=0.0,
+            center_and_scale=False
     ):
         """
         ABC dataset with both solids only
@@ -47,6 +48,7 @@ class ABCDataset(Dataset):
         self.labels = []
 
         self.in_memory = in_memory
+        self.center_and_scale = center_and_scale
 
         random.seed(1200)
         if split == "train":
@@ -59,7 +61,7 @@ class ABCDataset(Dataset):
             k = int(0.2 * len(self.graph_files))
             self.graph_files = random.sample(self.graph_files, k)
         elif split == "all":
-            graph_files = graph_files
+            self.graph_files = self.graph_files
 
         print("Found {} {} data.".format(len(self.graph_files), split))
 

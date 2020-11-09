@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 import dgl
 import streamlit as st
@@ -81,15 +83,16 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
 
 def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, device='cpu'):
     state = helper.load_checkpoint(model_checkpoint)
-    model, step = get_model(model_checkpoint)
+    model, step = get_model(state['args'])
     model = model.to(device)
     model.load_state_dict(state['model'])
-    feat = bg.ndata['x'].to(device)
+    feat = bg.ndata['x'].to(device) # type: torch.Tensor
     feat.requires_grad = True
+    # feat.register_hook(lambda x: print(x))
     # in_feat = feat.permute(0, 3, 1, 2)
     model(bg.to(device), feat)
     activations = {}
-    for acts in [model.nurbs_activations, model.gnn_activations]:
+    for acts in [model.surf_encoder.activations, model.graph_encoder.activations]:
         activations.update(acts)
     activations = {
         layer: activations for layer, activations in activations.items()
@@ -132,16 +135,16 @@ if __name__ == '__main__':
                           max_value=1.,
                           value=1.) for i in range(7)
     ]
-    dset = ABCDataset(root_dir='dataset/bin', split='test')
+    dset = ABCDataset(root_dir='/home/pete/brep_style/abc/bin', split='all', in_memory=False)
     model_checkpoint = '/home/pete/brep_style/grams_and_models/abc/uvnet/best.pt'
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
 
     names = text.split('\n')
-    idx = list(map(lambda name: np.argwhere(graph_files == name).__int__(), names))
-
-    g0 = dset[idx[0]][0]
-    g1 = dset[idx[1]][0]
+    # idx = list(map(lambda name: np.argwhere(graph_files == name).__int__(), names))
+    idx = [25460, 28541]
+    g0 = dset[idx[0]]
+    g1 = dset[idx[1]]
 
     # weights = torch.ones(7, requires_grad=True)
     torch.autograd.set_detect_anomaly(True)

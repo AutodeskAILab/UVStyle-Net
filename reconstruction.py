@@ -20,8 +20,8 @@ def compute_activation_stats(bg, layer, activations):
             graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
             x = graph_activations * mask
             mean = x.sum(dim=-1, keepdims=True) / mask.sum(dim=-1, keepdims=True)
-            nans_x, nans_y, nans_z = torch.where(mean.isnan())
-            mean[nans_x, nans_y, nans_z] = 0
+            # nans_x, nans_y, nans_z = torch.where(mean.isnan())
+            # mean[nans_x, nans_y, nans_z] = 0
             x = x - mean
         elif layer[:4] == 'conv':
             x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
@@ -44,7 +44,7 @@ def compute_activation_stats(bg, layer, activations):
         triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
         assert not triu.isnan().any()
         grams.append(triu)
-    return torch.stack(grams).detach().cpu()
+    return torch.stack(grams)
 
 
 def log_activation_stats(bg, all_layers_activations):
