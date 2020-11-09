@@ -16,7 +16,7 @@ if __name__ == '__main__':
     uv_net_data_root = '../../uvnet_data/solidmnist_sub_mu_only'
     pointnet_data_root = '../../pointnet2_data/solidmnist_font_subset'
     meshcnn_data_root = '../../meshcnn_data/solidmnist_font_subset'
-    img_path = '/home/pete/brep_style/solidmnist/test_pngs'
+    img_path = '/home/pete/brep_style/solidmnist/new_pngs'
 
     grams = {
         'UV-Net': Grams(data_root=uv_net_data_root),
