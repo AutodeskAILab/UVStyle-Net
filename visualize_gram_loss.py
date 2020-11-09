@@ -2,12 +2,12 @@ import numpy as np
 import dgl
 import streamlit as st
 import torch
-import trimesh
 
+import helper
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
-from helper import load_checkpoint
-from solid_mnist import SolidMNISTSubset, SolidMNISTSingleLetter, SolidMNIST
-from test_classifier import Model
+from datasets.abcdataset import ABCDataset
+from reconstruction import compute_activation_stats
+from train_test_recon_pc import get_model
 
 
 def weight_layers(grams, weights):
@@ -28,19 +28,6 @@ class CosineLoss(torch.nn.Module):
 
     def forward(self, x0, x1):
         return 1 - (torch.dot(x0, x1) / (torch.norm(x0) * torch.norm(x1)))
-
-
-def compute_grams(activations, bg):
-    grams = []
-    for graph_activations in torch.split(activations, bg.batch_num_nodes().tolist()):
-        x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
-        x = torch.cat(list(x), dim=-1)  # x shape: d x 100F
-        inorm = torch.nn.InstanceNorm1d(x.shape[0])
-        x = inorm(x.unsqueeze(0)).squeeze()
-        img_size = x.shape[-1]  # img_size = 100F
-        gram = torch.matmul(x, x.transpose(0, 1)) / img_size
-        grams.append(gram.flatten())
-    return torch.stack(grams)
 
 
 def uvnet_gram_loss_vis_plot(g0, g1, weights,
@@ -93,14 +80,14 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
 
 
 def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, device='cpu'):
-    state = load_checkpoint(model_checkpoint, map_to_cpu=device == 'cpu')
-    state['args'].input_channels = 'xyz_normals'
-    model = Model(26, state['args']).to(device)
+    state = helper.load_checkpoint(model_checkpoint)
+    model, step = get_model(model_checkpoint)
+    model = model.to(device)
     model.load_state_dict(state['model'])
     feat = bg.ndata['x'].to(device)
     feat.requires_grad = True
-    in_feat = feat.permute(0, 3, 1, 2)
-    model(bg.to(device), in_feat)
+    # in_feat = feat.permute(0, 3, 1, 2)
+    model(bg.to(device), feat)
     activations = {}
     for acts in [model.nurbs_activations, model.gnn_activations]:
         activations.update(acts)
@@ -108,7 +95,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
         layer: activations for layer, activations in activations.items()
     }
     grams = [
-        compute_grams(activations[layer], bg)
+        compute_activation_stats(bg, layer, activations[layer])
         for layer in ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
     ]
     if weights is None:
@@ -118,7 +105,6 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
 
 
 if __name__ == '__main__':
-    mesh_path = '/home/pete/brep_style/solidmnist/mesh/test'
     text = st.sidebar.text_area(label='Enter letter names (separate lines)',
                                 value='c_Viaoda Libre_lower\ns_Aldrich_upper')
     st.sidebar.subheader('Options')
@@ -146,8 +132,8 @@ if __name__ == '__main__':
                           max_value=1.,
                           value=1.) for i in range(7)
     ]
-    dset = SolidMNIST(root_dir='dataset/bin', split='test')
-    model_checkpoint = '/home/pete/brep_style/grams_and_models/solidmnist/uvnet/best_0.pt'
+    dset = ABCDataset(root_dir='dataset/bin', split='test')
+    model_checkpoint = '/home/pete/brep_style/grams_and_models/abc/uvnet/best.pt'
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
 
@@ -157,14 +143,11 @@ if __name__ == '__main__':
     g0 = dset[idx[0]][0]
     g1 = dset[idx[1]][0]
 
-    mesh0 = trimesh.load(f'{mesh_path}/{names[0]}.stl') if show_mesh else None
-    mesh1 = trimesh.load(f'{mesh_path}/{names[1]}.stl') if show_mesh else None
-
     # weights = torch.ones(7, requires_grad=True)
     torch.autograd.set_detect_anomaly(True)
     weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True)
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
-                                     mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
+                                     mesh_alpha=mesh_alpha,
                                      marker_size=marker_slider,
                                      device='cuda:0')
     st.plotly_chart(a)

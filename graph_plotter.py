@@ -1,11 +1,10 @@
-import streamlit as st
 import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import trimesh
 from sklearn.preprocessing import StandardScaler
 
-from solid_mnist import SolidMNISTSubset
+
 
 
 def face_adjacency_plot(graph, node_colors=None):
@@ -149,13 +148,3 @@ def uv_samples_plot(xyz, mask,
         }
     })
     return fig
-
-
-if __name__ == '__main__':
-    dset = SolidMNISTSubset(root_dir='dataset/bin', split='test')
-    for i in range(5):
-        graph, label, meta, image, graph_file = dset[i]
-
-        st.plotly_chart(face_adjacency_plot(graph))
-
-        st.plotly_chart(uv_samples_plot(*graph_to_xyz_mask(graph)))
