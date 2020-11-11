@@ -28,8 +28,10 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
     layers = []
     accuracies = []
     stds = []
-
+    print('wtrd',grams.layer_names)
     for layer, X in zip(grams.layer_names, grams):
+        print('layer',layer)
+        print(X.shape)
         X = StandardScaler().fit_transform(X)
         folds = StratifiedKFold(n_splits=5, shuffle=True).split(X, grams.labels)
         accs = []
@@ -45,7 +47,7 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
                                       batch_size=batch_size,
                                       shuffle=True,
                                       drop_last=False,
-                                      num_workers=8)
+                                      num_workers=0)
 
             val_loader = DataLoader(dataset=val_dset,
                                     batch_size=batch_size,
@@ -58,7 +60,7 @@ def probe_score(grams, batch_size=4096, fast_dev_run=False):
                                      num_workers=8)
 
             model = LogisticRegression(input_dim=X.shape[-1],
-                                       num_classes=len(set(grams.labels)))
+                                       num_classes=len(set(grams.labels)), l2_strength=0.0001)
 
             # fit
             early_stopping = EarlyStopping(monitor='val_ce_loss',

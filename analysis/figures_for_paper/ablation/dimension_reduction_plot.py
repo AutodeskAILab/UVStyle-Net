@@ -4,8 +4,8 @@ import numpy as np
 
 if __name__ == '__main__':
     df = pd.read_csv('dimension_reduction_probe_results.csv')
-    df_content = pd.read_csv('dimension_reduction_probe_results_content.csv')
-    df = pd.concat([df, df_content], axis=0, ignore_index=True)
+    #idf_content = pd.read_csv('dimension_reduction_probe_results_content.csv')
+    #df = pd.concat([df, df_content], axis=0, ignore_index=True)
 
     df['dims'] = df['dims'].apply(lambda d: str(int(d)) if d > 0 else 'Original')
 

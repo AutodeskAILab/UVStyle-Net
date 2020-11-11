@@ -1,8 +1,8 @@
 import sys
+sys.path.append('../../../analysis/')
 
 from pytorch_probe_score import probe_score
 
-sys.path.append('../../../analysis/')
 
 from util import Grams
 
@@ -13,7 +13,8 @@ if __name__ == '__main__':
         'solidmnist_all_fnorm',
     ]
     for version in versions:
+        #version = 'solidmnist_all_fnorm'
         print(f'running {version}...')
         grams = Grams(f'../../uvnet_data/{version}')
-        df = probe_score(grams, batch_size=4096, fast_dev_run=False)
+        df = probe_score(grams, batch_size=64, fast_dev_run=False)
         df.to_csv(f'uvnet_{version}_layer_probe_scores_with_err.csv', index=False)
