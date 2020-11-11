@@ -33,15 +33,19 @@ if __name__ == '__main__':
                                                 'Lego - Part 1')
     query_idx = list(map(lambda n: name_idx[n], text_idx_names.split('\n')))
 
-    defaults = [1., 1., 1., 1., 0., 0., 0.]
-    weights = [st.sidebar.slider(label=str(i),
-                                 min_value=0.,
-                                 max_value=1.,
-                                 step=0.01,
-                                 value=defaults[i])
-               for i in range(len(grams))]
-    weight_combos = np.array([weights])
+    # defaults = [1., 1., 1., 1., 0., 0., 0.]
+    # weights = [st.sidebar.slider(label=str(i),
+    #                              min_value=0.,
+    #                              max_value=1.,
+    #                              step=0.01,
+    #                              value=defaults[i])
+    #            for i in range(len(grams))]
+    # weight_combos = np.array([weights])
 
+    weight_combos = np.array([
+        [1., 1., 1., 1., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 1.]
+    ])
     for layer, weights in enumerate(weight_combos):
         print('weight layers...')
         combined = weight_layers(pca_70.values(), weights)
@@ -58,6 +62,6 @@ if __name__ == '__main__':
                               embedding=combined,
                               queries=combined[query_idx],
                               query_idx=['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-                              k=11,
+                              k=6,
                               plot='pyplot')
         query_display.grid.savefig(f'abc_queries_{layer}.pdf')
