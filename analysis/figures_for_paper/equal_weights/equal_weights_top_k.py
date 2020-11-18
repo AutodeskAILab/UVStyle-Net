@@ -1,9 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.neighbors._kd_tree import KDTree
+import torch
+import torchvision
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
-from figures_for_paper.low_mid_upper.low_mid_high import spherize
-from util import Grams, weight_layers, KNNGrid, IdMap, OnTheFlyImages
+from abc_all.abc_top_k_by_layer import gram_loss
+from util import Grams, IdMap, OnTheFlyImages
 
 if __name__ == '__main__':
     uv_net_data_root = '../../uvnet_data/solidmnist_sub_mu_only'
@@ -49,17 +52,61 @@ if __name__ == '__main__':
         # select lower half of layers
         n = len(gram) // 2
         weights = np.zeros(len(gram))
-        weights[:n] = 1
+        weights[:n] = 1.
 
-        layer = weight_layers(gram.grams, weights)
-        layer = spherize(layer)
+        results = []
+        all_distances = []
+        num = len(gram.graph_files)
+        for query in query_idx:
+            distances = np.zeros(num)
+            inputs = tqdm(range(num))
+            x = Parallel(-1)(delayed(gram_loss)(gram, query, other, weights, metric='euclidean') for other in inputs)
+            for idx, distance in x:
+                distances[idx] = distance
+            results.append(np.argsort(distances)[:6])
+            all_distances.append(distances[np.argsort(distances)[:6]])
+        all_results = np.concatenate(results, axis=-1)
+        all_distances = np.concatenate(all_distances, axis=-1)
 
-        knn_grid = KNNGrid(KDTree(layer), images[model])
+        label_fn = lambda idx: gram.labels[idx]
 
-        queries = layer[query_idx]
-        im = knn_grid._get_image(queries, k=6, label_fn=lambda idx: gram.labels[idx])
+        errors = np.zeros_like(all_results.reshape([4, 6]))
+        labels = label_fn(all_results.reshape([4, 6]))
+        for r in range(labels.shape[0]):
+            for c in range(labels.shape[1]):
+                if labels[r, c] != labels[r, 0]:
+                    errors[r, c] = 1
+
+
+        def to_tensor(img, error):
+            thickness = 10
+            img_tensor = t(img)  # type: torch.Tensor
+            if error:
+                color = torch.tensor([1., 0., 0.])
+                x = img_tensor.permute(1, 2, 0)
+                x[:thickness, :, :] = color
+                x[-thickness:, :, :] = color
+                x[:, :thickness, :] = color
+                x[:, -thickness:, :] = color
+                return x.permute(2, 0, 1)
+            return img_tensor
+
+
+        print('map to tensors')
+
+        # img_tensors = list(map(t, imgs))
+        imgs = images[model][all_results.flatten()]
+        t = torchvision.transforms.Compose([
+            torchvision.transforms.Resize((256, 256)),
+            torchvision.transforms.ToTensor()
+        ])
+        img_tensors = [to_tensor(img, err) for img, err in zip(imgs, errors.flatten())]
+        print('make grid...')
+        grid = torchvision.utils.make_grid(img_tensors, nrow=6).permute((1, 2, 0))
+
         ax = axes[i]
-        ax.imshow(im)
+        ax.imshow(grid)
+
         ax.set_yticks([])
         # ax.set_title(model, size='large')
         ax.set_ylabel(model)
