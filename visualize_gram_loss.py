@@ -48,9 +48,11 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
     else:
         raise Exception('metric must be \'cosine\' or \'euclidean\'')
 
-    bg, feat, style_emb = compute_grams_from_model_with_grads(dgl.batch([g0, g1]), model_checkpoint, weights, device)
+    bg, feat, style_emb, grams = compute_grams_from_model_with_grads(dgl.batch([g0, g1]), model_checkpoint, weights, device)
 
-    loss = crit(*style_emb)
+    # loss = crit(*style_emb)
+    losses = [weights[i] * crit(*gram) for i, gram in enumerate(grams)]
+    loss = sum(losses)
     loss.backward()
     feat_grads = []
     st.sidebar.subheader('XYZ + Normals')
@@ -103,7 +105,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
     if weights is None:
         weights = torch.ones(len(grams))
     style_emb = weight_layers(grams, weights)
-    return bg, feat, style_emb
+    return bg, feat, style_emb, grams
 
 
 if __name__ == '__main__':
