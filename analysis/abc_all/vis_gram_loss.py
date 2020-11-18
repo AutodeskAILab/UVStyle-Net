@@ -1,10 +1,9 @@
 import sys
 
-import pandas as pd
 import numpy as np
-import streamlit as st
-from sklearn.metrics.pairwise import cosine_distances
 import plotly.graph_objs as go
+import streamlit as st
+from sklearn.metrics.pairwise import paired_cosine_distances
 
 sys.path.append('../../analysis')
 from util import Grams, OnTheFlyImages
@@ -15,7 +14,7 @@ def gram_loss(idx_a, idx_b, grams):
     for gram in grams:
         gram_a = gram[idx_a]
         gram_b = gram[idx_b]
-        loss = cosine_distances(gram_a[None, :], gram_b[None, :])
+        loss = paired_cosine_distances(gram_a[None, :], gram_b[None, :])
         losses.append(loss)
     return np.concatenate(losses).flatten()
 

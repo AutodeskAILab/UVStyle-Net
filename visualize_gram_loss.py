@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
     # weights = torch.ones(7, requires_grad=True)
     torch.autograd.set_detect_anomaly(True)
-    weights = torch.tensor(torch.tensor(weights_sliders), requires_grad=True)
+    weights = torch.tensor(weights_sliders, requires_grad=True)
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
                                      mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
                                      marker_size=marker_slider,
