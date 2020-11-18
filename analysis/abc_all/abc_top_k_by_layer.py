@@ -52,7 +52,6 @@ def gram_loss(grams, id_a, id_b, weights, metric='cosine'):
             loss += weights[i] * paired_cosine_distances(a[None, :], b[None, :])
         elif metric == 'euclidean':
             loss += weights[i] * paired_euclidean_distances(a[None, :], b[None, :])
-    # distance_queue.put((id_b, loss))
     return id_b, loss
 
 
