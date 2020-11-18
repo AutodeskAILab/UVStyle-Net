@@ -39,7 +39,7 @@ def compute(font, trial, upper):
                            negative_idx=neg,
                            grams=reduced,
                            metric='cosine')
-        combined = weight_layers(reduced, weights)
+        # combined = weight_layers(reduced, weights)
 
         score, err = hits_at_k_score(combined, grams.labels, font, k=10)
 
