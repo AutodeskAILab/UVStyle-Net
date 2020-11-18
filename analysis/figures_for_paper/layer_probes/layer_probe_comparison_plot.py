@@ -30,8 +30,8 @@ if __name__ == '__main__':
     ax.set_xticks(np.arange(len(df)))
     ax.set_xticklabels(df['layer'], rotation='vertical', fontsize='small')
     ax.set_yticks(np.arange(7) / 5)
-    ax.set_ylim(.6, 1)
-    ax.legend(loc='lower right')
+    ax.set_ylim(.7, 1)
+    ax.legend(loc='lower right', fontsize='small')
     s = 0.9
     fig.set_size_inches(6 * s, 2.5 * s)
     fig.tight_layout()
