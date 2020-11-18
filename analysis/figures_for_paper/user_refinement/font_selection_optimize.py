@@ -17,16 +17,18 @@ from constrained_optimization import optimize
 from util import Grams
 
 
-def hits_at_k_score(X, weights, y, target, k=10, metric='cosine'):
-    queries = np.where(y == target)[0]
+def hits_at_k_score(X, weights, y, positives, k=10, metric='cosine'):
     scores = []
-    for query in queries:
+    for query in positives:
         distances = np.zeros(len(y))
         for other in range(len(y)):
             _, distances[other] = gram_loss(X, query, other, weights, metric=metric)
         results = np.argsort(distances)[:k]
-        result_classes = y[results]
-        score = sum(result_classes == target) / k
+        score = 0
+        for r in results:
+            if r in positives:
+                score += 1
+        score = score / k
         scores.append(score)
     return np.mean(scores), np.std(scores)
 
@@ -55,7 +57,7 @@ def compute(font, trial, upper):
                            grams=reduced,
                            metric='cosine')
 
-        score, err = hits_at_k_score(reduced, weights, grams.labels, font, k=10)
+        score, err = hits_at_k_score(reduced, weights, grams.labels, positives_idx, k=10)
 
         pos_neg.append((p, n))
         scores.append(score.mean())
