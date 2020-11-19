@@ -92,6 +92,7 @@ if __name__ == '__main__':
 
     inputs = tqdm([
         (font, trial, upper)
+        for trial in range(20)
         for font in [
             font_idx['Wire One'],
             font_idx['Viaoda Libre'],
@@ -100,7 +101,6 @@ if __name__ == '__main__':
             font_idx['Vampiro One'],
             font_idx['Stalemate'],
         ]
-        for trial in range(20)
         for upper in [False]
     ])
     Parallel(-1)(delayed(compute)(*i) for i in inputs)
