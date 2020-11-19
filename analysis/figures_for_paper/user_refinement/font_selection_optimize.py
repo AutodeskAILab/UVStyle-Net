@@ -17,6 +17,10 @@ from util import Grams
 
 
 def hits_at_k_score(X, weights, positives, k=10):
+    grams_0 = torch.zeros(len(X[0]), 70)
+    grams_0[:, :21] = torch.tensor(X[0].copy())
+    grams_padded = torch.stack([grams_0] + [torch.tensor(gram.copy()) for gram in X[1:]])
+    X = grams_padded.permute(1, 0, 2).to(device)  # shape: N x 7 x 70
     # X shape: N x 7 x 70
     scores = []
     for query in positives:
@@ -55,7 +59,7 @@ def compute(font, trial, upper):
                            metric='cosine')
         weights = torch.tensor(weights).to(device)
 
-        score, err = hits_at_k_score(grams_padded, weights, positives_idx, k=10)
+        score, err = hits_at_k_score(reduced, weights, positives_idx, k=10)
 
         pos_neg.append((p, n))
         scores.append(score.mean())
@@ -81,11 +85,6 @@ if __name__ == '__main__':
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu')
     reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu')[:7]
 
-    grams_0 = torch.zeros(len(reduced[0]), 70)
-    grams_0[:, :21] = torch.tensor(reduced[0])
-    grams_padded = torch.stack([grams_0] + [torch.tensor(gram) for gram in reduced[1:]])
-    grams_padded = grams_padded.permute(1, 0, 2).to(device)  # shape: N x 7 x 70
-
     print('processing...')
     font_idx = {
         font_name: i for i, font_name in zip(grams.labels, map(lambda n: n[2:-10], grams.graph_files))
@@ -104,4 +103,4 @@ if __name__ == '__main__':
         for trial in range(20)
         for upper in [False]
     ])
-    Parallel(1)(delayed(compute)(*i) for i in inputs)
+    Parallel(-1)(delayed(compute)(*i) for i in inputs)
