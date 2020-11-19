@@ -1,10 +1,9 @@
 import os
 import sys
 
+import torch
 from joblib import Parallel, delayed
 from tqdm import tqdm
-
-from abc_all.abc_top_k_by_layer import gram_loss
 
 sys.path.append('../../../analysis')
 
@@ -17,18 +16,16 @@ from constrained_optimization import optimize
 from util import Grams
 
 
-def hits_at_k_score(X, weights, y, positives, k=10, metric='cosine'):
+def hits_at_k_score(X, weights, positives, k=10):
+    # X shape: N x 7 x 70
     scores = []
     for query in positives:
-        distances = np.zeros(len(y))
-        for other in range(len(y)):
-            _, distances[other] = gram_loss(X, query, other, weights, metric=metric)
-        results = np.argsort(distances)[:k]
-        score = 0
-        for r in results:
-            if r in positives:
-                score += 1
-        score = score / k
+        q = X[query]
+        layerwise_distances = 1 - torch.cosine_similarity(q[None, :, :], X, dim=-1)
+        weighted = layerwise_distances * weights[None, :]
+        distances = weighted.sum(-1)  # type: torch.Tensor
+        neighbours = set(torch.argsort(distances)[:k].detach().cpu().numpy())
+        score = len(neighbours.intersection(set(positives))) / k
         scores.append(score)
     return np.mean(scores), np.std(scores)
 
@@ -56,8 +53,9 @@ def compute(font, trial, upper):
                            negative_idx=neg,
                            grams=reduced,
                            metric='cosine')
+        weights = torch.tensor(weights).to(device)
 
-        score, err = hits_at_k_score(reduced, weights, grams.labels, positives_idx, k=10)
+        score, err = hits_at_k_score(grams_padded, weights, positives_idx, k=10)
 
         pos_neg.append((p, n))
         scores.append(score.mean())
@@ -76,11 +74,17 @@ def compute(font, trial, upper):
 
 
 if __name__ == '__main__':
+    device = torch.device('cuda:0')
     results_path = 'results_solidmnist_all_sub_mu'
 
     print('loading data...')
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu')
-    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu')
+    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu')[:7]
+
+    grams_0 = torch.zeros(len(reduced[0]), 70)
+    grams_0[:, :21] = torch.tensor(reduced[0])
+    grams_padded = torch.stack([grams_0] + [torch.tensor(gram) for gram in reduced[1:]])
+    grams_padded = grams_padded.permute(1, 0, 2).to(device)  # shape: N x 7 x 70
 
     print('processing...')
     font_idx = {
