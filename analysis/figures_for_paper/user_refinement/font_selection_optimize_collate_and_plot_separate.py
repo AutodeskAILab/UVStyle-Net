@@ -97,7 +97,7 @@ def set_size(fig: plt.Figure):
     fig.set_size_inches(6, 4)
 
 if __name__ == '__main__':
-    df = collate_df('results_solidmnist_all_sub_mu_only')
+    df = collate_df('results_solidmnist_all_sub_mu_fixed')
     df = df.groupby(['font', 'case', 'pos_neg']).mean().reset_index()
 
     grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
@@ -118,7 +118,7 @@ if __name__ == '__main__':
                                     neg=neg)
         set_size(fig)
         fig.tight_layout()
-        fig.savefig(f'{fonts[font]}_{case} (20 Trials).pdf')
+        fig.savefig(f'{fonts[font]}_{case} (20 Trials).png')
         fig.show()
         arrs.append(arr)
         gains.append(gain)
@@ -152,5 +152,5 @@ if __name__ == '__main__':
     ax.set_ylabel('No. of Positives')
     set_size(fig)
     fig.tight_layout()
-    fig.savefig(f'Mean Gain ({num_fonts} Fonts).pdf')
+    fig.savefig(f'Mean Gain ({num_fonts} Fonts).png')
     fig.show()
