@@ -82,8 +82,8 @@ if __name__ == '__main__':
     results_path = 'results_solidmnist_all_sub_mu'
 
     print('loading data...')
-    grams = Grams('../../uvnet_data/solidmnist_all_sub_mu')
-    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu')[:7]
+    grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
+    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu_only')[:7]
 
     print('processing...')
     font_idx = {
