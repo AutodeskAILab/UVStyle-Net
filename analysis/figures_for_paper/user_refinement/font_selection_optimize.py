@@ -59,7 +59,7 @@ def compute(font, trial, upper):
                            metric='cosine')
         weights = torch.tensor(weights).to(device)
 
-        score, err = hits_at_k_score(reduced, weights, positives_idx, k=10)
+        score, err = hits_at_k_score(reduced, weights, np.arange(len(grams.labels))[grams.labels == font], k=10)
 
         pos_neg.append((p, n))
         scores.append(score.mean())
