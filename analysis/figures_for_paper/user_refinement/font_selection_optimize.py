@@ -79,7 +79,7 @@ def compute(font, trial, upper):
 
 if __name__ == '__main__':
     device = torch.device('cuda:0')
-    results_path = 'results_solidmnist_all_sub_mu'
+    results_path = 'results_solidmnist_all_sub_mu_whole_font'
 
     print('loading data...')
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
