@@ -90,12 +90,8 @@ if __name__ == '__main__':
     #            for i in range(len(defaults))]
     # weight_combos = np.array([weights])
 
-    weight_combos = np.array([
-        [1., 1., 1., 1., 0., 0., 0.],
-        # [1., 1., 1., 0., 0., 0., 0.],
-        # [1., 1., 0., 0., 0., 0., 0.],
-        # [0., 0., 0., 0., 0., 0., 1.]
-    ])
+    weight_combos = np.eye(7)
+
     for layer, weights in enumerate(weight_combos):
         print('weight layers...')
         results = []
@@ -104,7 +100,7 @@ if __name__ == '__main__':
             st.text(query)
             distances = np.zeros(num)
             inputs = tqdm(range(num))
-            x = Parallel(-1)(delayed(gram_loss)(list(pca_70.values()), query, other, weights, metric='euclidean') for other in inputs)
+            x = Parallel(-1)(delayed(gram_loss)(list(pca_70.values()), query, other, weights, metric='cosine') for other in inputs)
             for idx, distance in x:
                 distances[idx] = distance
             results.append(np.argsort(distances)[:6])
