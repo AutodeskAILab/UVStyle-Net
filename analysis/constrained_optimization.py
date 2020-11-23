@@ -23,7 +23,7 @@ def euclidean(w, l, i, j, grams):
 
 def cosine(w, l, i, j, grams):
 
-    return 1 - w[l] * cosine_similarity(grams[l][i].reshape(1, -1), grams[l][j].reshape(1, -1)).__float__()
+    return w[l] * (1 - cosine_similarity(grams[l][i].reshape(1, -1), grams[l][j].reshape(1, -1)).__float__())
 
 
 def cosine_gaussian(w, l, i, j, grams):
