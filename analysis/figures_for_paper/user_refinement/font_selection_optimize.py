@@ -37,7 +37,7 @@ def hits_at_k_score(X, weights, positives, k=10):
 def compute(font, trial, upper):
     file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv'
     log_file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.log'
-    log = open(log_file, 'wb')
+    log = open(log_file, 'w')
     log.write('positives,negatives,weights')
     if os.path.exists(file):
         return
