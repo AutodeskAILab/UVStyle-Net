@@ -36,6 +36,9 @@ def hits_at_k_score(X, weights, positives, k=10):
 
 def compute(font, trial, upper):
     file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv'
+    log_file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.log'
+    log = open(log_file, 'wb')
+    log.write('positives,negatives,weights')
     if os.path.exists(file):
         return
 
@@ -57,6 +60,7 @@ def compute(font, trial, upper):
                            negative_idx=neg,
                            grams=reduced,
                            metric='cosine')
+        log.write(f'{p},{n},{weights.tolist()}\n')
         weights = torch.tensor(weights).to(device)
 
         score, err = hits_at_k_score(reduced, weights, positives_idx, k=10)
@@ -75,6 +79,7 @@ def compute(font, trial, upper):
         os.makedirs(results_path)
 
     df.to_csv(file)
+    log.close()
 
 
 if __name__ == '__main__':
