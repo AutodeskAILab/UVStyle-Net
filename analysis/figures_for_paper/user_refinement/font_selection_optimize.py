@@ -64,7 +64,7 @@ def compute(font, trial, upper):
                            negative_idx=neg,
                            grams=reduced,
                            metric='cosine')
-        log.write(f'{p},{n},{weights.tolist()}\n')
+        log.write(f'{p},{n},"{weights.tolist()}"\n')
         weights = torch.tensor(weights).to(device)
 
         score, err = hits_at_k_score(reduced, weights, positives_idx, k=10)
