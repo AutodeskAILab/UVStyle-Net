@@ -97,7 +97,7 @@ def set_size(fig: plt.Figure):
     fig.set_size_inches(6, 4)
 
 if __name__ == '__main__':
-    df = collate_df('results_solidmnist_all_sub_mu_fixed')
+    df = collate_df('results_solidmnist_all_sub_mu_fixed2')
     df = df.groupby(['font', 'case', 'pos_neg']).mean().reset_index()
 
     grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
