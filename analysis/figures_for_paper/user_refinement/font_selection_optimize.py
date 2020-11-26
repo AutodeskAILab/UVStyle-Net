@@ -53,12 +53,12 @@ def compute(font, trial, upper):
     uppers = np.array(list(map(lambda f: f[-9:-4] == 'upper', grams.graph_files)))
 
     positives_idx = shuffle(np.arange(len(grams.labels))[np.bitwise_and(grams.labels == font, uppers == upper)])
-    negatives_idx = shuffle(np.arange(len(grams.labels))[np.bitwise_or(grams.labels != font, uppers != upper)])
 
-    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [0, 1, 2, 3, 4, 5, 50, 100]]
+    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [50, 100]]
     for (p, n) in p_n:
         pos = positives_idx[:p]
-        neg = negatives_idx[:n]
+        negatives_idx = list(set(np.arange(len(grams.labels))).difference(set(pos)))
+        neg = shuffle(negatives_idx)[:n]
 
         weights = optimize(positive_idx=pos,
                            negative_idx=neg,
@@ -85,7 +85,7 @@ def compute(font, trial, upper):
 
 if __name__ == '__main__':
     device = torch.device('cuda:0')
-    results_path = 'results_solidmnist_all_sub_mu'
+    results_path = 'results_solidmnist_all_sub_mu_random_negatives'
 
     print('loading data...')
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
