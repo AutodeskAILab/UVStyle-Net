@@ -5,6 +5,7 @@ from queue import Queue
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+import torch
 import torchvision
 from joblib import Parallel, delayed
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
@@ -14,7 +15,7 @@ sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, OnTheFlyImages
 
 
-def plot(grid_array, queries, img_size, k, with_distance=True):
+def plot(grid_array, queries, img_size, k, distances=None):
     fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
     ax.imshow(grid_array)
 
@@ -27,11 +28,11 @@ def plot(grid_array, queries, img_size, k, with_distance=True):
     else:
         ax.set_yticks([])
 
-    if with_distance:
+    if distances is not None:
         x = np.arange(k)
-        y = np.arange(len(all_distances))
+        y = np.arange(len(distances))
         xy = np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))])
-        text = list(map(lambda d: f'{d:.2f}', all_distances.tolist()))
+        text = list(map(lambda d: f'{d:.2f}', distances.tolist()))
 
         space = img_size
         for t, pos in zip(text, xy):
@@ -55,7 +56,32 @@ def gram_loss(grams, id_a, id_b, weights, metric='cosine'):
     return id_b, loss
 
 
+def pad_grams(X):
+    grams_0 = torch.zeros(len(X[0]), 70)
+    grams_0[:, :21] = torch.tensor(X[0].copy())
+    grams_padded = torch.stack([grams_0] + [torch.tensor(gram.copy()) for gram in X[1:]])
+    X = grams_padded.permute(1, 0, 2)  # shape: N x 7 x 70
+    return X
+
+
+def top_k_neighbors(X, weights, queries, k):
+    all_neighbors = []
+    all_distances = []
+    for query in queries:
+        q = X[query]
+        layerwise_distances = 1 - torch.cosine_similarity(q[None, :, :], X, dim=-1)
+        weighted = layerwise_distances * weights[None, :]
+        distances = weighted.sum(-1)  # type: torch.Tensor
+        neighbors = torch.argsort(distances)[:k]
+        all_neighbors.append(neighbors)
+        all_distances.append(distances[neighbors])
+    all_neighbors = torch.stack(all_neighbors).detach().cpu().numpy()
+    all_distances = torch.stack(all_distances).detach().cpu().numpy()
+    return all_neighbors, all_distances
+
+
 if __name__ == '__main__':
+    device = torch.device('cuda:0')
     data_root = '../uvnet_data/abc_sub_mu_only'
     grams = Grams(data_root=data_root)
     num = len(grams.graph_files)
@@ -90,26 +116,23 @@ if __name__ == '__main__':
     #            for i in range(len(defaults))]
     # weight_combos = np.array([weights])
 
-    weight_combos = np.eye(7)
+    weight_combos = torch.eye(7).to(device)
 
     for layer, weights in enumerate(weight_combos):
-        print('weight layers...')
-        results = []
-        all_distances = []
-        for query in query_idx:
-            st.text(query)
-            distances = np.zeros(num)
-            inputs = tqdm(range(num))
-            x = Parallel(-1)(delayed(gram_loss)(list(pca_70.values()), query, other, weights, metric='cosine') for other in inputs)
-            for idx, distance in x:
-                distances[idx] = distance
-            results.append(np.argsort(distances)[:6])
-            all_distances.append(distances[np.argsort(distances)[:6]])
-        all_results = np.concatenate(results, axis=-1)
-        all_distances = np.concatenate(all_distances, axis=-1)
+        print('compute neighbors...')
+        padded_grams = pad_grams(list(pca_70.values())).to(device)
+        neighbors, distances = top_k_neighbors(X=padded_grams,
+                                               weights=weights,
+                                               queries=query_idx,
+                                               k=6)
+
+        st.subheader('weights')
+        st.write(weights)
+        st.subheader(f'ids')
+        st.write(neighbors)
 
         print('map to tensors')
-        imgs = images[all_results]
+        imgs = images[neighbors.flatten()]
         t = torchvision.transforms.Compose([
             torchvision.transforms.Resize((128, 128)),
             torchvision.transforms.ToTensor()
@@ -117,6 +140,11 @@ if __name__ == '__main__':
         img_tensors = list(map(t, imgs))
         print('make grid...')
         grid = torchvision.utils.make_grid(img_tensors, nrow=6).permute((1, 2, 0))
-        fig = plot(grid, query_idx, 128, 6, True)
+        print('make figure...')
+        fig = plot(grid_array=grid,
+                   queries=query_idx,
+                   img_size=128,
+                   k=6,
+                   distances=distances.flatten())
         print('st plot...')
         st.pyplot(fig)
