@@ -21,10 +21,19 @@ def load_df(file):
 
 
 if __name__ == '__main__':
-    results_path = 'results_solidmnist_all_sub_mu_fixed2'
+    results_path = 'results_solidmnist_all_sub_mu_random_negatives'
     files = glob(f'{results_path}/*.log')
-
     df = pd.concat(map(load_df, files))
+
+    baseline_path = 'results_solidmnist_all_sub_mu_fixed2'
+    baseline_files = glob(f'{baseline_path}/*.log')
+    baseline_df = pd.concat(map(load_df, baseline_files))
+
+    for p in [1, 2, 3, 4, 5, 10]:
+        df = df.append(baseline_df[(baseline_df['positives'] == p)
+                                   & (baseline_df['negatives'] == 0)])
+
+    df = df.sort_values(['negatives', 'negatives'], ascending=[True, False])
 
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu')
     fonts = {
@@ -36,11 +45,11 @@ if __name__ == '__main__':
         fig, axes = plt.subplots(nrows=group_df['positives'].nunique(),
                                  ncols=group_df['negatives'].nunique(),
                                  sharex='all',
-                                 sharey='all') #type: plt.Figure, np.ndarray
+                                 sharey='all')  # type: plt.Figure, np.ndarray
 
         for row, p in enumerate(group_df['positives'].unique()):
             for col, n in enumerate(group_df['negatives'].unique()):
-                ax = axes[group_df['positives'].nunique() - 1- row, col] #type: plt.Axes
+                ax = axes[group_df['positives'].nunique() - 1 - row, col]  # type: plt.Axes
 
                 weights = group_df[(group_df['positives'] == p) & (group_df['negatives'] == n)]['weights']
                 weights = np.array(weights.tolist())
@@ -57,6 +66,5 @@ if __name__ == '__main__':
 
         fig.suptitle(f'{fonts[font]}_{case}')
         fig.tight_layout()
-        fig.savefig(f'{fonts[font]}_{case}_weights.png')
+        fig.savefig(f'{fonts[font]}_{case}_weights_random_negatives.png')
         fig.show()
-
