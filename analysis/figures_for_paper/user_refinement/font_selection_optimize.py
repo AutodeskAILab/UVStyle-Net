@@ -5,6 +5,8 @@ import torch
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
+from abc_all.abc_top_k_by_layer import pad_grams
+
 sys.path.append('../../../analysis')
 
 import numpy as np
@@ -17,10 +19,7 @@ from util import Grams
 
 
 def hits_at_k_score(X, weights, positives, k=10):
-    grams_0 = torch.zeros(len(X[0]), 70)
-    grams_0[:, :21] = torch.tensor(X[0].copy())
-    grams_padded = torch.stack([grams_0] + [torch.tensor(gram.copy()) for gram in X[1:]])
-    X = grams_padded.permute(1, 0, 2).to(device)  # shape: N x 7 x 70
+    pad_grams(X).to(device)
     # X shape: N x 7 x 70
     scores = []
     for query in positives:
