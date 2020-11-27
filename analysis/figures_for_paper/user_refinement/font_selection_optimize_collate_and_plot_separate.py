@@ -40,10 +40,10 @@ def add_heatmap(arr, ax, pos, neg, sigs1=None, sigs2=None):
 def collate_df(root_dir):
     def load_df(file):
         df = pd.read_csv(file, sep=',').drop('Unnamed: 0', axis=1)
-        f = Path(file).stem.split('_')
-        df[f[0]] = int(f[1])
-        df[f[2]] = int(f[3])
-        df['case'] = f[4]
+        _, trial, _, font, case = Path(file).stem.split('_')
+        df['trial'] = int(trial)
+        df['font'] = int(font)
+        df['case'] = case
         return df
 
     files = glob(os.path.join(root_dir, '*.csv'))
@@ -94,10 +94,16 @@ def significance_test(mu_1, std_1, mu_2, std_2, n_trials, q=0.95):
     return mu_2 - mu_1 > dist
 
 def set_size(fig: plt.Figure):
-    fig.set_size_inches(6, 4)
+    fig.set_size_inches(3, 4)
 
 if __name__ == '__main__':
-    df = collate_df('results_solidmnist_all_sub_mu_fixed2')
+    df = collate_df('results_solidmnist_all_sub_mu_random_negatives')
+
+    baseline_df = collate_df('results_solidmnist_all_sub_mu_fixed2')
+
+    for p in [1, 2, 3, 4, 5, 10]:
+        df = df.append(baseline_df[baseline_df['pos_neg'] == f'({p}, 0)'])
+
     df = df.groupby(['font', 'case', 'pos_neg']).mean().reset_index()
 
     grams = Grams('../../uvnet_data/solidmnist_all_fnorm')
@@ -118,7 +124,7 @@ if __name__ == '__main__':
                                     neg=neg)
         set_size(fig)
         fig.tight_layout()
-        fig.savefig(f'{fonts[font]}_{case} (20 Trials).png')
+        fig.savefig(f'{fonts[font]}_{case} (20 Trials) random negatives.png')
         fig.show()
         arrs.append(arr)
         gains.append(gain)
@@ -152,5 +158,5 @@ if __name__ == '__main__':
     ax.set_ylabel('No. of Positives')
     set_size(fig)
     fig.tight_layout()
-    fig.savefig(f'Mean Gain ({num_fonts} Fonts).png')
+    fig.savefig(f'Mean Gain ({num_fonts} Fonts) negative randoms.png')
     fig.show()
