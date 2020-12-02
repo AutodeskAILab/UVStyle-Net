@@ -33,7 +33,7 @@ def cosine_gaussian(w, l, i, j, grams):
 
 
 class Objective(object):
-    def __init__(self, positive_idx, negative_idx, grams, metric='euclidean'):
+    def __init__(self, positive_idx, negative_idx, grams, metric='euclidean', l2=0.):
         self.positive_idx = positive_idx
         self.negative_idx = negative_idx
         self.grams = grams
@@ -43,6 +43,7 @@ class Objective(object):
             self.distance = cosine
         elif metric == 'cosine_gaussian':
             self.distance = cosine_gaussian
+        self.l2 = l2
 
     def __call__(self, w):
         positive_loss = 0
@@ -64,14 +65,13 @@ class Objective(object):
             positive_loss *= 2 / (num_pos * (num_pos + 1))
         if num_neg > 0:
             negative_loss *= 1 / (num_pos * num_neg)
-        return positive_loss - negative_loss
+        reg = self.l2 * np.linalg.norm(w)
+        return positive_loss - negative_loss + reg
 
 
-def optimize(positive_idx, negative_idx, grams, metric='euclidean'):
-    sol = minimize(fun=Objective(positive_idx, negative_idx, grams, metric),
-                   x0=np.array([1 / len(grams)] * len(grams)),
-                   bounds=[[0., 1.]] * len(grams),
-                   constraints={'type': 'eq', 'fun': lambda w: w.sum() - 1})
+def optimize(positive_idx, negative_idx, grams, metric='euclidean', l2=0.):
+    sol = minimize(fun=Objective(positive_idx, negative_idx, grams, metric, l2),
+                   x0=np.array([1 / len(grams)] * len(grams)))
     return sol.x
 
 
