@@ -15,7 +15,7 @@ sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, OnTheFlyImages
 
 
-def plot(grid_array, queries, img_size, k, distances=None):
+def plot(grid_array, query_idx, img_size, k, distances=None):
     fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
     ax.imshow(grid_array)
 
@@ -23,7 +23,7 @@ def plot(grid_array, queries, img_size, k, distances=None):
     ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=24)
 
     if query_idx is not None and len(query_idx) > 0:
-        ax.set_yticks(np.arange(len(queries)) * (img_size + 2) + (img_size / 2))
+        ax.set_yticks(np.arange(len(query_idx)) * (img_size + 2) + (img_size / 2))
         ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=24)
     else:
         ax.set_yticks([])
@@ -117,10 +117,12 @@ if __name__ == '__main__':
     # weight_combos = np.array([weights])
 
     weight_combos = torch.eye(7).to(device)
+    weight_combos = torch.cat([weight_combos,
+                               torch.tensor([[1., 1., 1., 1., 0., 0., 0.]], device=device)])
+    padded_grams = pad_grams(list(pca_70.values())).to(device)
 
     for layer, weights in enumerate(weight_combos):
         print('compute neighbors...')
-        padded_grams = pad_grams(list(pca_70.values())).to(device)
         neighbors, distances = top_k_neighbors(X=padded_grams,
                                                weights=weights,
                                                queries=query_idx,
@@ -142,7 +144,7 @@ if __name__ == '__main__':
         grid = torchvision.utils.make_grid(img_tensors, nrow=6).permute((1, 2, 0))
         print('make figure...')
         fig = plot(grid_array=grid,
-                   queries=query_idx,
+                   query_idx=query_idx,
                    img_size=128,
                    k=6,
                    distances=distances.flatten())
