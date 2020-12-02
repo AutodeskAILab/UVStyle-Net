@@ -85,7 +85,7 @@ def compute(font, trial, upper, l2):
 
 if __name__ == '__main__':
     device = torch.device('cuda:0')
-    results_path = 'results_solidmnist_all_sub_mu_random_negatives'
+    results_path = 'results_solidmnist_all_sub_mu_random_negatives_no_constraints'
 
     print('loading data...')
     grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
