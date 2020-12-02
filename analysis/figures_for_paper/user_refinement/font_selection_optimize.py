@@ -33,7 +33,7 @@ def hits_at_k_score(X, weights, positives, k=10):
     return np.mean(scores), np.std(scores)
 
 
-def compute(font, trial, upper):
+def compute(font, trial, upper, l2):
     file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv'
     log_file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.log'
 
@@ -53,7 +53,7 @@ def compute(font, trial, upper):
 
     positives_idx = shuffle(np.arange(len(grams.labels))[np.bitwise_and(grams.labels == font, uppers == upper)])
 
-    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [50, 100]]
+    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [100]]
     for (p, n) in p_n:
         pos = positives_idx[:p]
         negatives_idx = list(set(np.arange(len(grams.labels))).difference(set(pos)))
@@ -62,7 +62,8 @@ def compute(font, trial, upper):
         weights = optimize(positive_idx=pos,
                            negative_idx=neg,
                            grams=reduced,
-                           metric='cosine')
+                           metric='cosine',
+                           l2=l2)
         log.write(f'{p},{n},"{weights.tolist()}"\n')
         weights = torch.tensor(weights).to(device)
 
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     }
 
     inputs = tqdm([
-        (font, trial, upper)
+        (font, trial, upper, l2)
         for trial in range(20)
         for font in [
             font_idx['Wire One'],
@@ -107,5 +108,6 @@ if __name__ == '__main__':
             font_idx['Stalemate'],
         ]
         for upper in [False]
+        for l2 in [1e-4, 1e-3, 1e-2, 1e-1]
     ])
     Parallel(-1)(delayed(compute)(*i) for i in inputs)
