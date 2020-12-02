@@ -19,7 +19,7 @@ from util import Grams
 
 
 def hits_at_k_score(X, weights, positives, k=10):
-    pad_grams(X).to(device)
+    X = pad_grams(X).to(device)
     # X shape: N x 7 x 70
     scores = []
     for query in positives:
