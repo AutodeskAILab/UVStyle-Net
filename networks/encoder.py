@@ -45,12 +45,18 @@ class PointNetEncoder(nn.Module):
         self.conv3 = nnu.conv1d(64, 64, kernel_size=1, bias=False)
         self.conv4 = nnu.conv1d(64, 128, kernel_size=1, bias=False)
         self.conv5 = nnu.conv1d(128, emb_dims, kernel_size=1, bias=False)
+        self.activations = {}
 
     def forward(self, x):
+        self.activations['feats'] = x
         x = self.conv1(x)
+        self.activations['conv1'] = x
         x = self.conv2(x)
+        self.activations['conv2'] = x
         x = self.conv3(x)
+        self.activations['conv3'] = x
         x = self.conv4(x)
+        self.activations['conv4'] = x
         x = self.conv5(x)
         x = F.adaptive_max_pool1d(x, 1).squeeze()
         return x

@@ -11,6 +11,8 @@ import torch.nn as nn
 from PIL import Image
 import pandas as pd
 
+from networks.models import Points2PointsAutoEnc
+
 
 def compute_activation_stats(bg, layer, activations):
     grams = []
@@ -30,7 +32,7 @@ def compute_activation_stats(bg, layer, activations):
         else:
             # fc and GIN layers
             # graph_activations shape: F x d x 1
-            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0) # 1 x d x F
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)  # 1 x d x F
 
         x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
 
@@ -46,10 +48,21 @@ def compute_activation_stats(bg, layer, activations):
         grams.append(triu)
     return torch.stack(grams).detach().cpu()
 
+def compute_activation_stats_psnet(bg, layer, activations):
+    grams = torch.matmul(activations, activations.transpose(1, 2)) / activations.shape[-1]
+    # triu_idx = torch.triu_indices(*grams.shape[1:])
+    # triu = grams[:, triu_idx[0, :], triu_idx[1, :]].flatten(start_dim=1)
+    # assert not triu.isnan().any()
+    return grams.detach().cpu()
 
-def log_activation_stats(bg, all_layers_activations):
-    stats = {layer: compute_activation_stats(bg, layer, activations)
-             for layer, activations in all_layers_activations.items()}
+
+def log_activation_stats(bg, all_layers_activations, model):
+    if isinstance(model, Points2PointsAutoEnc):
+        stats = {layer: compute_activation_stats_psnet(bg, layer, activations)
+                 for layer, activations in all_layers_activations.items()}
+    else:
+        stats = {layer: compute_activation_stats(bg, layer, activations)
+                 for layer, activations in all_layers_activations.items()}
     return stats
 
 
@@ -188,7 +201,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
     helper.create_dir(img_dir)
     model.eval()
     losses = []
-    out_dir = 'analysis/uvnet_data/abc_sub_mu_only'
+    out_dir = 'analysis/uvnet_data/abc_all'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with torch.no_grad():
@@ -196,11 +209,16 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
         graph_files = []
         for batch_idx, batch in enumerate(loader):
             print('batch:', batch_idx)
-            pred_points, gt_points, embeddings, loss, surface_activations, graph_activations, bg, graph_files_batch = step(
+            pred_points, gt_points, embeddings, loss, bg, graph_files_batch = step(
                 model, batch, batch_idx, device
             )
-            for activations in [model.surf_encoder.activations, model.graph_encoder.activations]:
-                batch_stats = log_activation_stats(bg, activations)
+            if isinstance(model, Points2PointsAutoEnc):
+                all_activations = [model.encoder.activations]
+            else:
+                all_activations = [model.surf_encoder.activations, model.graph_encoder.activations]
+
+            for activations in all_activations:
+                batch_stats = log_activation_stats(bg, activations, model)
                 for layer, batch_layer_stats in batch_stats.items():
                     # with open(out_dir + '/' + layer + '_grams.txt', 'ab') as file:
                     #     np.savetxt(file, batch_layer_stats)

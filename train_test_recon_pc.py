@@ -19,11 +19,11 @@ chamfer_loss = reconstruction.ChamferLoss()
 
 def pc2pc_step(model, batch, batch_idx, device):
     # points, _ = batch
-    (_, points, _) = batch
+    (bg, points, graphfiles) = batch
     points = points.to(device)
     pred_points, embeddings = model(points.transpose(-1, 1))
     loss = chamfer_loss(points, pred_points) * 1000
-    return pred_points, points, embeddings, loss
+    return pred_points, points, embeddings, loss, bg, graphfiles
 
 
 def solid2pc_step(model, batch, batch_idx, device):
@@ -35,7 +35,7 @@ def solid2pc_step(model, batch, batch_idx, device):
 
     # all_graph_files += graph_files
     loss = chamfer_loss(points, pred_points) * 1000
-    return pred_points, points, embeddings, loss, model.surf_encoder.activations, model.graph_encoder.activations,bg, graph_files
+    return pred_points, points, embeddings, loss, bg, graph_files
 
 
 def experiment_name(args):
