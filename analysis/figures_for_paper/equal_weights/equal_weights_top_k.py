@@ -60,7 +60,7 @@ if __name__ == '__main__':
         for query in query_idx:
             distances = np.zeros(num)
             inputs = tqdm(range(num))
-            x = Parallel(-1)(delayed(gram_loss)(gram, query, other, weights, metric='euclidean') for other in inputs)
+            x = Parallel(-1)(delayed(gram_loss)(gram, query, other, weights, metric='cosine') for other in inputs)
             for idx, distance in x:
                 distances[idx] = distance
             results.append(np.argsort(distances)[:6])

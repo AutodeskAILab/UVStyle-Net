@@ -116,9 +116,12 @@ if __name__ == '__main__':
     #            for i in range(len(defaults))]
     # weight_combos = np.array([weights])
 
-    weight_combos = torch.eye(7).to(device)
-    weight_combos = torch.cat([weight_combos,
-                               torch.tensor([[1., 1., 1., 1., 0., 0., 0.]], device=device)])
+    # weight_combos = torch.eye(7).to(device)
+    weight_combos = torch.cat([torch.tensor([[1., 1., 0., 0., 0., 0., 0.]], device=device),
+                               torch.tensor([[1., 1., 1., 0., 0., 0., 0.]], device=device),
+                               torch.tensor([[1., 1., 1., 1., 0., 0., 0.]], device=device),
+                               torch.tensor([[1., 1., 1., 1., 1., 0., 0.]], device=device),
+                               torch.tensor([[0., 0., 0., 0., 0., 0., 1.]], device=device)])
     padded_grams = pad_grams(list(pca_70.values())).to(device)
 
     for layer, weights in enumerate(weight_combos):

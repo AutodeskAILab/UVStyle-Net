@@ -11,7 +11,7 @@ def count_classes(dset: SolidMNIST):
 
 
 if __name__ == '__main__':
-    data_root = '/home/ubuntu/NURBSNet/dataset/bin'
+    data_root = '/home/pete/brep_style/solidmnist/bin'
     dsets = {
         'Complete': SolidMNIST,
         'Font Subset (4)': SolidMNISTSubset,
