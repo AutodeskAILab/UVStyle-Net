@@ -34,8 +34,8 @@ def hits_at_k_score(X, weights, positives, k=10):
 
 
 def compute(font, trial, upper, l2):
-    file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.csv'
-    log_file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}.log'
+    file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}_l2_{l2}.csv'
+    log_file = f'{results_path}/trial_{trial}_font_{font}_{"upper" if upper else "lower"}_l2_{l2}.log'
 
     if os.path.exists(file):
         return
@@ -53,7 +53,7 @@ def compute(font, trial, upper, l2):
 
     positives_idx = shuffle(np.arange(len(grams.labels))[np.bitwise_and(grams.labels == font, uppers == upper)])
 
-    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [100]]
+    p_n = [(p, n) for p in [1, 2, 3, 4, 5, 10] for n in [50]]
     for (p, n) in p_n:
         pos = positives_idx[:p]
         negatives_idx = list(set(np.arange(len(grams.labels))).difference(set(pos)))
@@ -85,11 +85,11 @@ def compute(font, trial, upper, l2):
 
 if __name__ == '__main__':
     device = torch.device('cuda:0')
-    results_path = 'results_solidmnist_all_sub_mu_random_negatives_no_constraints'
+    results_path = 'results_solidmnist_all_sub_mu_random_negatives_l2'
 
     print('loading data...')
-    grams = Grams('../../uvnet_data/solidmnist_all_sub_mu_only')
-    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu_only')[:7]
+    grams = Grams('../../uvnet_data/solidmnist_all_sub_mu')
+    reduced = pca_reduce(grams, 70, '../../cache/solidmnist_all_sub_mu')[:7]
 
     print('processing...')
     font_idx = {
@@ -108,6 +108,6 @@ if __name__ == '__main__':
             font_idx['Stalemate'],
         ]
         for upper in [False]
-        for l2 in [1e-4, 1e-3, 1e-2, 1e-1]
+        for l2 in [1e-6, 1e-5, 1e-3, 1e-2]
     ])
-    Parallel(-1)(delayed(compute)(*i) for i in inputs)
+    Parallel(6)(delayed(compute)(*i) for i in inputs)

@@ -71,7 +71,9 @@ class Objective(object):
 
 def optimize(positive_idx, negative_idx, grams, metric='euclidean', l2=0.):
     sol = minimize(fun=Objective(positive_idx, negative_idx, grams, metric, l2),
-                   x0=np.array([1 / len(grams)] * len(grams)))
+                   x0=np.array([1 / len(grams)] * len(grams)),
+                   bounds=[[0., 1.]] * len(grams),
+                   constraints={'type': 'eq', 'fun': lambda w: w.sum() - 1})
     return sol.x
 
 
