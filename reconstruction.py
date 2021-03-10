@@ -201,7 +201,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
     helper.create_dir(img_dir)
     model.eval()
     losses = []
-    out_dir = 'analysis/uvnet_data/abc_all'
+    out_dir = 'analysis/psnet_data/abc_all'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     with torch.no_grad():
