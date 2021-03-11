@@ -22,10 +22,10 @@ if __name__ == '__main__':
             'l2': l2,
             'trial': trial
         }
-        for data_root in ['../uvnet_data/abc_sub_mu_only', '../psnet_data/abc_all']
-        for cats_dirs in cross_cats
-        for l2 in ['0.1', '0.01', '0.001', '0.0001', '0.']
         for trial in list(range(NUM_TRIALS))
+        for cats_dirs in cross_cats
+        for data_root in ['../uvnet_data/abc_sub_mu_only', '../psnet_data/abc_all']
+        for l2 in ['0.1', '0.001', '0.']
     ]
 
     for version, config in enumerate(configs):
