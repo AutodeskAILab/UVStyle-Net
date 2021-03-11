@@ -58,7 +58,7 @@ def gram_loss(grams, id_a, id_b, weights, metric='cosine'):
 
 def pad_grams(X):
     grams_0 = torch.zeros(len(X[0]), 70)
-    grams_0[:, :grams_0.shape[-1]] = torch.tensor(X[0].copy())
+    grams_0[:, :X[0].shape[-1]] = torch.tensor(X[0].copy())
     grams_padded = torch.stack([grams_0] + [torch.tensor(gram.copy()) for gram in X[1:]])
     X = grams_padded.permute(1, 0, 2)  # shape: N x 7 x 70
     return X
