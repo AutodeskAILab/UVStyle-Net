@@ -11,7 +11,7 @@ from pl_bolts.models.regression import LogisticRegression
 from pytorch_lightning import LightningDataModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import Dataset, DataLoader
-from torch.utils.data.dataset import T_co, random_split
+from torch.utils.data.dataset import random_split
 
 from util import Grams
 
@@ -39,7 +39,7 @@ class GramDataset(Dataset):
             self.files.append(path.stem + '.bin')
             self.labels.append(cat_to_label[path.parent.stem])
 
-    def __getitem__(self, index) -> T_co:
+    def __getitem__(self, index):
         num_layers = len(self.grams.layer_names)
         x = torch.cat([torch.tensor(self.grams[i][index]) for i in range(num_layers)], dim=-1)
         return x, self.labels[index], self.files[index]
