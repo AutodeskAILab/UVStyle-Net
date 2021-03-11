@@ -64,12 +64,17 @@ def pad_grams(X):
     return X
 
 
-def top_k_neighbors(X, weights, queries, k):
+def top_k_neighbors(X, weights, queries, k, metric='cosine'):
     all_neighbors = []
     all_distances = []
     for query in queries:
         q = X[query]
-        layerwise_distances = 1 - torch.cosine_similarity(q[None, :, :], X, dim=-1)
+        if metric == 'cosine':
+            layerwise_distances = 1 - torch.cosine_similarity(q[None, :, :], X, dim=-1)
+        elif metric == 'euclidean':
+            layerwise_distances = torch.norm(q[None, :, :] - X, dim=-1)
+        else:
+            raise Exception(f'{metric} not found - use "cosine" or "euclidean"')
         weighted = layerwise_distances * weights[None, :]
         distances = weighted.sum(-1)  # type: torch.Tensor
         neighbors = torch.argsort(distances)[:k]
@@ -129,7 +134,8 @@ if __name__ == '__main__':
         neighbors, distances = top_k_neighbors(X=padded_grams,
                                                weights=weights,
                                                queries=query_idx,
-                                               k=6)
+                                               k=6,
+                                               metric='cosine')
 
         st.subheader('weights')
         st.write(weights)
