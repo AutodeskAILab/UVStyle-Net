@@ -107,7 +107,7 @@ def main(args):
 
     trainer = Trainer(checkpoint_callback=checkpoint_callback,
                       gpus=[0],
-                      max_epochs=2)
+                      max_epochs=100)
 
     trainer.fit(model=model,
                 datamodule=data_module)
