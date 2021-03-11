@@ -4,8 +4,9 @@ import sys
 
 if __name__ == '__main__':
 
-    image_cats = [f'abc_quant_data/{file}' for file in os.listdir('abc_quant_data/image_cats')]
+    image_cats = [f'abc_quant_data/image_cats/{file}' for file in os.listdir('abc_quant_data/image_cats')]
     cross_cats = [['abc_quant_data/wheel_v_cog/wheel', 'abc_quant_data/wheel_v_cog/cog']]
+    # cross_cats = []
     for i, cat_i in enumerate(image_cats):
         for j, cat_j in enumerate(image_cats):
             if j > i:
@@ -13,7 +14,7 @@ if __name__ == '__main__':
 
     print(cross_cats)
 
-    NUM_TRIALS = 10
+    NUM_TRIALS = 5
     configs = [
         {
             'data_root': data_root,
