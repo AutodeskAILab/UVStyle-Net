@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class PointNet(nn.Module):
     def __init__(self, emb_dims, num_classes):
         super(PointNet, self).__init__()
-        self.conv1 = nn.Conv1d(3, 64, kernel_size=1, bias=False)
+        self.conv1 = nn.Conv1d(6, 64, kernel_size=1, bias=False)
         self.conv2 = nn.Conv1d(64, 64, kernel_size=1, bias=False)
         self.conv3 = nn.Conv1d(64, 64, kernel_size=1, bias=False)
         self.conv4 = nn.Conv1d(64, 128, kernel_size=1, bias=False)
@@ -22,13 +22,21 @@ class PointNet(nn.Module):
         self.bn7 = nn.BatchNorm1d(256)
         self.dp2 = nn.Dropout()
         self.linear3 = nn.Linear(256, num_classes)
+        self.activations = None
 
     def forward(self, x):
+        self.activations = {}
+        self.activations['feats'] = x
         x = F.relu(self.bn1(self.conv1(x)))
+        self.activations['conv1'] = x
         x = F.relu(self.bn2(self.conv2(x)))
+        self.activations['conv2'] = x
         x = F.relu(self.bn3(self.conv3(x)))
+        self.activations['conv3'] = x
         x = F.relu(self.bn4(self.conv4(x)))
+        self.activations['conv4'] = x
         x = F.relu(self.bn5(self.conv5(x)))
+        self.activations['conv5'] = x
         x = F.adaptive_max_pool1d(x, 1).squeeze()
         x = F.relu(self.bn6(self.linear1(x)))
         x = self.dp1(x)
@@ -53,12 +61,19 @@ class PointNet_Encoder(nn.Module):
         self.bn5 = nn.BatchNorm1d(emb_dims)
         self.linear1 = nn.Linear(emb_dims, emb_dims, bias=False)
         self.bn6 = nn.BatchNorm1d(emb_dims)
+        self.activations = None
 
     def forward(self, x):
+        self.activations = {}
+        self.activations['feats'] = x
         x = F.relu(self.bn1(self.conv1(x)))
+        self.activations['conv1'] = x
         x = F.relu(self.bn2(self.conv2(x)))
+        self.activations['conv2'] = x
         x = F.relu(self.bn3(self.conv3(x)))
+        self.activations['conv3'] = x
         x = F.relu(self.bn4(self.conv4(x)))
+        self.activations['conv4'] = x
         x = F.relu(self.bn5(self.conv5(x)))
         x = F.adaptive_max_pool1d(x, 1).squeeze()
         x = F.relu(self.bn6(self.linear1(x)))    
