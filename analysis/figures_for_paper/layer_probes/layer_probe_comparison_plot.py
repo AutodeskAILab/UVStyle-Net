@@ -6,8 +6,8 @@ if __name__ == '__main__':
 
     paths = {
         'UV-Net': 'uvnet_layer_probe_scores_with_err.csv',
-        'Pointnet': 'psnet_layer_probe_scores_font_subset_with_err.csv',
-        'Pointnet++': 'pointnet_layer_probe_scores_with_err.csv',
+        'PSNet*': 'psnet_layer_probe_scores_font_subset_with_err.csv',
+        'PointNet++': 'pointnet_layer_probe_scores_with_err.csv',
         'MeshCNN': 'meshcnn_layer_probe_scores_with_err.csv',
     }
 
