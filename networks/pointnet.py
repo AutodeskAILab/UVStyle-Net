@@ -25,6 +25,7 @@ class PointNet(nn.Module):
         self.activations = None
 
     def forward(self, x):
+        x = x[:, :3]
         self.activations = {}
         self.activations['feats'] = x
         x = F.relu(self.bn1(self.conv1(x)))
