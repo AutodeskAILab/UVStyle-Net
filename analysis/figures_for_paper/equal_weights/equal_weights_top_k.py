@@ -109,9 +109,9 @@ if __name__ == '__main__':
 
         ax.set_yticks([])
         # ax.set_title(model, size='large')
-        ax.set_ylabel(model)
+        ax.set_ylabel(model, Fontsize=20)
         ax.set_xticks(np.arange(6) * 256 + 128)
-        ax.set_xticklabels(['Q', '1', '2', '3', '4', '5'])
+        ax.set_xticklabels(['Q', '1', '2', '3', '4', '5'], Fontsize=20)
     fig.set_size_inches(4, 8)
     fig.tight_layout()
     fig.savefig(f'equal_weights_topk.pdf')

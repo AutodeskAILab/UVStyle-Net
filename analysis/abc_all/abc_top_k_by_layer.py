@@ -15,16 +15,16 @@ sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, OnTheFlyImages
 
 
-def plot(grid_array, query_idx, img_size, k, distances=None):
+def plot(grid_array, query_idx, img_size, k, distances=None, font_size=24):
     fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
     ax.imshow(grid_array)
 
     ax.set_xticks(np.arange(k) * (img_size + 2) + (img_size / 2))
-    ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=24)
+    ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=font_size)
 
     if query_idx is not None and len(query_idx) > 0:
         ax.set_yticks(np.arange(len(query_idx)) * (img_size + 2) + (img_size / 2))
-        ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=24)
+        ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=font_size)
     else:
         ax.set_yticks([])
 
@@ -37,7 +37,7 @@ def plot(grid_array, query_idx, img_size, k, distances=None):
         space = img_size
         for t, pos in zip(text, xy):
             x, y = pos
-            ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='red', Fontsize=20)
+            ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='red', Fontsize=font_size)
 
     fig.set_size_inches(21, 15)
     fig.tight_layout()
@@ -88,6 +88,7 @@ def top_k_neighbors(X, weights, queries, k, metric='cosine'):
 if __name__ == '__main__':
     device = torch.device('cuda:0')
     data_root = '../uvnet_data/abc_sub_mu_only'
+    # data_root = '../psnet_data/abc_all'
     grams = Grams(data_root=data_root)
     num = len(grams.graph_files)
     images = OnTheFlyImages(data_root=data_root,
@@ -98,14 +99,14 @@ if __name__ == '__main__':
         name: i for i, name in enumerate(map(lambda n: n[:-4], grams.graph_files))
     }
 
-    pca_3, pca_70 = get_pca_3_70(grams, cache_file='../cache/uvnet_abc_sub_mu_only',
+    pca_3, pca_70 = get_pca_3_70(grams,
+                                 cache_file='../cache/uvnet_abc_sub_mu_only',
+                                 # cache_file='../cache/psnet_abc_all',
                                  verbose=True)
     del grams
 
     text_idx_names = st.sidebar.text_area(label='Enter file names (one per line)',
-                                          value='Camber 1.5 2.5 3.5 - Part 1\n'
-                                                '\'16Regs - 2016RegulationBox\n'
-                                                '+ - Part 1-z17r786il4gl17a\n'
+                                          value='\'16Regs - 2016RegulationBox\n'
                                                 '1_10th_scale_on_road_car Materials v5 v1 v0 parts - Part 121\n'
                                                 '2 - Part 1-8g5pl30u\n'
                                                 '3 Fillet - Part 1\n'
@@ -153,9 +154,11 @@ if __name__ == '__main__':
         grid = torchvision.utils.make_grid(img_tensors, nrow=6).permute((1, 2, 0))
         print('make figure...')
         fig = plot(grid_array=grid,
-                   query_idx=query_idx,
+                   query_idx=['A', 'B', 'C', 'D', 'E'],
                    img_size=128,
                    k=6,
-                   distances=distances.flatten())
+                   distances=distances.flatten(),
+                   font_size=36)
         print('st plot...')
         st.pyplot(fig)
+        fig.savefig(f'uvnet_{layer}.pdf')
