@@ -1,5 +1,8 @@
 import argparse
 import math
+import pandas as pd
+import os
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,10 +13,20 @@ import logging
 from torch.optim import lr_scheduler
 import numpy as np
 import sklearn.metrics as metrics
-from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointclouds
+from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointclouds, SolidMNISTWithPointcloudsFontSubset
 from networks import pointnet
 
+def compute_activation_stats_psnet(bg, layer, activations):
+    grams = torch.matmul(activations, activations.transpose(1, 2)) / activations.shape[-1]
+    triu_idx = torch.triu_indices(*grams.shape[1:])
+    triu = grams[:, triu_idx[0, :], triu_idx[1, :]].flatten(start_dim=1)
+    assert not triu.isnan().any()
+    return triu.detach().cpu()
 
+def log_activation_stats(bg, all_layers_activations):
+    stats = {layer: compute_activation_stats_psnet(bg, layer, activations)
+             for layer, activations in all_layers_activations.items()}
+    return stats
 
 
 def val_one_epoch(model, loader, epoch, args):
@@ -21,8 +34,10 @@ def val_one_epoch(model, loader, epoch, args):
     true = []
     pred = []
     total_loss_array = []
+    stats = {}
+    all_graph_files = []
     with torch.no_grad():
-        for _, (_, points, labels) in enumerate(loader):
+        for _, (bg, points, labels, graph_files) in enumerate(loader):
             points = points.to(args.device) 
             labels = labels.to(args.device).squeeze(-1)
             points = points.transpose(-1, 1)
@@ -32,6 +47,32 @@ def val_one_epoch(model, loader, epoch, args):
             true.append(labels.cpu().numpy())
             preds = logits.max(dim=1)[1]
             pred.append(preds.detach().cpu().numpy())
+            for activations in [model.activations]:
+                batch_stats = log_activation_stats(bg, activations)
+                for layer, batch_layer_stats in batch_stats.items():
+                    if layer in stats.keys():
+                        stats[layer].append(batch_layer_stats)
+                    else:
+                        stats[layer] = [batch_layer_stats]
+            all_graph_files += graph_files
+
+    out_dir = 'analysis/psnet_data/solidmnist_subset'
+    os.makedirs(out_dir, exist_ok=True)
+    print('writing stats...')
+    all_stats = {}
+    for layer, layer_stats in stats.items():
+        # gram = zip(*layer_stats)
+        all_stats[layer] = {
+            'gram': torch.cat(layer_stats),
+        }
+
+    for i, (layer, layer_stats) in enumerate(all_stats.items()):
+        grams = layer_stats['gram'].numpy()
+        np.save(out_dir + f'/{i}_{layer}_grams', grams)
+
+    all_graph_files = list(map(lambda file: file.split('/')[-1], all_graph_files))
+    pd.DataFrame(all_graph_files).to_csv(out_dir + '/graph_files.txt', index=False, header=None)
+    print('done writing stats')
 
     true = np.concatenate(true)
     pred = np.concatenate(pred)
@@ -64,7 +105,7 @@ if __name__ == '__main__':
     args.device = device
 
   
-    test_dset = SolidMNISTWithPointclouds(bin_root_dir=state['args'].dataset_path, npy_root_dir=state['args'].npy_root_dir, train="test", size_percentage=state['args'].size_percentage, num_points=state['args'].num_points)
+    test_dset = SolidMNISTWithPointcloudsFontSubset(bin_root_dir='dataset/bin', npy_root_dir='dataset/pc')
     
     test_loader = helper.get_dataloader(
         test_dset, state['args'].batch_size, train=True, collate_fn=collate_with_pointclouds)
