@@ -1,12 +1,18 @@
 import sys
 from argparse import ArgumentParser
 
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.svm import SVC
+from sklearn.utils import shuffle
+
 sys.path.append('../../analysis')
 import os
 from glob import glob
 from pathlib import Path
 
 import torch
+import numpy as np
 from pl_bolts.models.regression import LogisticRegression
 from pytorch_lightning import LightningDataModule, Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -42,7 +48,7 @@ class GramDataset(Dataset):
     def __getitem__(self, index):
         num_layers = len(self.grams.layer_names)
         x = torch.cat([torch.tensor(self.grams[i][index]) for i in range(num_layers)], dim=-1)
-        return x, self.labels[index], self.files[index]
+        return x, np.array(self.labels)[index], np.array(self.files)[index]
 
     def __len__(self):
         return len(self.files)
@@ -83,51 +89,38 @@ class GramsDataModule(LightningDataModule):
 
 
 def main(args):
-    log_file = 'results.csv'
-    if not os.path.exists(log_file):
-        with open(log_file, 'w') as log:
-            log.write('val_acc;test_acc;config\n')
+    if not os.path.exists(args.log):
+        with open(args.log, 'w') as log:
+            log.write('test_acc;config;best_params\n')
 
     print('loading data...')
-    data_module = GramsDataModule(data_root=args.data_root,
-                                  cats_dirs=args.cats_dirs,
-                                  num_workers=1)
-    model = LogisticRegression(input_dim=data_module.dims,
-                               num_classes=data_module.num_classes,
-                               learning_rate=1e-4,
-                               l2_strength=args.l2)
 
-    checkpoint_callback = ModelCheckpoint(
-        filepath=f'checkpoints/version_{args.trial}/best',
-        verbose=True,
-        save_top_k=1,
-        monitor='val_loss',
-        mode='min'
-    )
+    dset = GramDataset(data_root=args.data_root, cats_dirs=args.cats_dirs)
 
-    trainer = Trainer(
-        # checkpoint_callback=checkpoint_callback,
-                      gpus=[0],
-                      max_epochs=10)
+    np.random.seed(9876)
+    X, y, _ = dset[shuffle(np.arange(len(dset)))]
+    X = X.numpy()
 
-    trainer.fit(model=model,
-                datamodule=data_module)
+    param_grid = {'C': [0.1, 1, 10, 100],
+                  'gamma': [1, 0.1, 0.01, 0.001],
+                  'kernel': ['poly']}
 
-    val_acc = trainer.callback_metrics['val_acc']
+    grid = GridSearchCV(SVC(), scoring='accuracy', param_grid=param_grid, cv=5, n_jobs=-1, verbose=1)
+    grid.fit(X, y)
 
-    result = trainer.test()
-    test_acc = result[0]['test_acc']
+    test_acc = grid.cv_results_['mean_test_score'][grid.best_index_]
+    test_std = grid.cv_results_['std_test_score'][grid.best_index_]
 
-    with open(log_file, 'a') as log:
-        log.write(f'{val_acc};{test_acc};{vars(args)}\n')
+    with open(args.log, 'a') as log:
+        log.write(f'{test_acc};{test_std};{vars(args)};{grid.best_params_}\n')
         log.flush()
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+    parser.add_argument('--log', type=str)
     parser.add_argument('--data_root', type=str)
     parser.add_argument('--cats_dirs', nargs='+')
-    parser.add_argument('--l2', type=float)
     parser.add_argument('--version', type=int)
     parser.add_argument('--trial', type=int)
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 if __name__ == '__main__':
-    df = pd.read_csv('results.csv', sep=';')
+    df = pd.read_csv('results_wheel_cog_better_20_trials.csv', sep=';')
     config_df = pd.DataFrame(df['config'].apply(literal_eval).values.tolist())
     df = pd.concat([df.drop('config', axis=1), config_df], axis=1)
 

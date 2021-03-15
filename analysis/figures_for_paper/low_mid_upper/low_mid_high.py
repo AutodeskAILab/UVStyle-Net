@@ -97,13 +97,13 @@ if __name__ == '__main__':
         ax = axes[i]
         ax.imshow(grid)
 
-        ax.set_ylabel(model)
+        ax.set_ylabel(model, Fontsize=20)
         ax.set_yticks(np.arange(3) * 256 + 128)
-        ax.set_yticklabels(layer_names[model], fontsize='small')
+        ax.set_yticklabels(layer_names[model], fontsize='small', rotation=60)
 
         ax.set_xticks(np.arange(6) * 256 + 128)
-        ax.set_xticklabels(['Q', '1', '2', '3', '4', '5'])
-    fig.set_size_inches(4.5, 6)
+        ax.set_xticklabels(['Q', '1', '2', '3', '4', '5'], Fontsize=20)
+    fig.set_size_inches(5, 8)
     fig.tight_layout()
     fig.savefig(f'low_mid_high.pdf')
     plt.show()
