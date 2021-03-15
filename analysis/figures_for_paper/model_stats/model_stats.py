@@ -7,6 +7,7 @@ from util import Grams
 if __name__ == '__main__':
     grams = {
         'UV-Net': Grams('../../uvnet_data/solidmnist_all_fnorm'),
+        'PSNet*': Grams('../../psnet_data/solidmnist_subset'),
         'Pointnet++': Grams('../../pointnet2_data/solidmnist_font_subset'),
         'MeshCNN': Grams('../../meshcnn_data/solidmnist_font_subset')
     }

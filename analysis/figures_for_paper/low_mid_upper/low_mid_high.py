@@ -21,17 +21,17 @@ if __name__ == '__main__':
 
     grams = {
         'UV-Net': Grams(data_root=uv_net_data_root),
-        'Pointnet': Grams(data_root=psnet_data_root),
-        'Pointnet++': Grams(data_root=pointnet_data_root),
+        'PSNet*': Grams(data_root=psnet_data_root),
+        'PointNet++': Grams(data_root=pointnet_data_root),
         'MeshCNN': Grams(data_root=meshcnn_data_root)
     }
 
     images = {
         'UV-Net': OnTheFlyImages(data_root=uv_net_data_root,
                                  img_root=img_path),
-        'Pointnet++': OnTheFlyImages(data_root=pointnet_data_root,
+        'PointNet++': OnTheFlyImages(data_root=pointnet_data_root,
                                      img_root=img_path),
-        'Pointnet': OnTheFlyImages(data_root=psnet_data_root,
+        'PSNet*': OnTheFlyImages(data_root=psnet_data_root,
                                    img_root=img_path),
         'MeshCNN': OnTheFlyImages(data_root=meshcnn_data_root,
                                   img_root=img_path)
@@ -39,22 +39,22 @@ if __name__ == '__main__':
 
     layers = {
         'UV-Net': [[0], [2], [3]],
-        'Pointnet': [[0], [2], [3]],
-        'Pointnet++': [[0], [5], [10]],
+        'PSNet*': [[0], [2], [3]],
+        'PointNet++': [[0], [5], [10]],
         'MeshCNN': [[0], [1], [2]]
     }
 
     layer_names = {
         'UV-Net': ['0_feats', '2_conv2', '3_conv3'],
-        'Pointnet': ['0_feats', '2_conv2', '3_conv3'],
-        'Pointnet++': ['0_feats', '5_SA1_2_2', '10_SA2_1_1'],
+        'PSNet*': ['0_feats', '2_conv2', '3_conv3'],
+        'PointNet++': ['0_feats', '5_SA1_2_2', '10_SA2_1_1'],
         'MeshCNN': ['0_feats', '1_conv1', '2_conv2']
     }
 
     fig, axes = plt.subplots(len(grams), squeeze=True)
     for i, (model, gram) in enumerate(grams.items()):
         query_idx = 53
-        if model == 'Pointnet++':
+        if model == 'PointNet++':
             id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                            dest_file=pointnet_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
@@ -62,7 +62,7 @@ if __name__ == '__main__':
             id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                            dest_file=meshcnn_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
-        elif model == 'Pointnet':
+        elif model == 'PSNet*':
             id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                            dest_file=psnet_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
