@@ -16,9 +16,9 @@ if __name__ == '__main__':
     img_path = '/home/pete/brep_style/solidmnist/new_pngs'
     grams = {
         'UV-Net': Grams(data_root=uv_net_data_root),
+        'PSNet*': Grams(data_root=psnet_data_root),
         'Pointnet++': Grams(data_root=pointnet_data_root),
         'MeshCNN': Grams(data_root=meshcnn_data_root),
-        'Pointnet': Grams(data_root=psnet_data_root)
     }
 
     images = {
@@ -28,7 +28,7 @@ if __name__ == '__main__':
                                      img_root=img_path),
         'MeshCNN': OnTheFlyImages(data_root=meshcnn_data_root,
                                   img_root=img_path),
-        'Pointnet': OnTheFlyImages(data_root=psnet_data_root,
+        'PSNet*': OnTheFlyImages(data_root=psnet_data_root,
                                    img_root=img_path)
     }
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
             id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                            dest_file=meshcnn_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
-        elif model == 'Pointnet':
+        elif model == 'PSNet*':
             id_map = IdMap(src_file=uv_net_data_root + '/graph_files.txt',
                            dest_file=psnet_data_root + '/graph_files.txt')
             query_idx = id_map(query_idx)
