@@ -59,7 +59,7 @@ class GramDataset(Dataset):
 def main(args):
     if not os.path.exists(args.log):
         with open(args.log, 'w') as log:
-            log.write('val_acc;config;best_params\n')
+            log.write('mean_f1;std_f1;config;best_params\n')
 
     print(f'{args.version}: loading data...')
     print(args)
@@ -78,7 +78,7 @@ def main(args):
 
     param_grid = {'C': [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]}
 
-    grid = GridSearchCV(LogisticRegression(max_iter=2000, class_weight='balanced'), scoring='accuracy', param_grid=param_grid, cv=5, n_jobs=8, verbose=1)
+    grid = GridSearchCV(LogisticRegression(max_iter=2000, class_weight='balanced'), scoring='f1_weighted', param_grid=param_grid, cv=5, n_jobs=8, verbose=1)
     grid.fit(X, y)
 
     preds = grid.best_estimator_.predict(X)
