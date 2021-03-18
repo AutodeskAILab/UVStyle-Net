@@ -40,6 +40,10 @@ if __name__ == '__main__':
         'rounded',
     ]
 
+    names = [
+        'Flat', 'Electric', 'FreeForm', 'Tubular', 'Angular', 'Rounded'
+    ]
+
     files = {
         cat: os.listdir(f'{pngs_root}/{cat}') for cat in cats
     }
@@ -69,7 +73,7 @@ if __name__ == '__main__':
     ax.imshow(grid)
 
     ax.set_yticks(np.arange(len(cats)) * (img_size + 2) + (img_size / 2))
-    ax.set_yticklabels(cats, Fontsize=12)
+    ax.set_yticklabels(names, Fontsize=12)
     ax.set_xticks([])
     plt.tight_layout()
     plt.savefig('abc_quant_egs.pdf')
