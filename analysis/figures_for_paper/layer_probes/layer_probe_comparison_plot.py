@@ -38,4 +38,13 @@ if __name__ == '__main__':
     fig.tight_layout()
 
     fig.savefig('layer_probe_comparison.pdf')
+
+    # for thesis
+    ax.legend(loc='lower right', fontsize='small', framealpha=1.)
+    ax.set_ylim(.68, 1)
+    fig.set_size_inches(5.4, 3.5)
+    fig.tight_layout()
+    fig.savefig('layer_probe_comparison.pdf')
     fig.show()
+
+
