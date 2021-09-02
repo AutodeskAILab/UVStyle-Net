@@ -1,6 +1,6 @@
-import torchvision
 import matplotlib.pyplot as plt
 import numpy as np
+import torchvision
 
 from util import Images
 

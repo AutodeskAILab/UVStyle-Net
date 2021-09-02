@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import streamlit as st
 import torch
 import torchvision
 from PIL import Image
+from plotly.subplots import make_subplots
 from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.model_selection import cross_val_score

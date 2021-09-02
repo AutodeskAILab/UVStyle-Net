@@ -1,6 +1,8 @@
+import sys
+
 import pandas as pd
 from sklearn.decomposition import PCA
-import sys
+
 sys.path.append('../../../analysis')
 from layer_stats_analysis import probe_score
 from util import Grams

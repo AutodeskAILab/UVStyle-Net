@@ -1,9 +1,5 @@
-import os
-import sys
 import shutil
 from glob import glob
-
-import pandas as pd
 
 if __name__ == '__main__':
     # df = pd.read_csv('uvnet_data/abc/graph_names.txt', header=None, names=['name'])

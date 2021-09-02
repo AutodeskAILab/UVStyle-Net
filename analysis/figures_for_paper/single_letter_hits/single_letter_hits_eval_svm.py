@@ -1,15 +1,11 @@
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-import torchvision
+import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.neighbors._kd_tree import KDTree
-from sklearn.svm import SVC
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics.pairwise import cosine_distances, cosine_similarity
+from sklearn.svm import SVC
 
-from constrained_optimization import optimize, optimize_with_gaussian
-from figures_for_paper.low_mid_upper.low_mid_high import spherize
+from constrained_optimization import optimize_with_gaussian
 from util import Grams, get_pca_3_70, weight_layers, IdMap, Images
 
 

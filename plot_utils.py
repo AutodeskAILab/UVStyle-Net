@@ -1,11 +1,11 @@
-import numpy as np
+from typing import List
+
 import matplotlib.axes
 import matplotlib.colors
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import numpy as np
 from sklearn import metrics
 from sklearn.utils.multiclass import unique_labels
-from typing import List
 
 
 def error_curve(ax: matplotlib.axes.Axes, ys, ys_stds, xs=None, style: str = 'band', **kwargs):

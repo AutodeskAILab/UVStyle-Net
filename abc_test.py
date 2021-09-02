@@ -1,32 +1,23 @@
-import torch.utils.tensorboard as tb
-
-import pandas as pd
-import chamfer
-import random
-import parse_util
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
 import argparse
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader, TensorDataset
-import helper
 import os.path as osp
-from torch.optim import lr_scheduler
-import sklearn.metrics as metrics
+import random
+
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import scipy
 import scipy.spatial
-import numpy as np
-import os
-from networks import nurbs_model
-from networks import brep_model
-from networks import decoder, pointnet
-from networks.classifier import LinearClassifier
-from abcdataset import ABCDatasetWithPointclouds
-import matplotlib
-import h5py
+import torch
+import torch.nn as nn
+import torch.utils.tensorboard as tb
 
+import chamfer
+import helper
+from abcdataset import ABCDatasetWithPointclouds
+from networks import graph_model
+from networks import decoder
+from networks import face_model
 from test_classifier import log_activation_stats
 
 matplotlib.use("Agg")
@@ -55,13 +46,13 @@ def plot_tsne(data_points, labels=None, save_loc=None):
 class Model(nn.Module):
     def __init__(self, args):
         super(Model, self).__init__()
-        self.nurbs_feat_ext = nurbs_model.get_face_model(
+        self.nurbs_feat_ext = face_model.get_face_model(
             args.nurbs_model_type,
             mask_mode=args.mask_mode,
             area_as_channel=args.area_as_channel,
             output_dims=args.nurbs_emb_dim,
         )
-        self.brep_feat_ext = brep_model.get_graph_model(
+        self.brep_feat_ext = graph_model.get_graph_model(
             args.brep_model_type, args.nurbs_emb_dim, args.graph_emb_dim
         )
         self.project_net = nn.Sequential(

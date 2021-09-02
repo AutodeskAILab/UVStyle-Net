@@ -1,16 +1,15 @@
 import logging
-import torch
 import os
 import os.path as osp
 import sys
-import numpy as np
+
 import matplotlib.pyplot as plt
 import networkx as nx
-import random
-
+import numpy as np
+import torch
 from mpl_toolkits.mplot3d import Axes3D
 from torch import optim
-from torch.utils.data import Dataset, DataLoader, RandomSampler
+from torch.utils.data import DataLoader
 
 
 def str2bool(v):

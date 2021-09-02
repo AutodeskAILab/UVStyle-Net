@@ -1,23 +1,20 @@
-import argparse
-import math
-import dgl
+import os
+import os.path as osp
+
+import numpy as np
+import pandas as pd
+import sklearn.metrics as metrics
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-import helper
-import os
-import os.path as osp
-import logging
-import pandas as pd
-import numpy as np
-import sklearn.metrics as metrics
-from solid_mnist import my_collate, SolidMNIST, SolidMNISTSubset
-from networks import nurbs_model
-from networks import brep_model
-from networks import classifier
-import parse_util
 import torch.utils.tensorboard as tb
+
+import helper
+import parse_util
+from networks import graph_model
+from networks import classifier
+from networks import face_model
+from solid_mnist import my_collate, SolidMNIST
 
 
 class Model(nn.Module):
@@ -26,13 +23,13 @@ class Model(nn.Module):
         Model used in this classification experiment
         """
         super(Model, self).__init__()
-        self.nurbs_feat_ext = nurbs_model.get_face_model(
+        self.nurbs_feat_ext = face_model.get_face_model(
             nurbs_model_type=args.nurbs_model_type,
             output_dims=args.nurbs_emb_dim,
             mask_mode=args.mask_mode,
             area_as_channel=args.area_as_channel,
             input_channels=args.input_channels)
-        self.brep_feat_ext = brep_model.get_graph_model(
+        self.brep_feat_ext = graph_model.get_graph_model(
             args.brep_model_type, args.nurbs_emb_dim, args.graph_emb_dim)
         self.cls = classifier.get_classifier(
             args.classifier_type, args.graph_emb_dim, num_classes, args.final_dropout)

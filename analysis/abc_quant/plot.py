@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
+
 def to_cats(cats_list):
     cats = [Path(file).stem for file in cats_list]
     out = ' v '.join(cats)
