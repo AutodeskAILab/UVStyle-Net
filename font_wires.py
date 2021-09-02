@@ -1,14 +1,15 @@
-import os.path as osp
-import numpy as np
 import pathlib
-from torch.utils.data import Dataset, DataLoader
-import dgl
-import torch
-from dgl.data.utils import load_graphs, save_graphs
 import platform
 import random
-from font_util import valid_font
+
+import dgl
+import numpy as np
+import torch
 from PIL import Image
+from dgl.data.utils import load_graphs
+from torch.utils.data import Dataset
+
+from font_util import valid_font
 
 
 def collate_graphs(batch):

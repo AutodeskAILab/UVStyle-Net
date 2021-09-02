@@ -1,17 +1,16 @@
 import argparse
 import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-import helper
 import os.path as osp
-import logging
-from torch.optim import lr_scheduler
+
 import numpy as np
 import sklearn.metrics as metrics
-from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointclouds
+import torch
+import torch.nn.functional as F
+from torch.optim import lr_scheduler
+
+import helper
 from networks import pointnet
+from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointclouds
 
 
 def train_one_epoch(model, loader, optimizer, scheduler, epoch, iteration, args):

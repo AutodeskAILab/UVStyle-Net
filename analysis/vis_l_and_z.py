@@ -1,12 +1,11 @@
+import sys
 from random import shuffle
 
 import streamlit as st
-import dgl
-import sys
 
 sys.path.append('../')
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
-from solid_mnist import SolidMNIST, RandomCrop, identity_transform, SolidMNISTSubset
+from solid_mnist import SolidMNISTSubset
 import numpy as np
 import pandas as pd
 

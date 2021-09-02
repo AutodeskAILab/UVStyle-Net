@@ -1,14 +1,14 @@
-import numpy as np
 import dgl
+import numpy as np
 import streamlit as st
 import torch
 import trimesh
 
+from analysis.util import weight_layers
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
 from helper import load_checkpoint
-from solid_mnist import SolidMNISTSubset, SolidMNISTSingleLetter, SolidMNIST
+from solid_mnist import SolidMNIST
 from test_classifier import Model
-from analysis.util import weight_layers
 
 
 class CosineLoss(torch.nn.Module):

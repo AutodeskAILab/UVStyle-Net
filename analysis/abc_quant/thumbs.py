@@ -2,8 +2,8 @@ import os
 import sys
 
 import PIL
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torchvision
 from torchvision.utils import make_grid

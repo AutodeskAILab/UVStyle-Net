@@ -1,20 +1,16 @@
 import argparse
-import math
-import pandas as pd
 import os
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-import helper
-import os.path as osp
-import logging
-from torch.optim import lr_scheduler
 import numpy as np
+import pandas as pd
 import sklearn.metrics as metrics
-from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointclouds, SolidMNISTWithPointcloudsFontSubset
+import torch
+import torch.nn.functional as F
+
+import helper
 from networks import pointnet
+from solid_mnist import collate_with_pointclouds, SolidMNISTWithPointcloudsFontSubset
+
 
 def compute_activation_stats_psnet(bg, layer, activations):
     grams = torch.matmul(activations, activations.transpose(1, 2)) / activations.shape[-1]

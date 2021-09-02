@@ -3,9 +3,7 @@ import os
 import pathlib
 import platform
 import random
-import networkx as nx
 
-import pandas as pd
 import PIL
 import dgl
 import numpy as np
@@ -15,7 +13,6 @@ from dgl.data.utils import load_graphs
 from torch.utils.data import Dataset
 
 from font_util import valid_font
-from helper import network_plot_3D
 
 
 def simclr_collate(batch):
@@ -162,105 +159,6 @@ class SolidMNIST(Dataset):
             graph = map(self.crop_func, graph)
 
         return graph, torch.tensor([self.labels[idx]]).long(), meta, torch.zeros(1), self.graph_files[idx].stem + '.bin'
-
-    def feature_indices(self):
-        """
-        Returns a dictionary of mappings from the name of features to the channels containing them
-        """
-        return {"xyz": (0, 1, 2), "normals": (3, 4, 5), "mask": (6,), "E": (7,), "F": (8,), "G": (9,)}
-
-
-class SolidMNISTSingleLetter(Dataset):
-    def __init__(self, root_dir, split="train", size_percentage=None, in_memory=False, apply_square_symmetry=0.0,
-                 split_suffix="", image_dir="/Users/t_meltp/uvnet-img/jpeg/test",
-                 target_letter='G'):
-        """
-        Load and create the SolidMNIST dataset
-        :param root_dir: Root path to the dataset
-        :param split: string Whether train, val or test set
-        :param size_percentage: Percentage of data to load per category
-        :param in_memory: Whether to keep the entire dataset in memory (This is always done in Windows)
-        :param apply_square_symmetry: Probability of randomly applying a square symmetry transform on the input surface grid (default: 0.0)
-        :param split_suffix: Suffix for the split directory to use
-        :param letter: str default: 'G'
-        """
-        self.image_dir = image_dir
-        path = pathlib.Path(root_dir)
-        assert split in ("train", "val", "test")
-        if split == "train" or split == "val":
-            subfolder = "train"
-        else:
-            subfolder = "test"
-
-        path /= subfolder + split_suffix
-        self.graph_files = list(x for x in path.glob("*.bin") if valid_font(x))
-
-        def matching_letter(graph_file):
-            upper = graph_file.name[-9:-4] == 'upper'
-            letter = graph_file.name[0]
-            letter = letter.upper() if upper else letter
-            return letter == target_letter
-
-        self.graph_files = list(filter(matching_letter, self.graph_files))
-        print("Found {} {} data.".format(len(self.graph_files), split))
-        self.labels = []
-
-        self.in_memory = in_memory
-
-        if split == "train":
-            k = int(.8 * len(self.graph_files))
-            self.graph_files = random.sample(self.graph_files, k)
-        elif split == "val":
-            k = int(.2 * len(self.graph_files))
-            self.graph_files = random.sample(self.graph_files, k)
-
-        if size_percentage is not None:
-            k = int(size_percentage * len(self.graph_files))
-            self.graph_files = random.sample(self.graph_files, k)
-
-        for fn in self.graph_files:
-            # the first character of filename must be the alphabet
-            self.labels.append(self.char_to_label(fn.stem[0]))
-        # self.num_classes = len(set(self.labels))
-        self.num_classes = 26
-        if platform.system() == "Windows" or in_memory:
-            print("Windows OS detected, storing dataset in memory")
-            self.graphs = [load_graphs(str(fn))[0][0] for fn in self.graph_files]
-        print("Done loading {} and data {} classes".format(len(self.graph_files), self.num_classes))
-        self.apply_square_symmetry = apply_square_symmetry
-
-    def char_to_label(self, char):
-        return ord(char.lower()) - 97
-
-    def __len__(self):
-        return len(self.graph_files)
-
-    def __getitem__(self, idx):
-        if platform.system() == "Windows" or self.in_memory:
-            graph = self.graphs[idx]
-        else:
-            graph_file = str(self.graph_files[idx].absolute())
-            graph = load_graphs(graph_file)[0][0]
-        if self.apply_square_symmetry > 0.0:
-            prob_r = random.uniform(0.0, 1.0)
-            if prob_r < self.apply_square_symmetry:
-                graph.ndata['x'] = graph.ndata['x'].transpose(1, 2)
-            prob_u = random.uniform(0.0, 1.0)
-            if prob_u < self.apply_square_symmetry:
-                graph.ndata['x'] = torch.flip(graph.ndata['x'], dims=[1])
-            prob_v = random.uniform(0.0, 1.0)
-            if prob_v < self.apply_square_symmetry:
-                graph.ndata['x'] = torch.flip(graph.ndata['x'], dims=[2])
-
-        x = graph.ndata['x']
-        x = corner_align(x)
-        graph.ndata['x'] = x
-
-        # get extra label info
-        stem = self.graph_files[idx].stem.lower()
-        name = stem[2:-6]
-
-        return graph, torch.tensor([self.labels[idx]]).long(), str(self.graph_files[idx].name)
 
     def feature_indices(self):
         """
@@ -635,56 +533,3 @@ def random_rotate(x: torch.Tensor, axis: str):
 
 def identity_transform(x):
     return x
-
-
-class RandomCrop:
-    def __init__(self, proportion_remove=0.4):
-        self.proportion_remove = proportion_remove
-
-    def __call__(self, graph: dgl.DGLGraph):
-        graph.apply_nodes(lambda nodes: {'center': nodes.data['x'][:, :, :, 0:3].mean(dim=[1, 2])})
-        graph.apply_edges(dgl.function.u_sub_v('center', 'center', 'u_sub_v'))
-        diffs = graph.edata['u_sub_v'] # type: torch.Tensor
-        distances = diffs.norm(p=2, dim=-1)
-        graph.edata['distance'] = distances
-
-        g = dgl.to_networkx(graph, node_attrs=['x'], edge_attrs=['distance'])
-        start_node = np.random.randint(len(g))
-        lengths = nx.shortest_path_length(g, source=start_node, weight='distance')
-        df = pd.DataFrame.from_dict(lengths, orient='index', columns=['distance']).sort_values('distance')
-
-        k = int(self.proportion_remove * g.number_of_nodes())
-        nodes = df['distance'].index[:k].values
-        g.remove_nodes_from(nodes)
-        cropped_graph = dgl.from_networkx(g, node_attrs=['x'])
-        return cropped_graph
-
-
-if __name__ == "__main__":
-    # single_letter = SolidMNISTSingleLetter('dataset/bin', split='test')
-    # s = single_letter[0]
-
-    test_dset = SolidMNIST('dataset/bin', split="test")
-    graph, label, img, meta, file = test_dset[0]
-    random_crop = RandomCrop()
-    g = random_crop(graph)
-
-    num_nodes = []
-    degrees = []
-    for i in range(10):
-        graph, label, meta, image, name = test_dset[i]
-        x = graph.ndata['x']
-        xyz = x[:, :, :, :3].mean(dim=[1, 2])
-        graph.ndata['pos'] = xyz
-        # normals = x[:, :, :, 3:6]
-        # r = random_rotate(x, 'x')
-        # bounding_box(r)
-        num_nodes.append(graph.number_of_nodes())
-        degrees.append(graph.in_degrees())
-        g = dgl.to_networkx(graph, node_attrs=['pos'])
-        network_plot_3D(g, 0)
-    for i in range(len(test_dset)):
-        graph, label, meta, image, name = test_dset[i]
-
-        print('nodes:', graph.number_of_nodes())
-        print('degrees:', graph.in_degrees())

@@ -1,15 +1,11 @@
 import sys
-from concurrent.futures import ThreadPoolExecutor
-from queue import Queue
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import streamlit as st
 import torch
 import torchvision
-from joblib import Parallel, delayed
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
-from tqdm import tqdm
 
 sys.path.append('../../analysis')
 from util import Grams, get_pca_3_70, OnTheFlyImages

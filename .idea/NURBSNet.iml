@@ -12,6 +12,9 @@
       <excludeFolder url="file://$MODULE_DIR$/analysis/uvnet_data" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/uvnet_data/solidmnist_font_subset_embeddings" />
       <excludeFolder url="file://$MODULE_DIR$/dataset/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/dataset/pc" />
+      <excludeFolder url="file://$MODULE_DIR$/dump" />
+      <excludeFolder url="file://$MODULE_DIR$/gradient_runs" />
       <excludeFolder url="file://$MODULE_DIR$/runs" />
     </content>
     <content url="file://$MODULE_DIR$/analysis/uvnet_data/solidmnist_font_subset_embeddings" />

@@ -1,13 +1,15 @@
-import helper
-import os.path as osp
-import numpy as np
 import pathlib
-from torch.utils.data import Dataset, DataLoader
-import dgl
-import torch
-from dgl.data.utils import load_graphs, save_graphs
-import platform
 import random
+
+import dgl
+import numpy as np
+import torch
+from dgl.data.utils import load_graphs
+from torch.utils.data import Dataset
+
+import helper
+
+
 def my_collate(batch):
     graphs = batch
     bg = dgl.batch(graphs)
@@ -21,7 +23,6 @@ class ABCDataset(Dataset):
         :param size_percentage: Percentage of data to load per category
         :param in_memory: Whether to keep the entire dataset in memory (This is always done in Windows)
         :param apply_square_symmetry: Probability of randomly applying a square symmetry transform on the input surface grid (default: 0.0)
-        :param split_suffix: Suffix for the split directory to use
         """
         assert split in ("train", "val", "test", "all")
         path = pathlib.Path(root_dir)

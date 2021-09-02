@@ -4,9 +4,9 @@ import pytorch_lightning as pl
 import torch
 from pl_bolts.models.regression import LogisticRegression
 from pytorch_lightning.callbacks import EarlyStopping
+from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import StratifiedKFold
 from torch.utils.data.dataset import random_split
 
 from util import Grams

@@ -3,13 +3,10 @@ import os
 from glob import glob
 from pathlib import Path
 
-import PIL.Image
 import numpy as np
 import trimesh
-from PIL.Image import Image
 from joblib import Parallel, delayed
 from tqdm import tqdm
-from trimesh.scene.lighting import DirectionalLight
 
 
 def compute(file):

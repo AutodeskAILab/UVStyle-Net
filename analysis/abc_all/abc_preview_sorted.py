@@ -1,6 +1,8 @@
+import sys
+
 import pandas as pd
 import streamlit as st
-import sys
+
 sys.path.append('../../analysis')
 
 from util import OnTheFlyImages

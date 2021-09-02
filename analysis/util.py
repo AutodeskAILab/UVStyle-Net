@@ -4,16 +4,16 @@ import sys
 from collections import OrderedDict
 
 import PIL.Image
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import streamlit as st
 import torch
 import torchvision
-import streamlit as st
 from plotly import graph_objs as go, express as px
 from sklearn.decomposition import PCA
-from sklearn.metrics.pairwise import cosine_distances, paired_cosine_distances
+from sklearn.metrics.pairwise import paired_cosine_distances
 from sklearn.neighbors._kd_tree import KDTree
-import matplotlib.pyplot as plt
 
 
 class Grams(object):

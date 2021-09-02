@@ -2,8 +2,8 @@ import os
 import subprocess
 import sys
 
-import streamlit as st
 import numpy as np
+import streamlit as st
 
 if __name__ == '__main__':
     data_root = '../uvnet_data/abc_sub_mu_only/'

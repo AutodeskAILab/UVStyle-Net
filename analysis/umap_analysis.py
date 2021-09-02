@@ -1,11 +1,11 @@
 import math
-import pickle
 import os
+import pickle
 
 import numpy as np
 import pandas as pd
-import streamlit as st
 import plotly.express as px
+import streamlit as st
 import torchvision
 import umap
 

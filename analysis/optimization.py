@@ -5,10 +5,10 @@ import pickle
 import numpy as np
 import pandas as pd
 import streamlit as st
-from scipy.optimize import minimize
 import torch
 import torchvision
 from PIL import Image
+from scipy.optimize import minimize
 from sklearn.decomposition import PCA
 
 from layer_probing import load_df, get_image_grid

@@ -1,27 +1,27 @@
-import argparse
+import logging
+import os
+import os.path as osp
+
+import matplotlib
+import numpy as np
+import sklearn.metrics as metrics
 import torch
 import torch.nn as nn
-import  torch.nn.functional as F
-from torch.utils.data import DataLoader, TensorDataset
-import helper
-import os.path as osp
-import logging
+import torch.nn.functional as F
 from torch.optim import lr_scheduler
-import sklearn.metrics as metrics
-# from parse import Parser
-import numpy as np
-import os
-from networks import nurbs_model
-from networks import brep_model
+from torch.utils.data import DataLoader
+
+import helper
 from networks import decoder
+from networks import face_model
+from networks import graph_model
 from networks.classifier import LinearClassifier
 from solid_mnist import SolidMNISTWithPointclouds, collate_with_pointclouds
-import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.cluster import KMeans
-from sklearn.metrics.cluster import normalized_mutual_info_score, adjusted_mutual_info_score
+from sklearn.metrics.cluster import adjusted_mutual_info_score
 import parse_util
 import chamfer
 import random 
@@ -31,9 +31,9 @@ chamfer_dist = chamfer.ChamferLoss()
 class Model(nn.Module):
     def __init__(self, args):
         super(Model, self).__init__()
-        self.nurbs_feat_ext = nurbs_model.get_face_model(
+        self.nurbs_feat_ext = face_model.get_face_model(
             args.nurbs_model_type, mask_mode=args.mask_mode, area_as_channel=args.area_as_channel, output_dims=args.nurbs_emb_dim)
-        self.brep_feat_ext = brep_model.get_graph_model(
+        self.brep_feat_ext = graph_model.get_graph_model(
             args.brep_model_type, args.nurbs_emb_dim, args.graph_emb_dim)
         self.project_net = nn.Sequential(
                                 nn.Linear(args.graph_emb_dim, args.latent_dim),

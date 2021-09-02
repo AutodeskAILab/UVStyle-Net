@@ -1,9 +1,8 @@
-import numpy as np 
 import struct
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import os
-import random 
+import numpy as np
+
 
 def read_binary_stl(file):
     #with open(file,"rb") as fichier :

@@ -4,7 +4,7 @@ import torch
 import torchvision
 from sklearn.neighbors._kd_tree import KDTree
 
-from util import Grams, weight_layers, Images, IdMap, OnTheFlyImages
+from util import Grams, weight_layers, IdMap, OnTheFlyImages
 
 
 def spherize(emb):

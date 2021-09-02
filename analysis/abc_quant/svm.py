@@ -1,7 +1,6 @@
 import sys
 from argparse import ArgumentParser
 
-from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import SVC
 from sklearn.utils import shuffle
@@ -13,9 +12,7 @@ from pathlib import Path
 
 import torch
 import numpy as np
-from pl_bolts.models.regression import LogisticRegression
-from pytorch_lightning import LightningDataModule, Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning import LightningDataModule
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.dataset import random_split
 

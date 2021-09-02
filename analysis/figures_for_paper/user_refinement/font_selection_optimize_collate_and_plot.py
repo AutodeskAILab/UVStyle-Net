@@ -3,10 +3,10 @@ from ast import literal_eval
 from glob import glob
 from pathlib import Path
 
-import scipy.stats
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import scipy.stats
 
 from figures_for_paper.single_letter_hits.single_letter_hits_plot import heatmap, annotate_heatmap
 from util import Grams

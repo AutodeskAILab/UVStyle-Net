@@ -1,5 +1,6 @@
-from solid_mnist import SolidMNIST, SolidMNISTSubset, SolidMNISTSingleLetter
 import pandas as pd
+
+from solid_mnist import SolidMNIST, SolidMNISTSubset
 
 
 def count_fonts(dset: SolidMNIST):
@@ -15,7 +16,6 @@ if __name__ == '__main__':
     dsets = {
         'Complete': SolidMNIST,
         'Font Subset (4)': SolidMNISTSubset,
-        'Single Letter (G)': SolidMNISTSingleLetter
     }
 
     columns = ['Dataset', 'Split', 'Examples', 'Classes', 'Fonts']

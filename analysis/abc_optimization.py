@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
 import streamlit as st
+from sklearn.decomposition import PCA
 
 from constrained_optimization import optimize
-from util import Grams, Images, get_pca_3_70, StImageSelector, get_plotly_scatter_highlight_selected, \
+from util import Grams, Images, get_pca_3_70, get_plotly_scatter_highlight_selected, \
     st_plotly_weights_bar, weight_layers, StQueryDisplay
 
 if __name__ == '__main__':
