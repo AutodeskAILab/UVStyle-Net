@@ -26,13 +26,13 @@ class Model(nn.Module):
         Model used in this classification experiment
         """
         super(Model, self).__init__()
-        self.nurbs_feat_ext = nurbs_model.get_nurbs_model(
+        self.nurbs_feat_ext = nurbs_model.get_face_model(
             nurbs_model_type=args.nurbs_model_type,
             output_dims=args.nurbs_emb_dim,
             mask_mode=args.mask_mode,
             area_as_channel=args.area_as_channel,
             input_channels=args.input_channels)
-        self.brep_feat_ext = brep_model.get_brep_model(
+        self.brep_feat_ext = brep_model.get_graph_model(
             args.brep_model_type, args.nurbs_emb_dim, args.graph_emb_dim)
         self.cls = classifier.get_classifier(
             args.classifier_type, args.graph_emb_dim, num_classes, args.final_dropout)

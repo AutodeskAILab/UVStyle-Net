@@ -5,12 +5,10 @@ from dgl.nn.pytorch.conv import GINConv
 from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
 
 
-def get_brep_model(brep_model_type, input_dims, output_dims):
-    if brep_model_type == "gin":
-        return GIN(input_dims, output_dims)
-    elif brep_model_type == "gin_grouping":
-        return GINGrouping(input_dims, output_dims)
-    raise ValueError("No B-rep model matchs type: {}, expected one of ('gin', 'gin_grouping)".format(brep_model_type))
+def get_graph_model(brep_model_type, input_dims, output_dims):
+    if brep_model_type == "gin_grouping":
+        return UVNetGraphModel(input_dims, output_dims)
+    raise ValueError("No B-rep model matchs type: {}, expected one of ('gin_grouping')".format(brep_model_type))
 
 
 class ApplyNodeFunc(nn.Module):
@@ -88,75 +86,12 @@ def get_graph_pooling_layer(graph_pooling_type):
     raise ValueError("Expected graph_pooling_type to be one of ('sum', 'mean', 'max')")
 
 
-class GIN(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_dim=64, 
-                    neighbor_pooling_type = "sum", graph_pooling_type = "max", 
-                    learn_eps=True, num_layers=3, num_mlp_layers=2):
-        """
-        Feature extractor for B-rep face adjacency graphs using GIN conv.
-        Parameters
-        ---------
-        num_layers: int
-            The number of linear layers in the neural network
-        num_mlp_layers: int
-            The number of linear layers in mlps
-        input_dim: int
-            The dimensionality of input features
-        hidden_dim: int
-            The dimensionality of hidden units at ALL layers
-        output_dim: int
-            The number of classes for prediction
-        final_dropout: float
-            dropout ratio on the final linear layer
-        learn_eps: boolean
-            If True, learn epsilon to distinguish center nodes from neighbors
-            If False, aggregate neighbors and center nodes altogether.
-        neighbor_pooling_type: str
-            how to aggregate neighbors (sum, mean, or max)
-        graph_pooling_type: str
-            how to aggregate entire nodes in a graph (sum, mean or max)
-        """
-        super(GIN, self).__init__()
-        self.num_layers = num_layers
-        self.learn_eps = learn_eps
-
-        # List of MLPs
-        self.ginlayers = torch.nn.ModuleList()
-        self.batch_norms = torch.nn.ModuleList()
-
-        for layer in range(self.num_layers - 1):
-            if layer == 0:
-                mlp = MLP(num_mlp_layers, input_dim, hidden_dim, hidden_dim)
-            else:
-                mlp = MLP(num_mlp_layers, hidden_dim, hidden_dim, hidden_dim)
-            self.ginlayers.append(
-                GINConv(ApplyNodeFunc(mlp), neighbor_pooling_type, 0, self.learn_eps))
-            self.batch_norms.append(nn.BatchNorm1d(hidden_dim))
-        
-        self.final_layer = nn.Linear(hidden_dim, output_dim)
-        self.pool = get_graph_pooling_layer(graph_pooling_type)
-
-    def forward(self, g, h):
-        # list of hidden representation at each layer (including input)
-        hidden_rep = [h]
-
-        for i in range(self.num_layers - 1):
-            h = self.ginlayers[i](g, h)
-            h = self.batch_norms[i](h)
-            h = F.relu(h)
-            hidden_rep.append(h)
-
-        h = self.final_layer(h)
-        pooled_h = self.pool(g, h)
-
-        return h, pooled_h
-
-class GINGrouping(nn.Module):
+class UVNetGraphModel(nn.Module):
     def __init__(self, input_dim, output_dim, hidden_dim=64, 
                     neighbor_pooling_type = "sum", graph_pooling_type = "max", 
                     learn_eps=True, num_layers=3, num_mlp_layers = 2):
         
-        super(GINGrouping, self).__init__()
+        super(UVNetGraphModel, self).__init__()
         self.num_layers = num_layers
         self.learn_eps = learn_eps
 
