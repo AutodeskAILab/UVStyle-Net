@@ -27,7 +27,49 @@ If you use any of the code or techniques from the paper, please cite the followi
 
 ### Environment Setup
 
+We recommend using a virtual environment such as conda:
+
+```bash
+$ conda create --name uvstylenet python=3.7
+WINDOWS:       $ activate uvstylenet
+LINUX, macOS:  $ source activate uvstylenet
+```
+
+- swap `dgl-cu101` in `requirmenets.txt:3` for the correct cuda version for your system. i.e. `cdl-cu102`, `dgl-cu100`, etc. (for cpu only use `dgl`)
+- for gpu use you may need to install cudatoolkit/set environment variable `LD_LIBRARY_PATH` if you have not done so already
+
+Install the remaining requirements:
+
+```bash
+$ pip install -r requirements.txt
+```
+
 ### Download the Data & Pre-trained Models
+
+To get started quickly and interact with the models, we recommend downloading only
+the pre-computed Gram matrices for the SolidLETTERS test set along with the pre-trained
+SolidLETTERS model and the SolidLETTERS test set meshes (to assist visualization).
+
+```bash
+# TODO
+```
+
+OPTIONAL: If you wish to modify the normalisation or the way in which the Grams
+are computed you will need the pre-computed DGL binary files from which the Gram
+matrices are computed (details on how to do this [below](#Compute-the-Gram-Matrices)):
+
+```bash
+# TODO
+```
+
+OPTIONAL: If you wish to retrain UVNet, or use SolidLETTERS for training your own models, the complete dataset
+is available in DGL binary files, mesh (edge numbers), point cloud, :
+
+```bash
+# TODO
+```
+
+OPTIONAL: For the ABC dataset, 
 
 ### Top-k Queries
 
