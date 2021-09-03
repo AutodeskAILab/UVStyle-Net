@@ -98,7 +98,20 @@ $ streamlit run dashboards/top_k.py
 
 #### Visualize Style Loss Gradients
 
+Visualize the xyz position gradients of the style loss between a pair of solids.
+Black lines indicate the direction and magnitude of the gradient of the loss with
+respect to each of the individual sampled points (i.e. which direction to move each
+sampled point to better match the style between the solids).
+
+```bash
+$ streamlit run dashboards/visualize_style)loss.py
+```
+
+![Gradients Visualization](demo_imgs/gradients.gif "Gradients Visualization")
+
 #### Optimize Layer Weights (Few-shot Learning)
+
+## Full Datasets
 
 ## Other Experiments
 
