@@ -14,7 +14,7 @@ import parse_util
 from networks import graph_model
 from networks import classifier
 from networks import face_model
-from solid_mnist import my_collate, SolidMNIST
+from solid_mnist import my_collate, SolidMNIST, SolidMNISTSubset
 
 
 class Model(nn.Module):
@@ -179,7 +179,7 @@ def experiment_name(args) -> str:
 
 
 if __name__ == '__main__':
-    out_dir = 'analysis/uvnet_data/solidmnist_all_fnorm'
+    out_dir = 'analysis/uvnet_data/test'
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     parser = parse_util.get_test_parser("UV-Net Classifier Testing Script for Solids")
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     print('Args used during training:\n', state['args'])
 
     # Load dataset
-    test_dset = SolidMNIST('dataset/bin', split="test")
+    test_dset = SolidMNISTSubset('dataset/bin', split="test")
 
     test_loader = helper.get_dataloader(
         test_dset, state['args'].batch_size, train=False, collate_fn=my_collate)
