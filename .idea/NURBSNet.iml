@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/analysis" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/dashboards" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/abc_quant/abc_quant_data" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/abc_quant/cache" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/cache" />
@@ -11,6 +12,7 @@
       <excludeFolder url="file://$MODULE_DIR$/analysis/psnet_data" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/uvnet_data" />
       <excludeFolder url="file://$MODULE_DIR$/analysis/uvnet_data/solidmnist_font_subset_embeddings" />
+      <excludeFolder url="file://$MODULE_DIR$/data" />
       <excludeFolder url="file://$MODULE_DIR$/dataset/bin" />
       <excludeFolder url="file://$MODULE_DIR$/dataset/pc" />
       <excludeFolder url="file://$MODULE_DIR$/dump" />

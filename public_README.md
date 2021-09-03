@@ -4,6 +4,31 @@ UVStyle-Net: Unsupervised Few-shot Learning of 3D Style Similarity Measure for B
 This repository contains the authors' implementation of
 [UVStyle-Net: Unsupervised Few-shot Learning of 3D Style Similarity Measure for B-Reps](https://arxiv.org/abs/2105.02961).
 
+### Contents
+
+1. About UVStyle-Net
+2. Citing this Work
+3. Quickstart
+    1. Environment Setup
+    2. Download the Data & Pre-trained Model
+    3. Explore our Interactive Dashboards
+        - Top-k Queries
+        - Visualize Style Loss Gradients
+        - Optimize Layer Weights (Few-shot Learning)
+4. Full Datasets
+    1. SolidLETTERS
+    2. ABC
+5. Other Experiments
+    1. Linear Probes (Fig. 3)
+    2. Precision@10 for Few-shot Learning (Fig. 8)
+    3. Classification on ABC Subsets (Table 2)
+    4. Ablation (Fig. 10 & 11)
+6. Using Your Own Data
+    1. Feature Pipeline for B-Rep to DGL
+    2. Training the Model
+    3. Compute the Gram Matrices
+7. License
+
 ## About UVStyle-Net
 
 ## Citing this Work
@@ -54,30 +79,26 @@ SolidLETTERS model and the SolidLETTERS test set meshes (to assist visualization
 # TODO
 ```
 
-OPTIONAL: If you wish to modify the normalisation or the way in which the Grams
-are computed you will need the pre-computed DGL binary files from which the Gram
-matrices are computed (details on how to do this [below](#Compute-the-Gram-Matrices)):
+### Explore our Interactive Dashboards
+
+All dashboards use streamlit and can be run from the project root.
+
+#### Top-k
+
+Experiment with manually adjusting the layer weights used to compute the style loss,
+and observe their effect on the nearest neighbours. Available for SolidLETTERS and ABC datasets.
 
 ```bash
-# TODO
+$ streamlit run dashboards/top_k.py
 ```
 
-OPTIONAL: If you wish to retrain UVNet, or use SolidLETTERS for training your own models, the complete dataset
-is available in DGL binary files, mesh (edge numbers), point cloud, :
+![Top-k Dashboard](demo_imgs/top-k.png?raw=true "Top-k Dashboard")
 
-```bash
-# TODO
-```
+#### Visualize Style Loss Gradients
 
-OPTIONAL: For the ABC dataset, 
+#### Optimize Layer Weights (Few-shot Learning)
 
-### Top-k Queries
-
-### Visualize Style Loss Gradients
-
-### Optimize Layer Weights (Few-shot Learning)
-
-## Other Experiments from Paper
+## Other Experiments
 
 ### Linear Probes (Fig. 3)
 
@@ -87,9 +108,11 @@ OPTIONAL: For the ABC dataset,
 
 ### Ablation (Fig. 10 & 11)
 
-## Custom Datasets
+## Using Your Own Data
 
 ### Feature Pipeline for B-Rep to DGL
+
+### Training the Model
 
 ### Compute the Gram Matrices
 
