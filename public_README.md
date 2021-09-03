@@ -111,6 +111,16 @@ $ streamlit run dashboards/visualize_style_loss.py
 
 #### Optimize Layer Weights (Few-shot Learning)
 
+Experiment with different positive and negative examples for optimization of
+the user defined style loss. Select negatives manually, or use randomly drawn examples
+from the remaining dataset. Available for SolidLETTERS and ABC datasets.
+
+```bash
+streamlit run dashboards/few_shot_optimization.py
+```
+
+![Few-shot Optimization](demo_imgs/few_shot.png?raw=true "Few-shot Optimization")
+
 ## Full Datasets
 
 ## Other Experiments

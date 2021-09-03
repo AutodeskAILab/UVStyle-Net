@@ -9,7 +9,8 @@ import torchvision
 from sklearn.utils import shuffle
 
 sys.path.append('../../analysis')
-from abc_all.abc_top_k_by_layer import top_k_neighbors, pad_grams, plot
+sys.path.append('../../../UVStyle-Net')
+from utils import top_k_neighbors, pad_grams, plot
 from constrained_optimization import optimize
 from util import Grams, OnTheFlyImages, get_pca_3_70
 
