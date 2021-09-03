@@ -38,8 +38,6 @@ class UVNetFaceModel(nn.Module):
                 m.bias.data.fill_(0.0)
 
     def forward_mask_channel(self, inp):
-        if self.weighted:
-            self.conv1[0].set_weights(inp[:, 7, :, :], inp[:, 8, :, :], inp[:, 9, :, :])
         if self.input_channels == 'xyz_only':
             x = inp[:, [0, 1, 2, 6], :, :]  # xyz, mask
         else:
