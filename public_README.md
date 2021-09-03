@@ -107,7 +107,7 @@ sampled point to better match the style between the solids).
 $ streamlit run dashboards/visualize_style)loss.py
 ```
 
-![Gradients Visualization](demo_imgs/gradients.gif "Gradients Visualization")
+![Gradients Visualization](demo_imgs/gradients.gif?raw=true "Gradients Visualization")
 
 #### Optimize Layer Weights (Few-shot Learning)
 
