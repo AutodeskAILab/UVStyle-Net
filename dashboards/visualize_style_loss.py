@@ -1,10 +1,15 @@
+import os
+import sys
+
 import dgl
 import numpy as np
 import streamlit as st
 import torch
 import trimesh
 
-from analysis.util import weight_layers
+file_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(file_dir)
+sys.path.append(project_root)
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
 from helper import load_checkpoint
 from solid_mnist import SolidMNIST
@@ -48,18 +53,14 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
     else:
         raise Exception('metric must be \'cosine\' or \'euclidean\'')
 
-    bg, feat, style_emb, grams = compute_grams_from_model_with_grads(dgl.batch([g0, g1]), model_checkpoint, weights, device)
+    bg, feat, grams = compute_grams_from_model_with_grads(dgl.batch([g0, g1]), model_checkpoint, device)
 
-    # loss = crit(*style_emb)
     losses = [weights[i] * crit(*gram) for i, gram in enumerate(grams)]
     loss = sum(losses)
     loss.backward()
     feat_grads = []
-    st.sidebar.subheader('XYZ + Normals')
-    selection = [st.sidebar.checkbox(label=str(i), value=i > 2) for i in range(6)]
-    idx = torch.arange(6)[selection]
     for grads in torch.split(feat.grad, bg.batch_num_nodes().tolist()):
-        grads = grads[:, :, :, idx]
+        grads = grads[:, :, :, :3]
         if len(idx) > 1:
             combined_grads = grads.norm(dim=-1)
         else:
@@ -67,14 +68,12 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
         feat_grads.append(combined_grads.flatten())
     grads = torch.split(feat.grad, bg.batch_num_nodes().tolist())
     a = uv_samples_plot(*graph_to_xyz_mask(g0),
-                        sample_colors=feat_grads[0].detach().cpu(),
                         xyz_grads=grads[0][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh0,
                         mesh_alpha=mesh_alpha)
     b = uv_samples_plot(*graph_to_xyz_mask(g1),
-                        sample_colors=feat_grads[1].detach().cpu(),
                         xyz_grads=grads[1][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
@@ -83,7 +82,7 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
     return a, b
 
 
-def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, device='cpu'):
+def compute_grams_from_model_with_grads(bg, model_checkpoint, device='cpu'):
     state = load_checkpoint(model_checkpoint, map_to_cpu=device == 'cpu')
     state['args'].input_channels = 'xyz_normals'
     model = Model(26, state['args']).to(device)
@@ -102,14 +101,11 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, weights=None, devi
         compute_grams(activations[layer], bg)
         for layer in ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
     ]
-    if weights is None:
-        weights = torch.ones(len(grams))
-    style_emb = weight_layers(grams, weights)
-    return bg, feat, style_emb, grams
+    return bg, feat, grams
 
 
 if __name__ == '__main__':
-    mesh_path = '/home/pete/brep_style/solidmnist/mesh/test'
+    mesh_path = os.path.join(project_root, 'data', 'SolidLETTERS', 'mesh', 'test')
     text = st.sidebar.text_area(label='Enter letter names (separate lines)',
                                 value='c_Viaoda Libre_lower\ns_Aldrich_upper')
     st.sidebar.subheader('Options')
@@ -131,14 +127,15 @@ if __name__ == '__main__':
                                    step=0.1,
                                    value=0.7)
     st.sidebar.subheader('Layer Weights')
+    default_weights = [1., 1., 1., 0., 0., 0., 0.]
     weights_sliders = [
         st.sidebar.slider(label=str(i),
                           min_value=0.,
                           max_value=1.,
-                          value=1.) for i in range(7)
+                          value=w) for i, w in enumerate(default_weights)
     ]
-    dset = SolidMNIST(root_dir='dataset/bin', split='test')
-    model_checkpoint = '/home/pete/brep_style/grams_and_models/solidmnist/uvnet/best_0.pt'
+    dset = SolidMNIST(root_dir=os.path.join(project_root, 'dataset', 'bin'), split='test')
+    model_checkpoint = os.path.join(project_root, 'checkpoints', 'solidletters_chkpt.pt')
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
 
@@ -151,7 +148,6 @@ if __name__ == '__main__':
     mesh0 = trimesh.load(f'{mesh_path}/{names[0]}.stl') if show_mesh else None
     mesh1 = trimesh.load(f'{mesh_path}/{names[1]}.stl') if show_mesh else None
 
-    # weights = torch.ones(7, requires_grad=True)
     torch.autograd.set_detect_anomaly(True)
     weights = torch.tensor(weights_sliders, requires_grad=True)
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,

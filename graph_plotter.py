@@ -58,34 +58,21 @@ def graph_to_xyz_mask(graph):
 
 
 def uv_samples_plot(xyz, mask,
-                    node_colors=None,
-                    sample_colors=None,
                     xyz_grads=None,
                     scale_xyz_grads=0.05,
                     marker_size=3,
                     mesh: trimesh.Trimesh = None,
                     mesh_alpha=1.):
-    if sample_colors is None:
-        if node_colors is None:
-            node_colors = np.arange(sum(mask))
-        sample_colors = np.array([[c] * 100 for c in node_colors]).flatten()
 
     if mask is not None:
         xyz = xyz[mask == 1]
-        sample_colors = sample_colors[mask == 1]
 
     scatter = go.Scatter3d(x=xyz[:, 0],
                            y=xyz[:, 1],
                            z=xyz[:, 2],
                            marker=dict(
-                               color=sample_colors,
-                               # colorscale="RdYlBu",
-                               colorscale="Plotly3",
-                               colorbar=dict(
-                                   title="Colorbar"
-                               ),
                                size=marker_size,
-                               # cmid=0
+                               color='rgb(0, 0, 255)'
                            ),
 
                            mode='markers')
