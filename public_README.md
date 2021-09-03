@@ -14,15 +14,15 @@ This repository contains the authors' implementation of
     3. [Explore our Interactive Dashboards](#Explore-our-Interactive-Dashboards)
         - [Top-k Queries](#Top-k-Queries)
         - [Visualize Style Loss Gradients](#Visualize-Style-Loss-Gradients)
-        - [Optimize Layer Weights (Few-shot Learning)](#Optimize-Layer-Weights-(Few-shot-Learning))
+        - [Optimize Layer Weights](#Optimize-Layer-Weights)
 4. [Full Datasets](#Full-Datasets)
     1. [SolidLETTERS](#SolidLETTERS)
     2. [ABC](#ABC)
 5. [Other Experiments](#Other-Experiments)
-    1. [Linear Probes (Fig. 3)](#Linear-Probes-(Fig.-3))
-    2. [Precision@10 for Few-shot Learning (Fig. 8)](#Precision@10-for-Few-shot-Learning-(Fig.-8))
-    3. [Classification on ABC Subsets (Table 2)](#Classification-on-ABC-Subsets-(Table-2))
-    4. [Ablation (Fig. 10 & 11)](#Ablation-(Fig.-10-&-11))
+    1. [Linear Probes](#Linear-Probes)
+    2. [Precision@10 for Few-shot Learning](#Precision@10-for-Few-shot-Learning)
+    3. [Classification on ABC Subsets](#Classification-on-ABC-Subsets)
+    4. [Ablation](#Ablation)
 6. [Using Your Own Data](#Using-Your-Own-Data)
     1. [Feature Pipeline for B-Rep to DGL](#Feature-Pipeline-for-B-Rep-to-DGL)
     2. [Training the Model](#Training-the-Model)
@@ -109,9 +109,9 @@ $ streamlit run dashboards/visualize_style_loss.py
 
 ![Gradients Visualization](demo_imgs/gradients.gif?raw=true "Gradients Visualization")
 
-#### Optimize Layer Weights (Few-shot Learning)
+#### Optimize Layer Weights
 
-Experiment with different positive and negative examples for optimization of
+Experiment with different positive and negative examples for few-shot optimization of
 the user defined style loss. Select negatives manually, or use randomly drawn examples
 from the remaining dataset. Available for SolidLETTERS and ABC datasets.
 
@@ -125,13 +125,13 @@ streamlit run dashboards/few_shot_optimization.py
 
 ## Other Experiments
 
-### Linear Probes (Fig. 3)
+### Linear Probes
 
-### Precision@10 for Few-shot Learning (Fig. 8)
+### Precision@10 for Few-shot Learning
 
-### Classification on ABC Subsets (Table 2)
+### Classification on ABC Subsets
 
-### Ablation (Fig. 10 & 11)
+### Ablation
 
 ## Using Your Own Data
 
