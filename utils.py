@@ -6,15 +6,17 @@ from collections import OrderedDict
 import PIL
 import numpy as np
 import pandas as pd
+import streamlit as st
 import torch
+from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
 
 
 class Grams(object):
-    def __init__(self, data_root, label_map=None):
-        self.data_root = data_root
-        self.file_names = sorted(list(filter(lambda file_name: file_name[-4:] == '.npy', os.listdir(data_root))))
+    def __init__(self, grams_root, label_map=None):
+        self.data_root = grams_root
+        self.file_names = sorted(list(filter(lambda file_name: file_name[-4:] == '.npy', os.listdir(grams_root))))
         self.layer_names = list(map(lambda filename: '_'.join(filename.split('_')[:-1]), self.file_names))
         self._label_map = label_map
         self._grams = None
@@ -53,8 +55,8 @@ class Grams(object):
 
 
 class ImageLoader(object):
-    def __init__(self, data_root, img_root, img_type='png', black_to_white=False):
-        self.data_root = data_root
+    def __init__(self, grams_root, img_root, img_type='png', black_to_white=False):
+        self.data_root = grams_root
         self.img_root = img_root
         self.img_type = img_type
         self.black_to_white = black_to_white
@@ -147,4 +149,65 @@ def get_pca_70(grams, cache_file, verbose=False):
         with open(cache_file, 'wb') as file:
             pickle.dump(pca_70, file)
 
+    return pca_70
+
+
+def dataset_selector(project_root):
+    dataset_name = st.sidebar.selectbox(label='Dataset',
+                                        options=os.listdir(os.path.join(project_root, 'data')))
+    data_root = os.path.join(project_root, 'data', dataset_name)
+
+    grams_name = st.sidebar.selectbox(label='Grams',
+                                      options=os.listdir(os.path.join(data_root, 'grams')))
+
+    grams_root = os.path.join(data_root, 'grams', grams_name)
+    return data_root, dataset_name, grams_root, grams_name
+
+
+def plot(grid_array, query_idx, img_size, k, distances=None, font_size=24):
+    fig, ax = plt.subplots()  # type: plt.Figure, plt.Axes
+    ax.imshow(grid_array)
+
+    ax.set_xticks(np.arange(k) * (img_size + 2) + (img_size / 2))
+    ax.set_xticklabels(['Q'] + list(map(str, np.arange(1, k))), Fontsize=font_size)
+
+    if query_idx is not None and len(query_idx) > 0:
+        ax.set_yticks(np.arange(len(query_idx)) * (img_size + 2) + (img_size / 2))
+        ax.set_yticklabels(query_idx if query_idx is not None else None, Fontsize=font_size)
+    else:
+        ax.set_yticks([])
+
+    if distances is not None:
+        x = np.arange(k)
+        y = np.arange(len(distances))
+        xy = np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))])
+        text = list(map(lambda d: f'{d:.2f}', distances.tolist()))
+
+        space = img_size
+        for t, pos in zip(text, xy):
+            x, y = pos
+            ax.annotate(t, ((x * space + .6 * space), (y * space + .9 * space)), color='red', Fontsize=font_size)
+
+    fig.set_size_inches(21, 15)
+    fig.tight_layout()
+    return fig
+
+
+def warn_and_get_pca70(file_dir, dataset_name, grams_name, grams):
+    pca_70 = None
+    os.makedirs(os.path.join(file_dir, 'cache'), exist_ok=True)
+    cache_file = os.path.join(file_dir, 'cache', f'{dataset_name}-{grams_name}-pca_70')
+    if not os.path.exists(cache_file):
+        st.write('To visualize the query results, you will first need to perform PCA on the Gram matrices.')
+        st.write('You will need to do this only once.')
+        st.write('For SolidLETTERS this should take less than a minute, and require no more then 1GB memory.')
+        st.write('For ABC this will require approx. 36GB memory, and will take a few minutes.')
+        if st.button(label='Start'):
+            pca_70 = get_pca_70(grams=grams,
+                                cache_file=cache_file,
+                                verbose=True)
+    else:
+        pca_70 = get_pca_70(grams=grams,
+                            cache_file=cache_file,
+                            verbose=True)
     return pca_70
