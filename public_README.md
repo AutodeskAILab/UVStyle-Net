@@ -104,7 +104,7 @@ respect to each of the individual sampled points (i.e. which direction to move e
 sampled point to better match the style between the solids).
 
 ```bash
-$ streamlit run dashboards/visualize_style)loss.py
+$ streamlit run dashboards/visualize_style_loss.py
 ```
 
 ![Gradients Visualization](demo_imgs/gradients.gif?raw=true "Gradients Visualization")
