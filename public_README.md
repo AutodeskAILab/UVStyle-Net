@@ -101,7 +101,7 @@ $ streamlit run dashboards/top_k.py
 Visualize the xyz position gradients of the style loss between a pair of solids.
 Black lines indicate the direction and magnitude of the gradient of the loss with
 respect to each of the individual sampled points (i.e. which direction to move each
-sampled point to better match the style between the solids).
+sampled point to better match the style between the solids). Available for SolidLETTERS.
 
 ```bash
 $ streamlit run dashboards/visualize_style_loss.py
