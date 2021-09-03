@@ -31,6 +31,8 @@ This repository contains the authors' implementation of
 
 ## About UVStyle-Net
 
+![Overview of UVStyle-Net](demo_imgs/overview.png?raw=true "Overview of UVStyle-Net")
+
 ## Citing this Work
 
 If you use any of the code or techniques from the paper, please cite the following:
