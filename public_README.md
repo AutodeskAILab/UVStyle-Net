@@ -6,28 +6,28 @@ This repository contains the authors' implementation of
 
 ### Contents
 
-1. About UVStyle-Net
-2. Citing this Work
-3. Quickstart
-    1. Environment Setup
-    2. Download the Data & Pre-trained Model
-    3. Explore our Interactive Dashboards
-        - Top-k Queries
-        - Visualize Style Loss Gradients
-        - Optimize Layer Weights (Few-shot Learning)
-4. Full Datasets
-    1. SolidLETTERS
-    2. ABC
-5. Other Experiments
-    1. Linear Probes (Fig. 3)
-    2. Precision@10 for Few-shot Learning (Fig. 8)
-    3. Classification on ABC Subsets (Table 2)
-    4. Ablation (Fig. 10 & 11)
-6. Using Your Own Data
-    1. Feature Pipeline for B-Rep to DGL
-    2. Training the Model
-    3. Compute the Gram Matrices
-7. License
+1. [About UVStyle-Net](#About-UVStyle-Net)
+2. [Citing this Work](#Citing-this-Work)
+3. [Quickstart](#Quickstart)
+    1. [Environment Setup](#Environment-Setup)
+    2. [Download the Data & Pre-trained Model](#Download-the-Data-&-Pre-trained-Model)
+    3. [Explore our Interactive Dashboards](#Explore-our-Interactive-Dashboards)
+        - [Top-k Queries](#Top-k-Queries)
+        - [Visualize Style Loss Gradients](#Visualize-Style-Loss-Gradients)
+        - [Optimize Layer Weights (Few-shot Learning)](#Optimize-Layer-Weights-(Few-shot-Learning))
+4. [Full Datasets](#Full-Datasets)
+    1. [SolidLETTERS](#SolidLETTERS)
+    2. [ABC](#ABC)
+5. [Other Experiments](#Other-Experiments)
+    1. [Linear Probes (Fig. 3)](#Linear-Probes-(Fig.-3))
+    2. [Precision@10 for Few-shot Learning (Fig. 8)](#Precision@10-for-Few-shot-Learning-(Fig.-8))
+    3. [Classification on ABC Subsets (Table 2)](#Classification-on-ABC-Subsets-(Table-2))
+    4. [Ablation (Fig. 10 & 11)](#Ablation-(Fig.-10-&-11))
+6. [Using Your Own Data](#Using-Your-Own-Data)
+    1. [Feature Pipeline for B-Rep to DGL](#Feature-Pipeline-for-B-Rep-to-DGL)
+    2. [Training the Model](#Training-the-Model)
+    3. [Compute the Gram Matrices](#Training-the-Model)
+7. [License](#License)
 
 ## About UVStyle-Net
 
