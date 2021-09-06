@@ -19,5 +19,5 @@ if __name__ == '__main__':
                       labels=labels,
                       err=True)
           for i, x in enumerate(grams)])
-    df.to_csv('test.csv', index=False)
+    df.to_csv('linear_probes.csv', index=False)
     print(df)
