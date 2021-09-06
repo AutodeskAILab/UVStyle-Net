@@ -1,8 +1,6 @@
+import os
 import sys
 from argparse import ArgumentParser
-
-sys.path.append('../../analysis')
-import os
 from glob import glob
 from pathlib import Path
 
@@ -13,7 +11,10 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.dataset import random_split
 
-from util import Grams
+file_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(file_dir)
+sys.path.append(project_root)
+from utils import Grams
 
 
 class GramDataset(Dataset):
@@ -83,7 +84,7 @@ class GramsDataModule(LightningDataModule):
 
 
 def main(args):
-    log_file = 'results_test.csv'
+    log_file = os.path.join(file_dir, 'abc_quant_results.csv')
     if not os.path.exists(log_file):
         with open(log_file, 'w') as log:
             log.write('val_acc;test_acc;config\n')
@@ -107,8 +108,8 @@ def main(args):
 
     trainer = Trainer(
         # checkpoint_callback=checkpoint_callback,
-                      gpus=[0],
-                      max_epochs=10)
+        gpus=[0],
+        max_epochs=10)
 
     trainer.fit(model=model,
                 datamodule=data_module)

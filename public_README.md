@@ -172,6 +172,31 @@ optional arguments:
 
 ### Classification on ABC Subsets
 
+Ensure you have the UVStyle-Net Gram matrices for the complete ABC dataset in
+`PROJECT_ROOT/data/ABC/grams/all` as well as the PSNet* Gram matrices in
+`PROJECT_ROOT/psnet_data/ABC/grams/all`. Finally, you will need the labeled subset
+pngs in `PROJECT_ROOT/data/ABC/labeled_pngs`.
+
+First perform the logistic regression and log the results for each trial (if
+you run into memory problems please reduce `--num_threads`):
+
+```bash
+$ python experiments/abc_logistic_regression.py
+
+usage: abc_logistic_regression.py [-h] [--num_threads NUM_THREADS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --num_threads NUM_THREADS
+                        number of concurrent threads (default: 5)
+```
+
+Next collate all results and produce the comparison table:
+
+```bash
+$ python experiments/abc_logistic_regression_collate_scores.py
+```
+
 ### Ablation
 
 ## Using Your Own Data
