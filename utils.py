@@ -10,6 +10,7 @@ import streamlit as st
 import torch
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
 
 
@@ -211,3 +212,26 @@ def warn_and_get_pca70(file_dir, dataset_name, grams_name, grams):
                             cache_file=cache_file,
                             verbose=True)
     return pca_70
+
+
+def probe_score(stat, reduced, labels, err=False, balanced=True):
+    print(f'Probing {stat}...')
+    model = LogisticRegressionCV(cv=5,
+                                 class_weight='balanced' if balanced else None,
+                                 scoring='accuracy',
+                                 max_iter=1000)
+    model.fit(reduced, labels)
+    scores = []
+    if err:
+        errs = []
+        for k, v in model.scores_.items():
+            c_scores = v.mean(axis=0)
+            best_c = c_scores.argmax()
+            scores.append(c_scores.max())
+            errs.append(v[:, best_c].std())
+        return np.mean(scores), np.mean(errs)
+    else:
+        for k, v in model.scores_.items():
+            c_scores = v.mean(axis=0)
+            scores.append(c_scores.max())
+        return np.mean(scores)
