@@ -127,7 +127,7 @@ streamlit run dashboards/few_shot_optimization.py
 
 ### Linear Probes
 
-Ensure you have the Gram matrices pre-computed for SolidLETTERS subset in 
+Ensure you have the Gram matrices for SolidLETTERS subset in 
 `PROJECT_ROOT/data/SolidLETTERS/grams/subset`.
 
 ```bash
@@ -135,6 +135,40 @@ $ python experiments/linear_probes.py
 ```
 
 ### Precision@10 for Few-shot Learning
+
+Ensure you have the Gram matrices for the complete SolidLETTERS test set in
+`PROJECT_ROOT/data/SolidLETTERS/grams/all`.
+
+First perform the optimizations and hits@10 scoring (if you run into memory problems
+please reduce `--num_threads`): 
+
+```bash
+$ python experiments/font_selection_optimize.py
+
+usage: font_selection_optimize.py [-h] [--exp_name EXP_NAME]
+                                  [--num_threads NUM_THREADS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --exp_name EXP_NAME   experiment name - results for each font/trial will be
+                        saved into this directory (default: SolidLETTERS-all)
+  --num_threads NUM_THREADS
+                        number of concurrent threads (default: 6)
+```
+ 
+Next collate all results and produce the heatmaps (figures will be saved to
+the experiments directory):
+
+```bash
+$ python experiments/font_selection_optimize_collate_and_plot.py
+
+usage: font_selection_optimize_collate_and_plot.py [-h] [--exp_name EXP_NAME]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --exp_name EXP_NAME  experiment name - font scores will be read fromthis
+                       directory (default: SolidLETTERS-all)
+```
 
 ### Classification on ABC Subsets
 
