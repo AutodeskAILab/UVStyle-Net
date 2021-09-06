@@ -127,6 +127,13 @@ streamlit run dashboards/few_shot_optimization.py
 
 ### Linear Probes
 
+Ensure you have the Gram matrices pre-computed for SolidLETTERS subset in 
+`PROJECT_ROOT/data/SolidLETTERS/grams/subset`.
+
+```bash
+$ python experiments/linear_probes.py
+```
+
 ### Precision@10 for Few-shot Learning
 
 ### Classification on ABC Subsets
