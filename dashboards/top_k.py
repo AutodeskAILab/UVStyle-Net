@@ -1,5 +1,6 @@
 import os
 import sys
+from itertools import islice
 
 import streamlit as st
 import torch
@@ -62,14 +63,15 @@ if __name__ == '__main__':
                for i in range(len(defaults))]
     weight_combos = torch.tensor([weights], device=device)
 
-    pca_70 = warn_and_get_pca70(file_dir=file_dir,
-                                dataset_name=dataset_name,
-                                grams_name=grams_name,
-                                grams=grams)
+    pca_70_od = warn_and_get_pca70(file_dir=file_dir,
+                                   dataset_name=dataset_name,
+                                   grams_name=grams_name,
+                                   grams=grams)
     del grams
 
-    if pca_70 is not None:
-        padded_grams = pad_grams(list(pca_70.values())).to(device)
+    if pca_70_od is not None:
+        pca_70 = list(islice(pca_70_od.values(), 7))
+        padded_grams = pad_grams(pca_70).to(device)
 
         for layer, weights in enumerate(weight_combos):
             print('compute neighbors...')
