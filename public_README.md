@@ -199,6 +199,27 @@ $ python experiments/abc_logistic_regression_collate_scores.py
 
 ### Ablation
 
+#### Dimension Reduction Probes
+
+First run the PCA/probes for each dimension:
+
+```text
+$ python experiments/dimension_reduction_probes.py
+```
+
+Next process the results and create the plot (figure will be saved to the experiments
+directory):
+
+```text
+$ python experiments/dimension_reduction_plot.py
+
+usage: dimension_reduction_plot.py [-h] [--include_content]
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --include_content  include content embeddings in plot (default: False)
+```
+
 ## Using Your Own Data
 
 ### Feature Pipeline for B-Rep to DGL
