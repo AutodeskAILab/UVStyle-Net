@@ -130,7 +130,7 @@ streamlit run dashboards/few_shot_optimization.py
 Ensure you have the Gram matrices for SolidLETTERS subset in 
 `PROJECT_ROOT/data/SolidLETTERS/grams/subset`.
 
-```bash
+```text
 $ python experiments/linear_probes.py
 ```
 
@@ -142,7 +142,7 @@ Ensure you have the Gram matrices for the complete SolidLETTERS test set in
 First perform the optimizations and hits@10 scoring (if you run into memory problems
 please reduce `--num_threads`): 
 
-```bash
+```text
 $ python experiments/font_selection_optimize.py
 
 usage: font_selection_optimize.py [-h] [--exp_name EXP_NAME]
@@ -159,7 +159,7 @@ optional arguments:
 Next collate all results and produce the heatmaps (figures will be saved to
 the experiments directory):
 
-```bash
+```text
 $ python experiments/font_selection_optimize_collate_and_plot.py
 
 usage: font_selection_optimize_collate_and_plot.py [-h] [--exp_name EXP_NAME]
@@ -180,7 +180,7 @@ pngs in `PROJECT_ROOT/data/ABC/labeled_pngs`.
 First perform the logistic regression and log the results for each trial (if
 you run into memory problems please reduce `--num_threads`):
 
-```bash
+```text
 $ python experiments/abc_logistic_regression.py
 
 usage: abc_logistic_regression.py [-h] [--num_threads NUM_THREADS]
@@ -193,7 +193,7 @@ optional arguments:
 
 Next collate all results and produce the comparison table:
 
-```bash
+```text
 $ python experiments/abc_logistic_regression_collate_scores.py
 ```
 
