@@ -147,6 +147,17 @@ Ensure you have the Gram matrices for SolidLETTERS subset in
 $ python experiments/linear_probes.py
 ```
 
+|    | layer   |   linear_probe |   linear_probe_err |
+|---:|:--------|---------------:|-------------------:|
+|  0 | 0_feats |       0.992593 |          0.0148148 |
+|  1 | 1_conv1 |       1        |          0         |
+|  2 | 2_conv2 |       1        |          0         |
+|  3 | 3_conv3 |       1        |          0         |
+|  4 | 4_fc    |       0.977778 |          0.0181444 |
+|  5 | 5_GIN_1 |       0.940741 |          0.0181444 |
+|  6 | 6_GIN_2 |       0.874074 |          0.0296296 |
+|  7 | content |       0.755556 |          0.0377705 |
+
 ### Precision@10 for Few-shot Learning
 
 Ensure you have the Gram matrices for the complete SolidLETTERS test set in
