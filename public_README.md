@@ -194,6 +194,11 @@ optional arguments:
                        directory (default: SolidLETTERS-all)
 ```
 
+<p align="center">
+    <img src="demo_imgs/hits_at_10_scores.png?raw=true" alt="Hits@10 Scores"
+    width="600px">
+</p>
+
 ### Classification on ABC Subsets
 
 Ensure you have the UVStyle-Net Gram matrices for the complete ABC dataset in
@@ -243,7 +248,7 @@ python experiments/compare_normalization_plot.py
 ```
 
 <p align="center">
-    <img src="demo_imgs/ablation_normalization.png" alt="Normalization Comparison"
+    <img src="demo_imgs/ablation_normalization.png?raw=true" alt="Normalization Comparison"
     width="600px">
 </p>
 
@@ -269,7 +274,7 @@ optional arguments:
 ```
 
 <p align="center">
-    <img src="demo_imgs/ablation_dimension_reduction.png" alt="Dimension Reduction"
+    <img src="demo_imgs/ablation_dimension_reduction.png?raw=true" alt="Dimension Reduction"
     width="600px">
 </p>
 
