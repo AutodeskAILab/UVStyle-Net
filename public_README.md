@@ -226,6 +226,12 @@ Next collate all results and produce the comparison table:
 $ python experiments/abc_logistic_regression_collate_scores.py
 ```
 
+|    | cats                 | UVStyle-Net            | PSNet*             |       diff |
+|---:|:---------------------|:-----------------------|:-------------------|-----------:|
+|  2 | flat v electric      | **0.789 &#177; 0.034** | 0.746 &#177; 0.038 | 0.0428086  |
+|  0 | free_form v tubular  | **0.839 &#177; 0.011** | 0.808 &#177; 0.023 | 0.0308303  |
+|  1 | angular v rounded    | **0.805 &#177; 0.010** | 0.777 &#177; 0.020 | 0.0279178  |
+
 ### Ablation
 
 #### Normalization Comparison & Content Embedding
