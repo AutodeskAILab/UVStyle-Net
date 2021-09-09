@@ -33,7 +33,9 @@ This repository contains the authors' implementation of
 
 ## About UVStyle-Net
 
-![Overview of UVStyle-Net](demo_imgs/overview.png?raw=true "Overview of UVStyle-Net")
+<p align="center">
+    <img src="demo_imgs/overview.png?raw=true" alt="Overview of UVStyle-Net">
+</p>
 
 ## Citing this Work
 
@@ -96,7 +98,10 @@ and observe their effect on the nearest neighbours. Available for SolidLETTERS a
 $ streamlit run dashboards/top_k.py
 ```
 
-![Top-k Dashboard](demo_imgs/top-k.png?raw=true "Top-k Dashboard")
+<p align="center">
+    <img src="demo_imgs/top-k.png?raw=true" alt="Top-k Dashboard"
+    width="600px">
+</p>
 
 #### Visualize Style Loss Gradients
 
@@ -109,7 +114,10 @@ sampled point to better match the style between the solids). Available for Solid
 $ streamlit run dashboards/visualize_style_loss.py
 ```
 
-![Gradients Visualization](demo_imgs/gradients.gif?raw=true "Gradients Visualization")
+<p align="center">
+    <img src="demo_imgs/gradients.gif?raw=true" alt="Gradients Visualization"
+    width="600px">
+</p>
 
 #### Optimize Layer Weights
 
@@ -121,7 +129,10 @@ from the remaining dataset. Available for SolidLETTERS and ABC datasets.
 streamlit run dashboards/few_shot_optimization.py
 ```
 
-![Few-shot Optimization](demo_imgs/few_shot.png?raw=true "Few-shot Optimization")
+<p align="center">
+    <img src="demo_imgs/few_shot.png?raw=true" alt="Few-shot Optimization" 
+    width="600px">
+</p>
 
 ## Full Datasets
 
@@ -203,8 +214,6 @@ $ python experiments/abc_logistic_regression_collate_scores.py
 
 #### Normalization Comparison & Content Embedding
 
-![Normalization Comparison](demo_imgs/ablation_normalization.png)
-
 Ensure you have all versions of  Gram matrices for the complete SolidLETTERS
 test set (`all_raw`, `all_inorm_only`, `all_fnorm_only`, `all`) - see
 [above](#SolidLETTERS).
@@ -222,9 +231,12 @@ experiments directory):
 python experiments/compare_normalization_plot.py
 ```
 
-#### Dimension Reduction Probes
+<p align="center">
+    <img src="demo_imgs/ablation_normalization.png" alt="Normalization Comparison"
+    width="600px">
+</p>
 
-![Dimension Reduction](demo_imgs/ablation_dimension_reduction.png)
+#### Dimension Reduction Probes
 
 First run the PCA/probes for each dimension:
 
@@ -244,6 +256,11 @@ optional arguments:
   -h, --help         show this help message and exit
   --include_content  include content embeddings in plot (default: False)
 ```
+
+<p align="center">
+    <img src="demo_imgs/ablation_dimension_reduction.png" alt="Dimension Reduction"
+    width="600px">
+</p>
 
 ## Using Your Own Data
 
