@@ -37,6 +37,23 @@ This repository contains the authors' implementation of
     <img src="demo_imgs/overview.png?raw=true" alt="Overview of UVStyle-Net">
 </p>
 
+UVStyle-Net is an unsupervised style similarity learning method for Boundary
+Representations (B-Reps)/CAD models, which can be tailored to an end-user's
+interpretation of style by supplying only a few examples.
+
+The way it works can be summarized as follows:
+
+1. Train the B-Rep encoder (we use [UV-Net](https://github.com/AutodeskAILab/UV-Net)
+ without edge features) using content classification (supervised), or point cloud
+ reconstruction (unsupervised)
+2. Extract the Gram matrices of the activations in each layer of the encoder
+3. Define the style distance for two solids as a weighted sum of distances (Euclidean, cosine, etc.)
+ between each layer's Gram matrix using uniform weights
+4. OPTIONAL: Determine the best weights for the style distance according to a few
+ user selected examples that share a common style
+
+For full details, see our [paper](https://arxiv.org/abs/2105.02961).
+
 ## Citing this Work
 
 If you use any of the code or techniques from the paper, please cite the following:
@@ -287,6 +304,8 @@ optional arguments:
 ## Using Your Own Data
 
 ### Feature Pipeline for B-Rep to DGL
+
+Coming soon.
 
 ### Training the Model
 
