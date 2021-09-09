@@ -199,6 +199,25 @@ $ python experiments/abc_logistic_regression_collate_scores.py
 
 ### Ablation
 
+#### Normalization Comparison & Content Embedding
+
+Ensure you have all versions of  Gram matrices for the complete SolidLETTERS
+test set (`all_raw`, `all_inorm_only`, `all_fnorm_only`, `all`) - see
+[above](#SolidLETTERS).
+Then run the logistic regression probes on each version of the gram and log
+the results:
+
+```text
+python experiments/compare_normalization.py
+```
+
+Next collate all results and produce the comparison chart (plot saved to the
+experiments directory):
+
+```text
+python experiments/compare_normalization_plot.py
+```
+
 #### Dimension Reduction Probes
 
 First run the PCA/probes for each dimension:
