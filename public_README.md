@@ -23,6 +23,8 @@ This repository contains the authors' implementation of
     2. [Precision@10 for Few-shot Learning](#Precision@10-for-Few-shot-Learning)
     3. [Classification on ABC Subsets](#Classification-on-ABC-Subsets)
     4. [Ablation](#Ablation)
+        - [Normalization Comparison & Content Embedding](#Normalization-Comparison-&-Content-Embedding)
+        - [Dimension Reduction Probes](#Dimension-Reduction-Probes)
 6. [Using Your Own Data](#Using-Your-Own-Data)
     1. [Feature Pipeline for B-Rep to DGL](#Feature-Pipeline-for-B-Rep-to-DGL)
     2. [Training the Model](#Training-the-Model)
@@ -201,6 +203,8 @@ $ python experiments/abc_logistic_regression_collate_scores.py
 
 #### Normalization Comparison & Content Embedding
 
+![Normalization Comparison](demo_imgs/ablation_normalization.png)
+
 Ensure you have all versions of  Gram matrices for the complete SolidLETTERS
 test set (`all_raw`, `all_inorm_only`, `all_fnorm_only`, `all`) - see
 [above](#SolidLETTERS).
@@ -219,6 +223,8 @@ python experiments/compare_normalization_plot.py
 ```
 
 #### Dimension Reduction Probes
+
+![Dimension Reduction](demo_imgs/ablation_dimension_reduction.png)
 
 First run the PCA/probes for each dimension:
 
