@@ -33,10 +33,7 @@ if __name__ == '__main__':
     }
 
     name_vals = {
-        'SolidLETTERS': 'y_Abhaya Libre_upper\n'
-                        'n_Zhi Mang Xing_lower\n'
-                        'l_Seaweed Script_upper\n'
-                        'e_Turret Road_upper',
+        'SolidLETTERS': 'l_Seaweed Script_upper',
         'ABC': '\'16Regs - 2016RegulationBox\n'
                '1_10th_scale_on_road_car Materials v5 v1 v0 parts - Part 121\n'
                '2 - Part 1-8g5pl30u\n'
@@ -48,13 +45,14 @@ if __name__ == '__main__':
     query_idx = list(map(lambda n: name_idx[n], text_idx_names.split('\n')))
 
     k = st.sidebar.number_input(label='k',
-                                value=5,
+                                value=8,
                                 step=1,
                                 min_value=1,
                                 max_value=10)
 
     st.sidebar.subheader('Layer Weights')
-    defaults = [1., 1., 1., 1., 0., 0., 0.]
+    # defaults = [1., 1., 1., 1., 0., 0., 0.]
+    defaults = [0., 0., 0., 0., 0., 0., 1.]
     weights = [st.sidebar.slider(label=str(i),
                                  min_value=0.,
                                  max_value=1.,
