@@ -134,7 +134,7 @@ if __name__ == '__main__':
                           max_value=1.,
                           value=w) for i, w in enumerate(default_weights)
     ]
-    dset = SolidMNIST(root_dir=os.path.join(project_root, 'dataset', 'bin'), split='test')
+    dset = SolidMNIST(root_dir=os.path.join(project_root, 'data', 'SolidLETTERS', 'bin'), split='test')
     model_checkpoint = os.path.join(project_root, 'checkpoints', 'solidletters_chkpt.pt')
 
     graph_files = np.array(list(map(lambda n: n.stem, dset.graph_files)))
