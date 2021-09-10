@@ -17,7 +17,7 @@ from few_shot import optimize
 if __name__ == '__main__':
     device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
-    data_root, dataset_name, grams_root, grams_name = dataset_selector(project_root)
+    data_root, dataset_name, model_name, grams_root, grams_name = dataset_selector(project_root)
 
     grams = Grams(grams_root)
     num_examples = len(grams.labels)
@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     pca_70 = warn_and_get_pca70(file_dir=file_dir,
                                 dataset_name=dataset_name,
+                                model_name=model_name,
                                 grams_name=grams_name,
                                 grams=grams)
     graph_files = grams.graph_files

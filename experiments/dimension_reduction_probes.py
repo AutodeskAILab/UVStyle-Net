@@ -19,7 +19,7 @@ def reduce(x, dims):
 
 
 if __name__ == '__main__':
-    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'grams', 'all'))
+    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'uvnet_grams', 'all'))
     labels = grams.labels
     dfs = []
     for dims in [None, 70, 25, 10, 3]:

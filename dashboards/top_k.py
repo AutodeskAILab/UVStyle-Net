@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     st.title('Top-k Queries')
 
-    data_root, dataset_name, grams_root, grams_name = dataset_selector(project_root)
+    data_root, dataset_name, model_name, grams_root, grams_name = dataset_selector(project_root)
     img_root = os.path.join(data_root, 'imgs')
 
     grams = Grams(grams_root=grams_root)
@@ -65,6 +65,7 @@ if __name__ == '__main__':
 
     pca_70_od = warn_and_get_pca70(file_dir=file_dir,
                                    dataset_name=dataset_name,
+                                   model_name=model_name,
                                    grams_name=grams_name,
                                    grams=grams)
     del grams

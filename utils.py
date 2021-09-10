@@ -2,6 +2,8 @@ import os
 import pickle
 import sys
 from collections import OrderedDict
+from glob import glob
+from pathlib import Path
 
 import PIL
 import numpy as np
@@ -158,11 +160,14 @@ def dataset_selector(project_root):
                                         options=os.listdir(os.path.join(project_root, 'data')))
     data_root = os.path.join(project_root, 'data', dataset_name)
 
-    grams_name = st.sidebar.selectbox(label='Grams',
-                                      options=os.listdir(os.path.join(data_root, 'grams')))
+    model_name = st.sidebar.selectbox(label='Model',
+                                      options=[Path(f).stem[:-6] for f in glob(f'{data_root}//*_grams', recursive=False)])
 
-    grams_root = os.path.join(data_root, 'grams', grams_name)
-    return data_root, dataset_name, grams_root, grams_name
+    grams_name = st.sidebar.selectbox(label='Grams',
+                                      options=os.listdir(os.path.join(data_root, f'{model_name}_grams')))
+
+    grams_root = os.path.join(data_root, f'{model_name}_grams', grams_name)
+    return data_root, dataset_name, model_name, grams_root, grams_name
 
 
 def plot(grid_array, query_idx, img_size, k, distances=None, font_size=24):
@@ -194,10 +199,10 @@ def plot(grid_array, query_idx, img_size, k, distances=None, font_size=24):
     return fig
 
 
-def warn_and_get_pca70(file_dir, dataset_name, grams_name, grams):
+def warn_and_get_pca70(file_dir, dataset_name, model_name, grams_name, grams):
     pca_70 = None
     os.makedirs(os.path.join(file_dir, 'cache'), exist_ok=True)
-    cache_file = os.path.join(file_dir, 'cache', f'{dataset_name}-{grams_name}-pca_70')
+    cache_file = os.path.join(file_dir, 'cache', f'{dataset_name}-{model_name}-{grams_name}-pca_70')
     if not os.path.exists(cache_file):
         st.write('To visualize the query results, you will first need to perform PCA on the Gram matrices.')
         st.write('You will need to do this only once.')

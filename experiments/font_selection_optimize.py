@@ -95,7 +95,7 @@ if __name__ == '__main__':
     device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
     print('loading data...')
-    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'grams', 'all'))
+    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'uvnet_grams', 'all'))
     os.makedirs(os.path.join(file_dir, 'cache'), exist_ok=True)
     reduced_od = get_pca_70(grams, os.path.join(file_dir, 'cache', f'{args.exp_name}-pca_70'))
     reduced = list(islice(reduced_od.values(), 7))

@@ -10,7 +10,7 @@ sys.path.append(project_root)
 from utils import Grams, probe_score
 
 if __name__ == '__main__':
-    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'grams', 'subset'))
+    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'uvnet_grams', 'subset'))
     df = pd.DataFrame(grams.layer_names, columns=['layer'])
     labels = grams.labels
     df['linear_probe'], df['linear_probe_err'] = zip(

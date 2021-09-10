@@ -240,7 +240,7 @@ if __name__ == '__main__':
 
     df = df.groupby(['font', 'case', 'pos_neg']).mean().reset_index()
 
-    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'grams', 'all'))
+    grams = Grams(os.path.join(project_root, 'data', 'SolidLETTERS', 'uvnet_grams', 'all'))
     fonts = {
         i: font_name for i, font_name in zip(grams.labels, map(lambda f: f[2:-10], grams.graph_files))
     }

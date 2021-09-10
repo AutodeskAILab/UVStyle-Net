@@ -31,15 +31,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # todo: sort out data paths
-    data_roots = [os.path.join(project_root, 'analysis/uvnet_data/abc_sub_mu_only'),
-                  os.path.join(project_root, 'analysis/psnet_data/abc_all')]
+    data_roots = [os.path.join(project_root, 'data', 'ABC', 'uvnet_grams', 'all'),
+                  os.path.join(project_root, 'data', 'ABC', 'psnet_grams', 'all')]
+    labels_root = os.path.join(project_root, 'data', 'ABC', 'subset_labels')
     cross_cats = [
-        [os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/flat'),
-         os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/electric')],
-        [os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/free_form'),
-         os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/pipe')],
-        [os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/angular'),
-         os.path.join(project_root, 'analysis/abc_quant/abc_quant_data/image_cats/rounded')],
+        [os.path.join(labels_root, 'flat'), os.path.join(labels_root, 'electric')],
+        [os.path.join(labels_root, 'free_form'), os.path.join(labels_root, 'pipe')],
+        [os.path.join(labels_root, 'angular'), os.path.join(labels_root, 'rounded')],
     ]
 
     NUM_TRIALS = 2
