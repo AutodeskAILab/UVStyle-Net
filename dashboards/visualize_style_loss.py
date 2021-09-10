@@ -127,7 +127,7 @@ if __name__ == '__main__':
                                    step=0.1,
                                    value=0.7)
     st.sidebar.subheader('Layer Weights')
-    default_weights = [1., 1., 1., 0., 0., 0., 0.]
+    default_weights = [1., 1., 1., 1., 0., 0., 0.]
     weights_sliders = [
         st.sidebar.slider(label=str(i),
                           min_value=0.,
