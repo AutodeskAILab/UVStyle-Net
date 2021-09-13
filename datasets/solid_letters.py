@@ -56,7 +56,7 @@ def _make_dgl_graph(xs, edges, label):
     return g
 
 
-class SolidMNIST(Dataset):
+class SolidLETTERS(Dataset):
     def __init__(self, root_dir, split="train", size_percentage=None, in_memory=False, apply_square_symmetry=0.0,
                  split_suffix="", transform=None, crop_func=None, image_dir=None):
         """
@@ -167,7 +167,7 @@ class SolidMNIST(Dataset):
         return {"xyz": (0, 1, 2), "normals": (3, 4, 5), "mask": (6,), "E": (7,), "F": (8,), "G": (9,)}
 
 
-class SolidMNISTSubset(Dataset):
+class SolidLETTERSSubset(Dataset):
     def __init__(self, root_dir, split="train", size_percentage=None, in_memory=False, apply_square_symmetry=0.0,
                  split_suffix="", image_dir=None,
                  random_rotation=None):

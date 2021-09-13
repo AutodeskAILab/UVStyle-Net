@@ -72,7 +72,7 @@ def parse():
     )
     train_args.add_argument(
         "--dataset",
-        choices=("solidmnist", "abc"),
+        choices=("abc"),
         default="abc",
         help="Dataset to train on",
     )

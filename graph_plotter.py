@@ -5,7 +5,7 @@ import streamlit as st
 import trimesh
 from sklearn.preprocessing import StandardScaler
 
-from datasets.solid_mnist import SolidMNISTSubset
+from datasets.solid_letters import SolidLETTERSSubset
 
 
 def face_adjacency_plot(graph, node_colors=None):
@@ -139,7 +139,7 @@ def uv_samples_plot(xyz, mask,
 
 
 if __name__ == '__main__':
-    dset = SolidMNISTSubset(root_dir='dataset/bin', split='test')
+    dset = SolidLETTERSSubset(root_dir='dataset/bin', split='test')
     for i in range(5):
         graph, label, meta, image, graph_file = dset[i]
 

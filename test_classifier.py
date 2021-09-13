@@ -14,7 +14,7 @@ import parse_util
 from networks import graph_model
 from networks import classifier
 from networks import face_model
-from datasets.solid_mnist import my_collate, SolidMNIST, SolidMNISTSubset
+from datasets.solid_letters import my_collate, SolidLETTERS, SolidLETTERSSubset
 
 
 class Model(nn.Module):
@@ -197,7 +197,7 @@ if __name__ == '__main__':
     print('Args used during training:\n', state['args'])
 
     # Load dataset
-    Dset = SolidMNISTSubset if args.subset else SolidMNIST
+    Dset = SolidLETTERSSubset if args.subset else SolidLETTERS
     test_dset = Dset(osp.join(osp.dirname(osp.abspath(__file__)), "data", "SolidLETTERS", "bin"),
                      image_dir=osp.join(osp.dirname(osp.abspath(__file__)), "data", "SolidLETTERS", "imgs"),
                      split="test")

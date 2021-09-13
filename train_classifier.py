@@ -14,7 +14,7 @@ import parse_util
 from networks import graph_model
 from networks import classifier
 from networks import face_model
-from datasets.solid_mnist import SolidMNIST, original_collate
+from datasets.solid_letters import SolidLETTERS, original_collate
 
 
 class Model(nn.Module):
@@ -177,10 +177,10 @@ if __name__ == '__main__':
     logging.info("Experiment name: {}".format(exp_name))
 
     # Load datasets
-    train_dset = SolidMNIST(args.dataset_path, split="train", size_percentage=args.size_percentage,
+    train_dset = SolidLETTERS(args.dataset_path, split="train", size_percentage=args.size_percentage,
+                              apply_square_symmetry=args.apply_square_symmetry, split_suffix=args.split_suffix)
+    val_dset = SolidLETTERS(args.dataset_path, split="val", size_percentage=args.size_percentage,
                             apply_square_symmetry=args.apply_square_symmetry, split_suffix=args.split_suffix)
-    val_dset = SolidMNIST(args.dataset_path, split="val", size_percentage=args.size_percentage,
-                          apply_square_symmetry=args.apply_square_symmetry, split_suffix=args.split_suffix)
     train_loader = helper.get_dataloader(
         train_dset, args.batch_size, train=True, collate_fn=original_collate)
     val_loader = helper.get_dataloader(
