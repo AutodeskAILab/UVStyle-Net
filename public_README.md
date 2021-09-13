@@ -311,6 +311,69 @@ Coming soon.
 
 #### SolidLETTERS
 
+```text
+$ python train_classifier.py -h
+
+usage: train_classifier.py [-h] [--dataset_path DATASET_PATH]
+                           [--device DEVICE] [--batch_size BATCH_SIZE]
+                           [--seed SEED] [--epochs EPOCHS] [--lr LR]
+                           [--optimizer {SGD,Adam}] [--use-timestamp]
+                           [--times TIMES] [--suffix SUFFIX]
+                           [--nurbs_model_type {cnn,wcnn}]
+                           [--nurbs_emb_dim NURBS_EMB_DIM]
+                           [--mask_mode {channel,multiply}]
+                           [--area_as_channel]
+                           [--input_channels {xyz_only,xyz_normals}]
+                           [--brep_model_type BREP_MODEL_TYPE]
+                           [--graph_emb_dim GRAPH_EMB_DIM]
+                           [--classifier_type {linear,non_linear}]
+                           [--final_dropout FINAL_DROPOUT]
+                           [--size_percentage SIZE_PERCENTAGE]
+                           [--apply_square_symmetry APPLY_SQUARE_SYMMETRY]
+                           [--split_suffix SPLIT_SUFFIX]
+
+UV-Net Classifier Training Script for Solids
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --dataset_path DATASET_PATH
+                        Path to the dataset root directory
+  --device DEVICE       which gpu device to use (default: 0)
+  --batch_size BATCH_SIZE
+                        batch size for training and validation (default: 128)
+  --seed SEED           random seed (default: 0)
+  --epochs EPOCHS       number of epochs to train (default: 350)
+  --lr LR               learning rate (default: 0.01)
+  --optimizer {SGD,Adam}
+  --use-timestamp       Whether to use timestamp in dump files
+  --times TIMES         Number of times to run the experiment
+  --suffix SUFFIX       Suffix for the experiment name
+  --nurbs_model_type {cnn,wcnn}
+                        Feature extractor for NURBS surfaces
+  --nurbs_emb_dim NURBS_EMB_DIM
+                        Embedding dimension for NURBS feature extractor
+                        (default: 64)
+  --mask_mode {channel,multiply}
+                        Whether to consider trimming mask as channel or
+                        multiply it with computed features
+  --area_as_channel     Whether to use area as a channel in the input
+  --input_channels {xyz_only,xyz_normals}
+  --brep_model_type BREP_MODEL_TYPE
+                        Feature extractor for B-rep face-adj graph
+  --graph_emb_dim GRAPH_EMB_DIM
+                        Embeddings before graph pooling
+  --classifier_type {linear,non_linear}
+                        Classifier model
+  --final_dropout FINAL_DROPOUT
+                        final layer dropout (default: 0.3)
+  --size_percentage SIZE_PERCENTAGE
+                        Percentage of data to use
+  --apply_square_symmetry APPLY_SQUARE_SYMMETRY
+                        Probability of applying square symmetry transformation
+                        to uv domain
+  --split_suffix SPLIT_SUFFIX
+                        Suffix for dataset split folders
+```
 #### ABC
 
 ```text
@@ -374,9 +437,33 @@ train:
 
 ### Compute the Gram Matrices
 
+#### SolidLETTERS
+
+Gram matrices will be saved into directory given as `--grams_path`:
+
+```text
+$ python test_classifier.py
+
+usage: test_classifier.py [-h] [--state STATE] [--no-cuda] [--subset]
+                          [--apply_square_symmetry APPLY_SQUARE_SYMMETRY]
+
+UV-Net Classifier Testing Script for Solids
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --state STATE         PyTorch checkpoint file of trained network.
+  --no-cuda             Run on CPU
+  --subset              Compute subset only (default: false)
+  --grams_path GRAMS_PATH
+                        path to save Gram matrices to
+  --apply_square_symmetry APPLY_SQUARE_SYMMETRY
+                        Probability of applying square symmetry transformation
+                        to uv-domain
+```
+
 #### ABC
 
-Gram matrices will be saved to directory given as `---grams_path`:
+Gram matrices will be saved to directory given as `--grams_path`:
 ```text
 $ python train_test_recon_pc.py test
 

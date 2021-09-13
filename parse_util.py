@@ -37,8 +37,12 @@ def get_train_parser(desc=""):
 def get_test_parser(desc=""):
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('--state', type=str, default=osp.join(osp.dirname(osp.abspath(__file__)), "checkpoints", "uvnet_solidletters_chkpt.pt"),
-                        help='PyTorch checkpoint file of trainined network.')
+                        help='PyTorch checkpoint file of trained network.')
     parser.add_argument('--no-cuda', action='store_true', help='Run on CPU')
+    parser.add_argument('--subset', action='store_true',
+                        help='Compute subset only (default: false)')
+    parser.add_argument('--grams_path', type=str, required=True,
+                        help='path to save Gram matrices to')
     return parser
 
 
