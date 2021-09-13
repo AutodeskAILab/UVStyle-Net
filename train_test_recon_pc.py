@@ -102,7 +102,8 @@ def parse():
         default=0.3,
         help="Probability of applying square symmetry transformation to uv domain",
     )
-    parse_util.add_test_args(train_args)
+    test_args = parser.add_argument_group("test")
+    test_args = parse_util.add_test_args(test_args)
     args, _ = parser.parse_known_args()
     return args
 

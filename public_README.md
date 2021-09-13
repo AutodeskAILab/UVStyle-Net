@@ -309,7 +309,140 @@ Coming soon.
 
 ### Training the Model
 
+#### SolidLETTERS
+
+#### ABC
+
+```text
+$ python train_test_recon_pc.py train                                                                                               for_public ⬆ ✱ ◼
+
+usage: Pointcloud reconstruction experiments [-h]
+                                             [--dataset_path DATASET_PATH]
+                                             [--device DEVICE]
+                                             [--batch_size BATCH_SIZE]
+                                             [--epochs EPOCHS]
+                                             [--use-timestamp]
+                                             [--suffix SUFFIX]
+                                             [--encoder {pointnet,uvnetsolid}]
+                                             [--decoder {pointmlp}]
+                                             [--dataset {solidmnist,abc}]
+                                             [--num_points NUM_POINTS]
+                                             [--latent_dim LATENT_DIM]
+                                             [--use_tanh]
+                                             [--npy_dataset_path NPY_DATASET_PATH]
+                                             [--split_suffix SPLIT_SUFFIX]
+                                             [--uvnet_sqsym UVNET_SQSYM]
+                                             [--state STATE] [--no-cuda]
+                                             [--seed SEED]
+                                             [--grams_path GRAMS_PATH]
+                                             {train,test}
+
+positional arguments:
+  {train,test}
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+train:
+  --dataset_path DATASET_PATH
+                        Path to the dataset root directory
+  --device DEVICE       Which gpu device to use (default: 0)
+  --batch_size BATCH_SIZE
+                        batch size for training and validation (default: 128)
+  --epochs EPOCHS       number of epochs to train (default: 350)
+  --use-timestamp       Whether to use timestamp in dump files
+  --suffix SUFFIX       Suffix for the experiment name
+  --encoder {pointnet,uvnetsolid}
+                        Encoder to use
+  --decoder {pointmlp}  Pointcloud decoder to use
+  --dataset {solidmnist,abc}
+                        Dataset to train on
+  --num_points NUM_POINTS
+                        Number of points to decode
+  --latent_dim LATENT_DIM
+                        Dimension of latent space
+  --use_tanh            Whether to use tanh in final layer of decoder
+  --npy_dataset_path NPY_DATASET_PATH
+                        Path to pointcloud dataset when encoder takes in
+                        solids
+  --split_suffix SPLIT_SUFFIX
+                        Suffix for dataset split folders
+  --uvnet_sqsym UVNET_SQSYM
+                        Probability of applying square symmetry transformation
+                        to uv domain
+```
+
 ### Compute the Gram Matrices
+
+#### ABC
+
+Gram matrices will be saved to directory given as `---grams_path`:
+```text
+$ python train_test_recon_pc.py test
+
+  usage: Pointcloud reconstruction experiments [-h]
+                                               [--dataset_path DATASET_PATH]
+                                               [--device DEVICE]
+                                               [--batch_size BATCH_SIZE]
+                                               [--epochs EPOCHS]
+                                               [--use-timestamp]
+                                               [--suffix SUFFIX]
+                                               [--encoder {pointnet,uvnetsolid}]
+                                               [--decoder {pointmlp}]
+                                               [--dataset {solidmnist,abc}]
+                                               [--num_points NUM_POINTS]
+                                               [--latent_dim LATENT_DIM]
+                                               [--use_tanh]
+                                               [--npy_dataset_path NPY_DATASET_PATH]
+                                               [--split_suffix SPLIT_SUFFIX]
+                                               [--uvnet_sqsym UVNET_SQSYM]
+                                               [--state STATE] [--no-cuda]
+                                               [--seed SEED]
+                                               [--grams_path GRAMS_PATH]
+                                               {train,test}
+  
+  positional arguments:
+    {train,test}
+  
+  optional arguments:
+    -h, --help            show this help message and exit
+  
+  train:
+    --dataset_path DATASET_PATH
+                          Path to the dataset root directory
+    --device DEVICE       Which gpu device to use (default: 0)
+    --batch_size BATCH_SIZE
+                          batch size for training and validation (default: 128)
+    --epochs EPOCHS       number of epochs to train (default: 350)
+    --use-timestamp       Whether to use timestamp in dump files
+    --suffix SUFFIX       Suffix for the experiment name
+    --encoder {pointnet,uvnetsolid}
+                          Encoder to use
+    --decoder {pointmlp}  Pointcloud decoder to use
+    --dataset {solidmnist,abc}
+                          Dataset to train on
+    --num_points NUM_POINTS
+                          Number of points to decode
+    --latent_dim LATENT_DIM
+                          Dimension of latent space
+    --use_tanh            Whether to use tanh in final layer of decoder
+    --npy_dataset_path NPY_DATASET_PATH
+                          Path to pointcloud dataset when encoder takes in
+                          solids
+    --split_suffix SPLIT_SUFFIX
+                          Suffix for dataset split folders
+    --uvnet_sqsym UVNET_SQSYM
+                          Probability of applying square symmetry transformation
+                          to uv domain
+  
+  test:
+    --state STATE         PyTorch checkpoint file of trained network.
+    --no-cuda             Run on CPU
+    --seed SEED           Seed
+    --grams_path GRAMS_PATH
+                          directory to save Gram matrices to (default:
+                          data/ABC/uvnet_grams)
+```
 
 ## License
 Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]

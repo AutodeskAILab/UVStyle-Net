@@ -58,7 +58,7 @@ def _make_dgl_graph(xs, edges, label):
 
 class SolidMNIST(Dataset):
     def __init__(self, root_dir, split="train", size_percentage=None, in_memory=False, apply_square_symmetry=0.0,
-                 split_suffix="", transform=None, crop_func=None):
+                 split_suffix="", transform=None, crop_func=None, image_dir=None):
         """
         Load and create the SolidMNIST dataset
         :param root_dir: Root path to the dataset
@@ -169,7 +169,7 @@ class SolidMNIST(Dataset):
 
 class SolidMNISTSubset(Dataset):
     def __init__(self, root_dir, split="train", size_percentage=None, in_memory=False, apply_square_symmetry=0.0,
-                 split_suffix="", image_dir="/Users/t_meltp/uvnet-img/jpeg/test",
+                 split_suffix="", image_dir=None,
                  random_rotation=None):
         """
         Load and create the SolidMNIST dataset
@@ -273,7 +273,7 @@ class SolidMNISTSubset(Dataset):
         letter = self.char_to_label(stem[0])
 
         # get image
-        image_path = os.path.join(self.image_dir, stem + '.jpeg')
+        image_path = os.path.join(self.image_dir, self.graph_files[idx].stem + '.png')
         try:
             image = PIL.Image.open(image_path)
             transform = torchvision.transforms.Compose([
