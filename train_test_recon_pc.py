@@ -38,7 +38,7 @@ def experiment_name(args):
         f"points_{args.num_points}",
     ]
     if args.encoder == "uvnetsolid":
-        tokens.append(f"sqsym_{args.uvnet_sqsym}",)
+        tokens.append(f"sqsym_{args.uvnet_sqsym}", )
     if args.latent_dim is not None:
         tokens.append(f"latent_dim_{args.latent_dim}")
     if args.use_tanh is not None:
@@ -107,20 +107,6 @@ def parse():
         default=0.3,
         help="Probability of applying square symmetry transformation to uv domain",
     )
-
-    test_args = parser.add_argument_group("test")
-    test_args = parse_util.add_test_args(test_args)
-    test_args.add_argument(
-        "--cluster", action="store_true", help="Perform clustering in latent space"
-    )
-    test_args.add_argument(
-        "--retrieval", action="store_true", help="Perform retrieval in latent space"
-    )
-    test_args.add_argument(
-        "--retrieval_split",
-        default="test",
-        help="Dataset split for retrieval (train/val/test/all)",
-    )
     args, _ = parser.parse_known_args()
     return args
 
@@ -154,20 +140,10 @@ def get_model(args):
 
 
 def get_dataset(split, args):
-    from datasets.solidmnist import SolidMNISTWithPointclouds
     from datasets.abcdataset import ABCDatasetWithPointclouds
 
     if args.decoder in ("pointmlp",):
-        if args.dataset == "solidmnist":
-            return SolidMNISTWithPointclouds(
-                bin_root_dir=args.dataset_path,
-                npy_root_dir=args.npy_dataset_path,
-                split=split,
-                shape_type=args.shape_type,
-                num_points=args.num_points,
-                apply_square_symmetry=args.uvnet_sqsym,
-            )
-        elif args.dataset == "abc":
+        if args.dataset == "abc":
             return ABCDatasetWithPointclouds(
                 bin_root_dir=args.dataset_path,
                 npy_root_dir=args.npy_dataset_path,
@@ -229,28 +205,6 @@ def main():
             step, model, test_loader, device, experiment_name=exp_name
         )
         print("Chamfer loss: {:2.3f}".format(test_loss))
-
-        # Clustering
-        if args.cluster or args.retrieval:
-            if state["args"].encoder == "uvnetsolid":
-                embeddings, labels = experiments.get_embedding_solid(
-                    model, test_loader, device
-                )
-            elif state["args"].encoder == "pointnet":
-                embeddings, labels = experiments.get_embedding_pc(
-                    model, test_loader, device
-                )
-            else:
-                raise NotImplementedError
-
-        if args.cluster:
-            cluster_acc = experiments.cluster(embeddings, labels)
-            print("Clustering accuracy: {:2.3f}".format(cluster_acc))
-
-        if args.retrieval:
-            ret_dset = get_dataset(args.retrieval_split, args=state["args"])
-            ret_loader = ret_dset.get_dataloader(batch_size=32, shuffle=False)
-            experiments.retrieve_nearest(embeddings, ret_loader, num_retrievals=10)
 
 
 if __name__ == "__main__":
