@@ -183,7 +183,6 @@ def main():
         )
     else:
         import helper
-        import experiments
         args.latent_dim = 1024
         args.use_tanh = True
         state = helper.load_checkpoint(args.state)

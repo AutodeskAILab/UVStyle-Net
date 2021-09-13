@@ -14,7 +14,7 @@ import parse_util
 from networks import graph_model
 from networks import classifier
 from networks import face_model
-from solid_mnist import SolidMNIST, original_collate
+from datasets.solid_mnist import SolidMNIST, original_collate
 
 
 class Model(nn.Module):

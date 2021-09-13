@@ -1,18 +1,17 @@
-import numpy as np
 import os.path as osp
+import random
+
+import matplotlib
+import numpy as np
 import torch
+from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 from sklearn.metrics.cluster import (
-    normalized_mutual_info_score,
     adjusted_mutual_info_score,
 )
-from scipy.spatial.distance import cdist
-import random
-import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def cluster(embeddings, labels):

@@ -6,36 +6,6 @@ from dgl.nn.pytorch.conv import GINConv
 from dgl.nn.pytorch.glob import SumPooling, AvgPooling, MaxPooling
 
 
-class FeatureNetEncoder(nn.Module):
-    def __init__(self, latent_dim=128):
-        """
-        Voxel encoder based on FeatureNet
-        Expects an input tensor of siez (64 x 64 x 64)
-
-        Reference:
-        FeatureNet: Machining feature recognition based on 3D Convolution Neural Network
-        Zhibo Zhang, Prakhar Jaiswal, Rahul Rai
-        Computer-Aided Design 101 (2018) 12–22
-        """
-        super(FeatureNetEncoder, self).__init__()
-        self.conv1 = nnu.conv3d(1, 32, kernel_size=7, padding=3, stride=2)
-        self.conv2 = nnu.conv3d(32, 32, kernel_size=5, padding=2, stride=1)
-        self.conv3 = nnu.conv3d(32, 64, kernel_size=4, padding=2, stride=1)
-        self.conv4 = nnu.conv3d(64, 64, kernel_size=3, padding=1, stride=1)
-        self.pool = nn.MaxPool3d(2, stride=2)
-        self.fc = nn.Linear(262144, latent_dim)
-
-    def forward(self, x):
-        batch_size = x.size(0)
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = self.conv3(x)
-        x = self.conv4(x)
-        x = self.pool(x)
-        x = self.fc(x.view(batch_size, -1))
-        return x
-
-
 class PointNetEncoder(nn.Module):
     def __init__(self, emb_dims):
         super(PointNetEncoder, self).__init__()
@@ -105,11 +75,11 @@ class UVNetCurveEncoder(nn.Module):
 
 class UVNetSurfaceEncoder(nn.Module):
     def __init__(
-        self,
-        input_channels="xyz_normals",
-        output_dims=64,
-        mask_mode="channel",
-        weighted=False,
+            self,
+            input_channels="xyz_normals",
+            output_dims=64,
+            mask_mode="channel",
+            weighted=False,
     ):
         super(UVNetSurfaceEncoder, self).__init__()
         assert mask_mode in ("multiply", "channel")
@@ -119,10 +89,7 @@ class UVNetSurfaceEncoder(nn.Module):
         num_inp_channels = 3 if input_channels == "xyz_only" else 6
         if mask_mode == "channel":
             num_inp_channels += 1
-        if weighted:
-            self.conv1 = nnu.wconv(num_inp_channels, 64, 3, padding=1)
-        else:
-            self.conv1 = nnu.conv(num_inp_channels, 64, 3, padding=1)
+        self.conv1 = nnu.conv(num_inp_channels, 64, 3, padding=1)
         self.weighted = weighted
         self.conv2 = nnu.conv(64, 128, 3, padding=1, bias=False)
         self.conv3 = nnu.conv(128, 256, 3, padding=1, bias=False)
@@ -265,15 +232,15 @@ def _get_graph_pooling_layer(graph_pooling_type):
 
 class UVNetGraphEncoder(nn.Module):
     def __init__(
-        self,
-        input_dim,
-        output_dim,
-        hidden_dim=64,
-        neighbor_pooling_type="sum",
-        graph_pooling_type="max",
-        learn_eps=True,
-        num_layers=3,
-        num_mlp_layers=2,
+            self,
+            input_dim,
+            output_dim,
+            hidden_dim=64,
+            neighbor_pooling_type="sum",
+            graph_pooling_type="max",
+            learn_eps=True,
+            num_layers=3,
+            num_mlp_layers=2,
     ):
         super(UVNetGraphEncoder, self).__init__()
         self.num_layers = num_layers
@@ -371,44 +338,3 @@ class SVGVAEImageEncoder(nn.Module):
         x = self.conv6(x)
         x = x.view(batch_size, -1)
         return x  # batch_size x 1024
-
-
-class MolGANDiscriminator(nn.Module):
-    """Discriminator network with PatchGAN."""
-
-    def __init__(self, conv_dim, m_dim, b_dim, dropout):
-        super(MolGANDiscriminator, self).__init__()
-
-        graph_conv_dim, aux_dim, linear_dim = conv_dim
-        # discriminator
-        self.gcn_layer = lay.GraphConvolution(m_dim, graph_conv_dim, b_dim, dropout)
-        self.agg_layer = lay.GraphAggregation(
-            graph_conv_dim[-1], aux_dim, b_dim, dropout
-        )
-
-        # multi dense layer
-        layers = []
-        for c0, c1 in zip([aux_dim] + linear_dim[:-1], linear_dim):
-            layers.append(nn.Linear(c0, c1))
-            layers.append(nn.Dropout(dropout))
-        self.linear_layer = nn.Sequential(*layers)
-
-        self.output_layer = nn.Linear(linear_dim[-1], 1)
-
-    def forward(self, adj, hidden, node, activatation=None):
-        adj = adj[:, :, :, 1:].permute(0, 3, 1, 2)
-        annotations = torch.cat((hidden, node), -1) if hidden is not None else node
-        h = self.gcn_layer(annotations, adj)
-        annotations = torch.cat(
-            (h, hidden, node) if hidden is not None else (h, node), -1
-        )
-        h = self.agg_layer(annotations, torch.tanh)
-        h = self.linear_layer(h)
-
-        # Need to implemente batch discriminator #
-        ##########################################
-
-        output = self.output_layer(h)
-        output = activatation(output) if activatation is not None else output
-
-        return output, h

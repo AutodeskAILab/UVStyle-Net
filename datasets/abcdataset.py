@@ -39,7 +39,6 @@ class ABCDataset(Dataset):
         :param size_percentage: Percentage of data to load per category
         :param in_memory: Whether to keep the entire dataset in memory (This is always done in Windows)
         :param apply_square_symmetry: Probability of randomly applying a square symmetry transform on the input surface grid (default: 0.0)
-        :param split_suffix: Suffix for the split directory to use
         """
         assert split in ("train", "val", "test", "all")
         path = pathlib.Path(root_dir)
@@ -58,8 +57,6 @@ class ABCDataset(Dataset):
         elif split == "test":
             k = int(0.2 * len(self.graph_files))
             self.graph_files = random.sample(self.graph_files, k)
-        elif split == "all":
-            graph_files = graph_files
 
         print("Found {} {} data.".format(len(self.graph_files), split))
 
@@ -70,11 +67,6 @@ class ABCDataset(Dataset):
         if in_memory:
             print("Windows OS detected, storing dataset in memory")
             self.graphs = [load_graphs(str(fn))[0][0] for fn in self.graph_files]
-            if self.center_and_scale:
-                for i in range(len(self.graphs)):
-                    self.graphs[i].ndata["x"] = font_util.center_and_scale(
-                        self.graphs[i].ndata["x"]
-                    )
         print(f"Done loading {len(self.graph_files)} data")
         self.apply_square_symmetry = apply_square_symmetry
 
@@ -87,8 +79,6 @@ class ABCDataset(Dataset):
         else:
             graph_file = str(self.graph_files[idx].absolute())
             graph = load_graphs(graph_file)[0][0]
-            if self.center_and_scale:
-                graph.ndata["x"] = font_util.center_and_scale(graph.ndata["x"])
         if self.apply_square_symmetry > 0.0:
             prob_r = random.uniform(0.0, 1.0)
             if prob_r < self.apply_square_symmetry:

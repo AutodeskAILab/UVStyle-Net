@@ -5,7 +5,7 @@ import streamlit as st
 import trimesh
 from sklearn.preprocessing import StandardScaler
 
-from solid_mnist import SolidMNISTSubset
+from datasets.solid_mnist import SolidMNISTSubset
 
 
 def face_adjacency_plot(graph, node_colors=None):

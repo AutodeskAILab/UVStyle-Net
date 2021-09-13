@@ -12,7 +12,7 @@ project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
 from helper import load_checkpoint
-from solid_mnist import SolidMNIST
+from datasets.solid_mnist import SolidMNIST
 from test_classifier import Model
 
 
