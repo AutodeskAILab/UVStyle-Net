@@ -1,4 +1,5 @@
 import argparse
+import os
 import os.path as osp
 
 _BATCH_SIZE = 128
@@ -45,7 +46,7 @@ def add_train_args(parser):
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default=osp.join(osp.dirname(osp.abspath(__file__)), "dataset"),
+        default=osp.join(osp.dirname(osp.abspath(__file__)), "data", "ABC", "bin"),
         help="Path to the dataset root directory",
     )
     parser.add_argument(
@@ -79,9 +80,12 @@ def add_test_args(parser):
     parser.add_argument(
         "--state",
         type=str,
-        default="",
+        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "checkpoints", "uvnet_abc_chkpt.pt"),
         help="PyTorch checkpoint file of trainined network.",
     )
     parser.add_argument("--no-cuda", action="store_true", help="Run on CPU")
     parser.add_argument("--seed", default=0, help="Seed")
+    parser.add_argument("--grams_path",
+                        default=osp.join(osp.dirname(osp.abspath(__file__)), "data", "ABC", "uvnet_grams"),
+                        help="directory to save Gram matrices to (default: data/ABC/uvnet_grams)")
     return parser

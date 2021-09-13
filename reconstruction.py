@@ -194,16 +194,14 @@ def _train_one_epoch(step, model, loader, optimizer, epoch, iteration, device):
     return avg_loss
 
 
-def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True):
-    import experiments
+def test_pc(step, model, loader, device, experiment_name, grams_path, save_pointclouds=True):
+    import experiment_tools
 
     img_dir = osp.join("dump", experiment_name, "imgs")
     helper.create_dir(img_dir)
     model.eval()
     losses = []
-    out_dir = 'analysis/psnet_data/abc_all'
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    os.makedirs(grams_path, exist_ok=True)
     with torch.no_grad():
         stats = {}
         graph_files = []
@@ -234,7 +232,7 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
                     )[1]
                     for i in range(loader.batch_size)
                 ]
-                experiments.visualize_pc(pred_points, gt_points, filename, img_dir)
+                experiment_tools.visualize_pc(pred_points, gt_points, filename, img_dir)
                 csv_file = osp.join(
                     img_dir,
                     osp.split(loader.dataset.pc_files[loader.batch_size * batch_idx])[1]
@@ -258,16 +256,16 @@ def test_pc(step, model, loader, device, experiment_name, save_pointclouds=True)
         }
     for i, (layer, layer_stats) in enumerate(all_stats.items()):
         grams = layer_stats['gram'].numpy()
-        np.save(out_dir + f'/{i}_{layer}_grams', grams)
+        np.save(grams_path + f'/{i}_{layer}_grams', grams)
 
     all_graph_files = list(map(lambda file: file.split('/')[-1], graph_files))
-    pd.DataFrame(all_graph_files).to_csv(out_dir + '/graph_files.txt', index=False, header=None)
+    pd.DataFrame(all_graph_files).to_csv(grams_path + '/graph_files.txt', index=False, header=None)
     print('done writing stats')
     return avg_loss
 
 
 def test_img(step, model, loader, device, experiment_name, save_images=True):
-    import experiments
+    import experiment_tools
 
     img_dir = osp.join("dump", experiment_name, "imgs")
     helper.create_dir(img_dir)

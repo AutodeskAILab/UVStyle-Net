@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import parse_util
 import reconstruction
@@ -72,14 +73,8 @@ def parse():
     train_args.add_argument(
         "--dataset",
         choices=("solidmnist", "abc"),
-        default=None,
+        default="abc",
         help="Dataset to train on",
-    )
-    train_args.add_argument(
-        "--shape_type",
-        type=str,
-        default="upper",
-        help="Upper or lowercase alphabets (only for SolidMNIST)",
     )
     train_args.add_argument(
         "--num_points", type=int, default=1024, help="Number of points to decode"
@@ -95,7 +90,7 @@ def parse():
     train_args.add_argument(
         "--npy_dataset_path",
         type=str,
-        default=None,
+        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ABC", "pointclouds"),
         help="Path to pointcloud dataset when encoder takes in solids",
     )
     train_args.add_argument(
@@ -107,6 +102,7 @@ def parse():
         default=0.3,
         help="Probability of applying square symmetry transformation to uv domain",
     )
+    parse_util.add_test_args(train_args)
     args, _ = parser.parse_known_args()
     return args
 
@@ -202,7 +198,7 @@ def main():
 
         # Test pointcloud reconstruction
         test_loss = reconstruction.test_pc(
-            step, model, test_loader, device, experiment_name=exp_name
+            step, model, test_loader, device, args.grams_path, experiment_name=exp_name
         )
         print("Chamfer loss: {:2.3f}".format(test_loss))
 
