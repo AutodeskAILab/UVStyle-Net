@@ -1,6 +1,7 @@
 import logging
 import os
 import os.path as osp
+import platform
 import sys
 
 import matplotlib.pyplot as plt
@@ -57,7 +58,7 @@ def save_checkpoint(filename: str, model, optimizer, scheduler=None, args=None):
     :return: None
     """
     torch.save(
-        {'model': model.state_dict(), 'args': args, 
+        {'model': model.state_dict(), 'args': args,
          'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict() if scheduler is not None else None},
         '{}'.format(filename))
 
@@ -89,7 +90,7 @@ def get_dataloader(dset, batch_size, train=True, collate_fn=None):
                             # sampler=RandomSampler(torch.arange(256)),
                             num_workers=num_workers,
                             collate_fn=collate_fn,
-                            pin_memory=True,)
+                            pin_memory=True, )
     return dataloader
 
 
@@ -122,6 +123,7 @@ def setup_logging(filename: str, level_str="info", filemode="w"):
     console_handler.setFormatter(log_formatter)
     root_logger.addHandler(console_handler)
 
+
 def network_plot_3D(G, angle, save=False):
     # Get node positions
     pos = nx.get_node_attributes(G, 'pos')
@@ -131,11 +133,11 @@ def network_plot_3D(G, angle, save=False):
     # Get the maximum number of edges adjacent to a single node
     edge_max = max([G.degree(i) for i in range(n)])
     # Define color range proportional to number of edges adjacent to a single node
-    colors = [plt.cm.plasma(G.degree(i)/edge_max) for i in range(n)]
+    colors = [plt.cm.plasma(G.degree(i) / edge_max) for i in range(n)]
     # 3D network plot
     with plt.style.context(('ggplot')):
 
-        fig = plt.figure(figsize=(10,7))
+        fig = plt.figure(figsize=(10, 7))
         ax = Axes3D(fig)
 
         # Loop on the pos dictionary to extract the x,y,z coordinates of each node
@@ -145,11 +147,11 @@ def network_plot_3D(G, angle, save=False):
             zi = value[2]
 
             # Scatter plot
-            ax.scatter(xi, yi, zi, c=colors[key], s=20+20*G.degree(key), edgecolors='k', alpha=0.7)
+            ax.scatter(xi, yi, zi, c=colors[key], s=20 + 20 * G.degree(key), edgecolors='k', alpha=0.7)
 
         # Loop on the list of edges to get the x,y,z, coordinates of the connected nodes
         # Those two points are the extrema of the line to be plotted
-        for i,j in enumerate(G.edges()):
+        for i, j in enumerate(G.edges()):
             x = np.array((pos[j[0]][0], pos[j[1]][0]))
             y = np.array((pos[j[0]][1], pos[j[1]][1]))
             z = np.array((pos[j[0]][2], pos[j[1]][2]))
@@ -168,3 +170,8 @@ def network_plot_3D(G, angle, save=False):
     plt.show()
 
     return
+
+
+def num_workers_platform():
+    is_windows = any(platform.win32_ver())
+    return 0 if is_windows else 8
