@@ -105,6 +105,7 @@ def compute_grams_from_model_with_grads(bg, model_checkpoint, device='cpu'):
 
 
 if __name__ == '__main__':
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     mesh_path = os.path.join(project_root, 'data', 'SolidLETTERS', 'mesh', 'test')
     text = st.sidebar.text_area(label='Enter letter names (separate lines)',
                                 value='c_Viaoda Libre_lower\ns_Aldrich_upper')
@@ -153,6 +154,6 @@ if __name__ == '__main__':
     a, b, = uvnet_gram_loss_vis_plot(g0, g1, weights, model_checkpoint, scale_grads=grads_slider,
                                      mesh0=mesh0, mesh1=mesh1, mesh_alpha=mesh_alpha,
                                      marker_size=marker_slider,
-                                     device='cuda:0')
+                                     device=device)
     st.plotly_chart(a)
     st.plotly_chart(b)
