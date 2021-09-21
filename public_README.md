@@ -96,10 +96,11 @@ $ pip install -r requirements.txt
 
 To get started quickly and interact with the models, we recommend downloading only
 the pre-computed Gram matrices for the SolidLETTERS test set along with the pre-trained
-SolidLETTERS model and the SolidLETTERS test set meshes (to assist visualization).
+SolidLETTERS model, the test set dgl binary files, and the test set meshes (to assist visualization).
+All of these necessary files can be downloaded into the correct directory structure with:
 
 ```bash
-# TODO
+$ python download_data.py quickstart
 ```
 
 ### Explore our Interactive Dashboards
@@ -152,6 +153,51 @@ streamlit run dashboards/few_shot_optimization.py
 </p>
 
 ## Full Datasets
+
+All data may be downloaded using the following script:
+
+```text
+$ python download_data.py
+
+usage: download_data.py [-h] [--all] [--grams] [--dgl] [--mesh] [--pc] [--smt]
+                        [--pngs] [--labels]
+                        {quickstart,models,solid_letters,abc}
+
+positional arguments:
+  {quickstart,models,solid_letters,abc}
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+solid_letters, abc:
+  --all
+  --grams
+  --dgl
+  --mesh
+  --pc
+  --smt
+  --pngs
+
+abc only:
+  --labels
+```
+
+To only download files necessary for the quickstart above use command `quickstart`. For the pre-trained
+models use command `models`. To download SolidLETTERS or ABC datasets, use command
+`solid_letters` or `abc` accordingly, followed by the arguments indicating the format(s).
+
+Examples:
+
+```bash
+# Pre-trained models
+$ python download_data.py models
+
+# Complete SolidLETTERS dataset
+$ python download_data.py solid_letters --all
+
+# ABC mesh and point clouds only
+$ python download_data.py abc --mesh --pc
+```
 
 ## Other Experiments
 

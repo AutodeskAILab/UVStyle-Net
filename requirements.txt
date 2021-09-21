@@ -1,6 +1,6 @@
 torch
 scikit-learn
-dgl-cu101
+dgl
 matplotlib
 pillow
 torchvision
@@ -14,3 +14,6 @@ plotly
 pytorch-lightning
 pytorch-lightning-bolts
 pyglet
+requests
+pyunpack
+patool
