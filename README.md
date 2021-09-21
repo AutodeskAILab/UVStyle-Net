@@ -16,8 +16,6 @@ This repository contains the authors' implementation of
         - [Visualize Style Loss Gradients](#Visualize-Style-Loss-Gradients)
         - [Optimize Layer Weights](#Optimize-Layer-Weights)
 4. [Full Datasets](#Full-Datasets)
-    1. [SolidLETTERS](#SolidLETTERS)
-    2. [ABC](#ABC)
 5. [Other Experiments](#Other-Experiments)
     1. [Linear Probes](#Linear-Probes)
     2. [Precision@10 for Few-shot Learning](#Precision@10-for-Few-shot-Learning)
