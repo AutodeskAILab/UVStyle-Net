@@ -40,7 +40,7 @@ if __name__ == '__main__':
         [os.path.join(labels_root, 'angular'), os.path.join(labels_root, 'rounded')],
     ]
 
-    NUM_TRIALS = 2
+    NUM_TRIALS = 20
     configs = [
         {
             'data_root': data_root,
