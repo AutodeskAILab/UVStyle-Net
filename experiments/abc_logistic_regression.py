@@ -36,7 +36,7 @@ if __name__ == '__main__':
     labels_root = os.path.join(project_root, 'data', 'ABC', 'subset_labels')
     cross_cats = [
         [os.path.join(labels_root, 'flat'), os.path.join(labels_root, 'electric')],
-        [os.path.join(labels_root, 'free_form'), os.path.join(labels_root, 'pipe')],
+        [os.path.join(labels_root, 'free_form'), os.path.join(labels_root, 'tubular')],
         [os.path.join(labels_root, 'angular'), os.path.join(labels_root, 'rounded')],
     ]
 
