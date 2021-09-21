@@ -90,6 +90,18 @@ Install the remaining requirements:
 $ pip install -r requirements.txt
 ```
 
+To use the download script requires a 7z extractor to be installed:
+
+```bash
+# Linux
+$ sudo apt-get install p7zip-full
+
+# MacOS
+$ bew install p7zip
+```
+
+or for windows, visit: <https://www.7-zip.org/download.html>.
+
 ### Download the Data & Pre-trained Models
 
 To get started quickly and interact with the models, we recommend downloading only

@@ -1,6 +1,6 @@
 torch
 scikit-learn
-dgl
+dgl-102
 matplotlib
 pillow
 torchvision
