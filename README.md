@@ -81,7 +81,7 @@ WINDOWS:       $ activate uvstylenet
 LINUX, macOS:  $ source activate uvstylenet
 ```
 
-- swap `dgl-cu101` in `requirmenets.txt:3` for the correct cuda version for your system. i.e. `cdl-cu102`, `dgl-cu100`, etc. (for cpu only use `dgl`)
+- swap `dgl` in `requirmenets.txt:3` for the correct cuda version for your system. i.e. `cdl-cu102`, `dgl-cu100`, etc. (for cpu only use `dgl`)
 - for gpu use you may need to install cudatoolkit/set environment variable `LD_LIBRARY_PATH` if you have not done so already
 
 Install the remaining requirements:
