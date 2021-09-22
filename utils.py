@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import torch
+from PIL import ImageEnhance
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegressionCV
@@ -87,6 +88,10 @@ class ImageLoader(object):
                 arr[green_x, green_y, :] = [0, 0, 0]
 
                 img = PIL.Image.fromarray(arr)
+            else:
+                enhancer = ImageEnhance.Brightness(img)
+                factor = 1.9  # brightens the image
+                img = enhancer.enhance(factor)
         except FileNotFoundError as e:
             print(f'WARNING cannot find {img_path}, using blank image - {e}', file=sys.stderr)
             img = PIL.Image.new(mode='P', size=(512, 512), color=(255, 255, 255))
