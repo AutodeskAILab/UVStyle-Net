@@ -1,6 +1,8 @@
 import argparse
 import os
 
+import torch
+
 import parse_util
 import reconstruction
 
@@ -157,7 +159,7 @@ def get_dataset(split, args):
 def main():
     args = parse()
 
-    device = "cuda:" + str(args.device)
+    device = "cuda:" + str(args.device) if torch.cuda.is_available() else 'cpu'
 
     if args.traintest == "train":
         print(args)
@@ -186,7 +188,7 @@ def main():
         import helper
         args.latent_dim = 1024
         args.use_tanh = True
-        state = helper.load_checkpoint(args.state)
+        state = helper.load_checkpoint(args.state, map_to_cpu=device == 'cpu')
         print(state["args"])
         test_dset = get_dataset("all", args)
         test_loader = test_dset.get_dataloader(args.batch_size, shuffle=False)
@@ -198,7 +200,7 @@ def main():
 
         # Test pointcloud reconstruction
         test_loss = reconstruction.test_pc(
-            step, model, test_loader, device, args.grams_path, experiment_name=exp_name
+            step, model, test_loader, device, experiment_name=exp_name, grams_path=args.grams_path,
         )
         print("Chamfer loss: {:2.3f}".format(test_loss))
 
