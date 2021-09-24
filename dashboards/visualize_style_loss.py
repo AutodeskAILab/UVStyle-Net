@@ -58,27 +58,22 @@ def uvnet_gram_loss_vis_plot(g0, g1, weights,
     losses = [weights[i] * crit(*gram) for i, gram in enumerate(grams)]
     loss = sum(losses)
     loss.backward()
-    feat_grads = []
-    for grads in torch.split(feat.grad, bg.batch_num_nodes().tolist()):
-        grads = grads[:, :, :, :3]
-        if len(idx) > 1:
-            combined_grads = grads.norm(dim=-1)
-        else:
-            combined_grads = grads
-        feat_grads.append(combined_grads.flatten())
+
     grads = torch.split(feat.grad, bg.batch_num_nodes().tolist())
     a = uv_samples_plot(*graph_to_xyz_mask(g0),
                         xyz_grads=grads[0][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh0,
-                        mesh_alpha=mesh_alpha)
+                        mesh_alpha=mesh_alpha,
+                        corner_align=True)
     b = uv_samples_plot(*graph_to_xyz_mask(g1),
                         xyz_grads=grads[1][:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                         scale_xyz_grads=scale_grads,
                         marker_size=marker_size,
                         mesh=mesh1,
-                        mesh_alpha=mesh_alpha)
+                        mesh_alpha=mesh_alpha,
+                        corner_align=True)
     return a, b
 
 

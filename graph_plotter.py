@@ -62,7 +62,8 @@ def uv_samples_plot(xyz, mask,
                     scale_xyz_grads=0.05,
                     marker_size=3,
                     mesh: trimesh.Trimesh = None,
-                    mesh_alpha=1.):
+                    mesh_alpha=1.,
+                    corner_align=False):
 
     if mask is not None:
         xyz = xyz[mask == 1]
@@ -79,7 +80,8 @@ def uv_samples_plot(xyz, mask,
     fig = go.Figure(data=scatter)
 
     if mesh is not None:
-        mesh.vertices -= mesh.bounding_box.bounds[0]
+        if corner_align:
+            mesh.vertices -= mesh.bounding_box.bounds[0]
         mesh_plot = go.Mesh3d(x=mesh.vertices[:, 0],
                               y=mesh.vertices[:, 1],
                               z=mesh.vertices[:, 2],
