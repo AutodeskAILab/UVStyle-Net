@@ -1,7 +1,5 @@
 from networks import encoder
 from networks import decoder
-from networks import classifier
-import torch
 import torch.nn as nn
 import networks.nn_utils as nnu
 
@@ -42,6 +40,35 @@ class UVNetSolid2PointsAutoEnc(nn.Module):
         if self.use_tanh:
             out = self.tanh(out)
         return out, embedding
+
+
+class UVNetSolidEncoder(nn.Module):
+    def __init__(
+            self,
+            surf_emb_dim=64,
+            graph_emb_dim=128,
+            ae_latent_dim=1024,
+            device='cuda:0'
+    ):
+        """
+        Encoder: UVNet solid encoder
+        :param surf_emb_dim: Embedding dimension for each surface. This will be pooled element wise to get embedding for solid with same dimension.
+        :param graph_emb_dim: Embedding dimension for the face-adj graph of the solid
+        :param ae_latent_dim: Dimension of the autoencoder latent vector
+        :num_points: Number of points to reconstruct
+        """
+        super().__init__()
+        self.surf_encoder = encoder.UVNetSurfaceEncoder(output_dims=surf_emb_dim)
+        self.graph_encoder = encoder.UVNetGraphEncoder(surf_emb_dim, graph_emb_dim)
+        self.project = nnu.fc(graph_emb_dim, ae_latent_dim)
+        self.device = device
+
+    def forward(self, bg, feat):
+        out = self.surf_encoder(feat)
+        bg = bg.to(self.device)
+        node_emb, graph_emb = self.graph_encoder(bg, out)
+        embedding = self.project(graph_emb)
+        return embedding
 
 
 class Points2PointsAutoEnc(nn.Module):
