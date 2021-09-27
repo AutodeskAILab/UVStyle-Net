@@ -4,23 +4,17 @@ import torch.nn as nn
 import networks.nn_utils as nnu
 
 
-def get_face_model(nurbs_model_type, mask_mode="channel", area_as_channel=False, output_dims=64,
-                   input_channels='xyz_normals'):
-    if nurbs_model_type == "cnn":
-        return UVNetFaceModel(input_channels=input_channels, output_dims=output_dims, mask_mode=mask_mode)
-    raise ValueError("Invalid nurbs model type: {}, expected one of ('cnn')".format(nurbs_model_type))
+def get_face_model(output_dims=64, input_channels='xyz_normals'):
+    return UVNetFaceModel(input_channels=input_channels, output_dims=output_dims)
 
 
 class UVNetFaceModel(nn.Module):
-    def __init__(self, input_channels='xyz_normals', output_dims=64, mask_mode="channel"):
+    def __init__(self, input_channels='xyz_normals', output_dims=64):
         super(UVNetFaceModel, self).__init__()
-        assert mask_mode in ("multiply", "channel")
-        self.mask_mode = mask_mode
         assert input_channels in ('xyz_only', 'xyz_normals')
         self.input_channels = input_channels
         num_inp_channels = 3 if input_channels == 'xyz_only' else 6
-        if mask_mode == "channel":
-            num_inp_channels += 1
+        num_inp_channels += 1
 
         self.conv1 = nnu.conv(num_inp_channels, 64, 3, padding=1)
         self.conv2 = nnu.conv(64, 128, 3, padding=1, bias=False)
@@ -58,8 +52,4 @@ class UVNetFaceModel(nn.Module):
         return x
 
     def forward(self, inp):
-        if self.mask_mode == "channel":
-            return self.forward_mask_channel(inp)
-        if self.mask_mode == "multiply":
-            return self.forward_mask_multiply(inp)
-        raise ValueError("Unknown mask mode {}, expected one of ('channel', 'multiply')".format(self.mask_mode))
+        return self.forward_mask_channel(inp)

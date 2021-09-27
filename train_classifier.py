@@ -24,10 +24,7 @@ class Model(nn.Module):
         """
         super(Model, self).__init__()
         self.nurbs_feat_ext = face_model.get_face_model(
-            nurbs_model_type=args.nurbs_model_type,
             output_dims=args.nurbs_emb_dim,
-            mask_mode=args.mask_mode,
-            area_as_channel=args.area_as_channel,
             input_channels=args.input_channels)
         self.brep_feat_ext = graph_model.get_graph_model(
             args.brep_model_type, args.nurbs_emb_dim, args.graph_emb_dim)

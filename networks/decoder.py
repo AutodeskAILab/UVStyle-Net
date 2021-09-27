@@ -3,14 +3,6 @@ import torch.nn as nn
 import networks.nn_utils as nnu
 
 
-def get_decoder_model(decoder_type, num_points, latent_dim):
-    if decoder_type == "point_decoder":
-        return PointDecoder(num_points, latent_dim)
-    if decoder_type == "graph_decoder":
-        return PointDecoder(num_points, latent_dim)
-    raise ValueError("Decoder {} not found, expected one of ('point_decoder', 'graph_decoder')".format(decoder_type))
-
-
 class PointDecoder(nn.Module):
     def __init__(self, input_dim, num_points):
         super(PointDecoder, self).__init__()
