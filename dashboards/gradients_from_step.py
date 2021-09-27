@@ -179,6 +179,7 @@ if __name__ == '__main__':
                     plots = []
                     for i, (graph, grad) in enumerate(zip(dgl_graphs, grads)):
                         graph.ndata['x'] = feats[i]
+                        # noinspection PyUnboundLocalVariable
                         sample_plot = uv_samples_plot(*graph_to_xyz_mask(graph),
                                                       xyz_grads=grad[:, :, :, :3].reshape([-1, 3]).detach().cpu(),
                                                       scale_xyz_grads=scale_grads,
