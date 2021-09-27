@@ -21,4 +21,4 @@ class StreamlitOCCViewer(JupyterViewer):
         width, height = self._size
         return components.html(html=html_code,
                                width=width,
-                               height=height + 200)
+                               height=height)
