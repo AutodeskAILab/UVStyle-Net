@@ -15,9 +15,8 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
 from few_shot import optimize
-import helper
 from gradients_from_step import graphs_and_feats, compute_activation_stats
-from networks.models import UVNetSolidEncoder
+from networks.models import get_abc_encoder
 from utils import Grams, solid_from_file
 
 
@@ -85,25 +84,13 @@ class RandomExamples(Examples):
 
 
 def main():
-    checkpoint = 'uvnet_abc_chkpt.pt'
+    checkpoint = osp.join(project_root, 'checkpoints', 'uvnet_abc_chkpt.pt')
     # grams_root = osp.join(project_root, 'data', 'ABC', 'uvnet_grams', 'all')
     grams_root = '/Users/meltzep/uvnet_data/abc_sub_mu_only'
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     layers = ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
 
-    state = helper.load_checkpoint(osp.join(project_root, 'checkpoints', checkpoint), map_to_cpu=True)
-    model = UVNetSolidEncoder(surf_emb_dim=64,
-                              graph_emb_dim=128,
-                              ae_latent_dim=1024,
-                              device=device)
-
-    # remove decoder weights
-    encoder_state = state['model'].copy()
-    for key in state['model'].keys():
-        if key.startswith('decoder'):
-            encoder_state.pop(key)
-
-    model.load_state_dict(encoder_state)
+    model = get_abc_encoder(checkpoint, device)
 
     positive_files = st.sidebar.file_uploader(label='Positive Examples',
                                               type=['step', 'stp'],

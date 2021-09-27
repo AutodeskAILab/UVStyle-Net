@@ -9,16 +9,14 @@ import trimesh
 from matplotlib.cm import get_cmap
 from occwl.graph import face_adjacency
 
-
 file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
+from networks.models import get_abc_encoder
 from utils import solid_from_file
 from datasets.feature_pipeline import feature_extractor
 from streamlit_occ_viewer import StreamlitOCCViewer
-import helper
 from graph_plotter import uv_samples_plot, graph_to_xyz_mask
-from networks.models import UVNetSolidEncoder
 from dashboards.visualize_style_loss import CosineLoss
 
 
@@ -66,7 +64,7 @@ def graphs_and_feats(solids):
 
 
 if __name__ == '__main__':
-    checkpoint = 'uvnet_abc_chkpt.pt'
+    checkpoint = osp.join(project_root, 'checkpoints', 'uvnet_abc_chkpt.pt')
 
     layers = ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
 
@@ -121,20 +119,7 @@ if __name__ == '__main__':
             with st.spinner('Computing gradients...'):
                 device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-                state = helper.load_checkpoint(osp.join(project_root, 'checkpoints', checkpoint), map_to_cpu=True)
-                chkpt_args = state['args']
-                model = UVNetSolidEncoder(surf_emb_dim=64,
-                                          graph_emb_dim=128,
-                                          ae_latent_dim=1024,
-                                          device=device)
-
-                # remove decoder weights
-                encoder_state = state['model'].copy()
-                for key in state['model'].keys():
-                    if key.startswith('decoder'):
-                        encoder_state.pop(key)
-
-                model.load_state_dict(encoder_state)
+                model = get_abc_encoder(checkpoint=checkpoint, device=device)
 
                 nx_graphs, dgl_graphs, feats = graphs_and_feats(solids)
                 features = torch.cat(feats, dim=0).float()

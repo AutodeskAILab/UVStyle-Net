@@ -1,3 +1,4 @@
+import helper
 from networks import encoder
 from networks import decoder
 import torch.nn as nn
@@ -92,3 +93,20 @@ class Points2PointsAutoEnc(nn.Module):
         if self.use_tanh:
             out = self.tanh(out)
         return out, embedding
+
+
+def get_abc_encoder(checkpoint, device='cpu'):
+    state = helper.load_checkpoint(checkpoint, map_to_cpu=device == 'cpu')
+    model = UVNetSolidEncoder(surf_emb_dim=64,
+                              graph_emb_dim=128,
+                              ae_latent_dim=1024,
+                              device=device).to(device)
+
+    # remove decoder weights
+    encoder_state = state['model'].copy()
+    for key in state['model'].keys():
+        if key.startswith('decoder'):
+            encoder_state.pop(key)
+
+    model.load_state_dict(encoder_state)
+    return model
