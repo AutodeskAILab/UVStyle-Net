@@ -1,7 +1,6 @@
 import os
 import os.path as osp
 import sys
-from multiprocessing import Process
 
 import dgl
 import streamlit as st
@@ -9,12 +8,12 @@ import torch.cuda
 import trimesh
 from matplotlib.cm import get_cmap
 from occwl.graph import face_adjacency
-from occwl.io import load_step
 
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
+from utils import solid_from_file
 from datasets.feature_pipeline import feature_extractor
 from streamlit_occ_viewer import StreamlitOCCViewer
 import helper
@@ -58,6 +57,14 @@ def compute_activation_stats(bg, layer, activations):
     return torch.stack(grams)
 
 
+def graphs_and_feats(solids):
+    nx_graphs = [face_adjacency(solid) for solid in solids]
+    dgl_graphs = [dgl.from_networkx(g) for g in nx_graphs]
+    feats = map(feature_extractor, solids)
+    feats = list(map(torch.from_numpy, feats))
+    return nx_graphs, dgl_graphs, feats
+
+
 if __name__ == '__main__':
     checkpoint = 'uvnet_abc_chkpt.pt'
 
@@ -74,21 +81,11 @@ if __name__ == '__main__':
         st.text('Upload your B-Rep STEP files in the sidebar to begin.')
     else:
         success = False
+        solids = []
         try:
-            with open(osp.join(project_root, 'step1.stp'), 'wb') as f_a:
-                f_a.write(file_a.getvalue())
-            with open(osp.join(project_root, 'step2.stp'), 'wb') as f_b:
-                f_b.write(file_b.getvalue())
-
-            files = ['step1.stp', 'step2.stp']
-            process = Process(target=lambda: [load_step(osp.join(project_root, file))[0] for file in
-                                              files])
-            process.start()
-            process.join()
-            if process.exitcode != 0:
-                raise Exception('Check your files are valid STEP files.')
-            solids = [load_step(osp.join(project_root, file))[0] for file in
-                      files]
+            for file in [file_a, file_b]:
+                solid = solid_from_file(file)
+                solids.append(solid)
             success = True
         except Exception as e:
             st.error(f'Error loading files: {e}')
@@ -139,10 +136,7 @@ if __name__ == '__main__':
 
                 model.load_state_dict(encoder_state)
 
-                nx_graphs = [face_adjacency(solid) for solid in solids]
-                dgl_graphs = [dgl.from_networkx(g) for g in nx_graphs]
-                feats = map(feature_extractor, solids)
-                feats = list(map(torch.from_numpy, feats))
+                nx_graphs, dgl_graphs, feats = graphs_and_feats(solids)
                 features = torch.cat(feats, dim=0).float()
 
                 meshes = []
@@ -156,6 +150,7 @@ if __name__ == '__main__':
                 bg = dgl.batch(dgl_graphs)
                 features.requires_grad = True
 
+                model.eval()
                 embeddings = model(bg, features.permute(0, 3, 1, 2))
 
                 activations = model.surf_encoder.activations
@@ -193,6 +188,8 @@ if __name__ == '__main__':
 
             else:
                 # OCC
+                st.image(image=osp.join(project_root, 'dashboards', 'color_scale.png'),
+                         caption='Scale')
                 cmap = get_cmap('viridis')
                 with st.spinner('Generating plots...'):
                     viewers = []

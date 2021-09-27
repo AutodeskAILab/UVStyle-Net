@@ -3,6 +3,7 @@ import pickle
 import sys
 from collections import OrderedDict
 from glob import glob
+from multiprocessing import Process
 from pathlib import Path
 
 import PIL
@@ -12,9 +13,11 @@ import streamlit as st
 import torch
 from PIL import ImageEnhance
 from matplotlib import pyplot as plt
+from occwl.io import load_step
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
+from streamlit.uploaded_file_manager import UploadedFile
 
 
 class Grams(object):
@@ -166,7 +169,8 @@ def dataset_selector(project_root):
     data_root = os.path.join(project_root, 'data', dataset_name)
 
     model_name = st.sidebar.selectbox(label='Model',
-                                      options=[Path(f).stem[:-6] for f in glob(f'{data_root}//*_grams', recursive=False)])
+                                      options=[Path(f).stem[:-6] for f in
+                                               glob(f'{data_root}//*_grams', recursive=False)])
 
     grams_name = st.sidebar.selectbox(label='Grams',
                                       options=os.listdir(os.path.join(data_root, f'{model_name}_grams')))
@@ -245,3 +249,21 @@ def probe_score(stat, reduced, labels, err=False, balanced=True):
             c_scores = v.mean(axis=0)
             scores.append(c_scores.max())
         return np.mean(scores)
+
+
+def solid_from_file(file: UploadedFile):
+    temp_name = f'temp.stp'
+    with open(temp_name, 'wb') as f:
+        f.write(file.getvalue())
+
+    # if error loading step file, python crashes with segfault
+    # so check on separate process first
+    process = Process(target=lambda: load_step(temp_name)[0])
+    process.start()
+    process.join()
+    if process.exitcode != 0:
+        raise Exception('Check your files are valid STEP files.')
+
+    solid = load_step(temp_name)[0]
+    os.remove(temp_name)
+    return solid
