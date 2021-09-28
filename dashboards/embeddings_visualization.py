@@ -1,4 +1,3 @@
-import atexit
 import os
 import os.path as osp
 import shutil
