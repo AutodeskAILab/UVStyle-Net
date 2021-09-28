@@ -1,51 +1,25 @@
 import os
 import os.path as osp
 import shutil
-import subprocess
 import sys
-import time
-from os import kill
-from time import sleep
 
 import numpy as np
-import requests
 import streamlit as st
 import torch
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-from streamlit.components import v1 as components
+from streamlit.report_thread import get_report_ctx
 from torch.utils.tensorboard import SummaryWriter
 from umap import UMAP
 
 file_dir = osp.dirname(osp.abspath(__file__))
 project_root = osp.dirname(file_dir)
 sys.path.append(project_root)
+from st_executor import queue_and_get
+from st_tensorboard import StEmbeddingProjector
 from utils import solid_to_img_tensor
 from upload_pos_neg import UploadExamples
 from networks.models import get_abc_encoder
-
-selection_html = """
-<style>
-#my-div
-{
-    width    : 1000px;
-    height   : 800px;
-    overflow : hidden;
-    position : relative;
-}
-#my-iframe
-{
-    position : absolute;
-    top      : -68px;
-    left     : -313px;
-    width    : 1602px;
-    height   : 868px;
-}
-</style>
-<div id="my-div">
-<iframe src="http://localhost:6006/#projector" id="my-iframe" scrolling="no"></iframe>
-</div>
-"""
 
 
 def main():
@@ -62,9 +36,7 @@ def main():
         st.write('Upload a set of STEP files in the sidebar to get started.')
     else:
         # files are uploaded
-        examples = UploadExamples(model=model,
-                                  layers=layers,
-                                  files=step_files)
+        examples = queue_and_get(UploadExamples, model, layers, step_files).result()
         st.write(f'Files uploaded: {len(examples)}')
 
         algo = st.radio(label='Method',
@@ -109,56 +81,40 @@ def main():
 
         if st.button('Visualize'):
             with st.spinner('Computing Gram matrices...'):
-                grams = examples.grams()
+                grams = queue_and_get(examples.grams).result()
 
             with st.spinner('Performing PCA...'):
                 pca_grams = []
                 for layer in range(7):
                     x = grams[layer].detach().cpu().numpy()
-                    pca = PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform(x)
+                    pca = queue_and_get(PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform, x).result()
                     pca_grams.append(pca)
                 X = torch.from_numpy(np.concatenate(pca_grams, axis=-1))
 
             with st.spinner('Fitting...'):
-                X_ = fitter.fit_transform(X)
+                X_ = queue_and_get(fitter.fit_transform, X).result()
 
             with st.spinner('Preparing Embedding Projector...'):
-                log_dir = 'temp_log/'
+                log_dir = f'log_dir_{get_report_ctx().session_id}'
                 shutil.rmtree(log_dir, ignore_errors=True)
                 os.makedirs(osp.join(project_root, log_dir), exist_ok=True)
 
-                img_tensors = []
-                for solid in examples.solids:
-                    t = solid_to_img_tensor(solid, width=64, height=64, line_width=2)
-                    img_tensors.append(t)
-                img = torch.stack(img_tensors)
+                img = queue_and_get(get_imgs, examples).result()
 
                 writer = torch.utils.tensorboard.SummaryWriter(log_dir=log_dir)
                 writer.add_embedding(X_, label_img=img, metadata=examples.names)
+                projector = StEmbeddingProjector(osp.join(project_root, log_dir))
 
-                if 'tb' in st.session_state:
-                    kill(st.session_state.tb, 9)
+            projector.display()
 
-                process = subprocess.Popen(f'bash -c "tensorboard --logdir {project_root}/temp_log"',
-                                           env=os.environ,
-                                           shell=True)
-                st.session_state.tb = process.pid
 
-                tensorboard_url = 'http://localhost:6006'
-                success = False
-                start = time.time()
-                while not success:
-                    try:
-                        requests.get(tensorboard_url)
-                        success = True
-                    except Exception:
-                        if time.time() - start > 10:
-                            raise Exception('Cannot connect to embedding projector (timeout).')
-                        sleep(0.1)
-            st.text('Use left mouse button to rotate, right mouse button to pan, and scroll wheel to zoom.')
-            components.html(html=selection_html,
-                            width=1000,
-                            height=1000)
+def get_imgs(examples):
+    img_tensors = []
+    for solid in examples.solids:
+        t = solid_to_img_tensor(solid, width=64, height=64, line_width=2)
+        img_tensors.append(t)
+    img = torch.stack(img_tensors)
+    return img
 
 
 if __name__ == '__main__':
