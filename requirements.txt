@@ -17,3 +17,6 @@ pyglet
 requests
 pyunpack
 patool
+umap-learn
+svglib
+svgwrite

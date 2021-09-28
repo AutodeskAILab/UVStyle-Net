@@ -37,12 +37,22 @@ class UploadExamples(Examples):
         self._model = model
         self._layers = layers
         self._solids = []
+        self._names = []
         for file in files:
             try:
                 solid = solid_from_file(file)
                 self._solids.append(solid)
+                self._names.append(file.name)
             except Exception as e:
                 st.error(f'Error loading \'{file.name}\': {e}')
+
+    @property
+    def solids(self):
+        return self._solids
+
+    @property
+    def names(self):
+        return self._names
 
     def grams(self):
         nx_graphs, dgl_graphs, feats = graphs_and_feats(self._solids)

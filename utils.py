@@ -1,3 +1,4 @@
+import io
 import os
 import pickle
 import sys
@@ -7,10 +8,13 @@ from multiprocessing import Process
 from pathlib import Path
 
 import PIL
+import PIL.Image
 import numpy as np
+import occwl.io
 import pandas as pd
 import streamlit as st
 import torch
+import torchvision
 from PIL import ImageEnhance
 from matplotlib import pyplot as plt
 from occwl.io import load_step
@@ -18,6 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
 from streamlit.uploaded_file_manager import UploadedFile
+from svglib.svglib import svg2rlg
 
 
 class Grams(object):
@@ -267,3 +272,19 @@ def solid_from_file(file: UploadedFile):
     solid = load_step(temp_name)[0]
     os.remove(temp_name)
     return solid
+
+
+def solid_to_img_tensor(solid, width=64, height=64, line_width=2):
+    svg = occwl.io.export_shape_to_svg(solid.topods_shape(),
+                                       width=width,
+                                       height=height,
+                                       margin_left=0,
+                                       margin_top=0,
+                                       line_width=line_width,
+                                       export_hidden_edges=False)
+    svg_io = io.StringIO(svg)
+    drawing = svg2rlg(svg_io)
+    byte_io = io.BytesIO(drawing.asString("png"))
+    img = PIL.Image.open(byte_io)
+    t = torchvision.transforms.ToTensor()(img)
+    return t
