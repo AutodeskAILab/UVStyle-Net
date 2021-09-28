@@ -90,6 +90,7 @@ class StEmbeddingProjector:
 
     def _close_on_timeout(self, timeout):
         sleep(timeout)
+        print(f'Closing Tensorboard on port {self._port}')
         shutil.rmtree(self._log_dir, ignore_errors=True)
         self._process.kill()
 
