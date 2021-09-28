@@ -184,9 +184,9 @@ solid_letters = {
 abc = {
     'grams': [
         RemoteItem(name='abc_grams_all.7z',
-                   url='https://uvstylenet-grams.s3.us-west-2.amazonaws.com/uvnet_abc_all.7z',
+                   url='https://uvstylenet-grams.s3.us-west-2.amazonaws.com/uvnet_abc_sub_mu_only.7z',
                    path_maps=[
-                       ('abc_all', osp.join('data', 'ABC', 'uvnet_grams', 'all'))
+                       ('abc_sub_mu_only', osp.join('data', 'ABC', 'uvnet_grams', 'all'))
                    ]),
         RemoteItem(name='pnset_abc_grams_all.7z',
                    url='https://uvstylenet-grams.s3.us-west-2.amazonaws.com/psnet_abc_all.7z',
