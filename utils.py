@@ -256,8 +256,7 @@ def probe_score(stat, reduced, labels, err=False, balanced=True):
         return np.mean(scores)
 
 
-def solid_from_file(file: UploadedFile):
-    temp_name = f'temp.stp'
+def solid_from_file(file: UploadedFile, temp_name='temp.stp'):
     with open(temp_name, 'wb') as f:
         f.write(file.getvalue())
 
