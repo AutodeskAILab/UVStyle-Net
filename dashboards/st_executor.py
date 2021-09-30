@@ -80,7 +80,7 @@ class SingleThreadExecutor(_StExecutor):
     def __init__(self) -> None:
         super().__init__()
         self.__executor = ThreadPoolExecutor(max_workers=1,
-                                             thread_name_prefix='embeddings_')
+                                             thread_name_prefix='dashboards_single')
 
     @property
     def _executor(self):
@@ -93,7 +93,7 @@ class ManyThreadExecutor(_StExecutor):
     def __init__(self) -> None:
         super().__init__()
         self.__executor = ThreadPoolExecutor(max_workers=6,
-                                             thread_name_prefix='embeddings_')
+                                             thread_name_prefix='dashboards_many')
 
     @property
     def _executor(self):
