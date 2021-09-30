@@ -3,7 +3,10 @@ import os.path as osp
 import random
 import string
 import sys
+import zipfile
 from abc import abstractmethod
+from io import FileIO, BytesIO
+from time import sleep
 
 import dgl
 import numpy as np
@@ -11,8 +14,11 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import torch.cuda
+from pyunpack import Archive
+from setuptools.archive_util import unpack_zipfile
 from sklearn.decomposition import PCA
 from streamlit.report_thread import get_report_ctx
+from streamlit.uploaded_file_manager import UploadedFile, UploadedFileRec
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
@@ -41,14 +47,48 @@ class UploadExamples(Examples):
         self._layers = layers
         self._solids = []
         self._names = []
+
+        step_files = []
         for file in files:
-            try:
-                solid = solid_from_file(file, temp_name=''.join(
-                    random.choice(string.ascii_letters + string.digits) for _ in range(50)))
-                self._solids.append(solid)
-                self._names.append(file.name)
-            except Exception as e:
-                st.error(f'Error loading \'{file.name}\': {e}')
+            if file.name[-4:] == '.zip':
+                try:
+                    z = zipfile.ZipFile(file)
+                except Exception as e:
+                    st.error(f'Cannot extract {file.name}: {e}')
+                    continue
+                with st.spinner(f'Extracting {file.name}...'):
+                    progress = st.progress(0)
+                    for i, f in enumerate(z.infolist()):
+                        sleep(1)
+                        if f.filename[-1] == '/' or f.filename.split('/')[-1][0] == '.':
+                            progress.progress((i + 1) / len(z.infolist()))
+                            continue
+                        try:
+                            extracted = z.read(f)
+                            b = BytesIO(extracted)
+                            b.name = f.filename
+                            step_files.append(b)
+                        except Exception as e:
+                            st.error(f'Cannot extract {f.filename}: {e}')
+                        progress.progress((i+1) / len(z.infolist()))
+                    progress.empty()
+
+            else:
+                step_files.append(file)
+
+        with st.spinner('Processing STEP files...'):
+            progress = st.progress(0)
+            for i, file in enumerate(step_files):
+                try:
+                    solid = solid_from_file(file, temp_name=''.join(
+                        random.choice(string.ascii_letters + string.digits) for _ in range(50)))
+                    self._solids.append(solid)
+                    self._names.append(file.name)
+                except Exception as e:
+                    st.error(f'Error loading \'{file.name}\': {e}')
+                finally:
+                    progress.progress((i + 1) / len(step_files))
+            progress.empty()
 
     @property
     def solids(self):
@@ -117,21 +157,20 @@ def main():
     model = get_abc_encoder(checkpoint, device)
 
     positive_files = st.sidebar.file_uploader(label='Positive Examples',
-                                              type=['step', 'stp'],
+                                              type=['step', 'stp', 'zip'],
                                               accept_multiple_files=True)
-    # with open(osp.join(project_root, 'pos_step_0.stp'), 'rb') as f:
+    # with open('/Users/meltzep/step_files.zip', 'rb') as f:
     #     b = f.read()
     # with open(osp.join(project_root, 'pos_step_1.stp'), 'rb') as f:
     #     b2 = f.read()
-    # positive_files = [UploadedFile(UploadedFileRec(0, 'temp', 'step', b)),
-    #                   UploadedFile(UploadedFileRec(1, 'temp2', 'step2', b2))]
+    # positive_files = [UploadedFile(UploadedFileRec(0, 'step_files.zip', 'step', b))]
 
     negatives_option = st.sidebar.radio(label='',
                                         options=['Random Negatives', 'Upload Negatives'])
 
     if negatives_option == 'Upload Negatives':
         negative_files = st.sidebar.file_uploader(label='Negative Examples',
-                                                  type=['step', 'stp'],
+                                                  type=['step', 'stp', 'zip'],
                                                   accept_multiple_files=True)
     else:
         # random negatives from ABC
