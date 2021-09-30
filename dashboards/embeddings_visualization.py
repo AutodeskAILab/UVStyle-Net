@@ -12,10 +12,11 @@ from streamlit.report_thread import get_report_ctx
 from torch.utils.tensorboard import SummaryWriter
 from umap import UMAP
 
+
 file_dir = osp.dirname(osp.abspath(__file__))
 project_root = osp.dirname(file_dir)
 sys.path.append(project_root)
-from st_executor import queue_and_get
+from st_executor import SingleThreadExecutor
 from st_tensorboard import StEmbeddingProjector
 from utils import solid_to_img_tensor
 from upload_pos_neg import UploadExamples
@@ -23,6 +24,7 @@ from networks.models import get_abc_encoder
 
 
 def main():
+    executor = SingleThreadExecutor.instance()
     st.set_page_config(layout='wide')
     checkpoint = osp.join(project_root, 'checkpoints', 'uvnet_abc_chkpt.pt')
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -36,7 +38,7 @@ def main():
         st.write('Upload a set of STEP files in the sidebar to get started.')
     else:
         # files are uploaded
-        examples = queue_and_get(UploadExamples, model, layers, step_files).result()
+        examples = executor.queue_and_block(UploadExamples, model, layers, step_files).result()
         st.write(f'Files uploaded: {len(examples)}')
 
         algo = st.radio(label='Method',
@@ -81,25 +83,25 @@ def main():
 
         if st.button('Visualize'):
             with st.spinner('Computing Gram matrices...'):
-                grams = queue_and_get(examples.grams).result()
+                grams = executor.queue_and_block(examples.grams).result()
 
             with st.spinner('Performing PCA...'):
                 pca_grams = []
                 for layer in range(7):
                     x = grams[layer].detach().cpu().numpy()
-                    pca = queue_and_get(PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform, x).result()
+                    pca = executor.queue_and_block(PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform, x).result()
                     pca_grams.append(pca)
                 X = torch.from_numpy(np.concatenate(pca_grams, axis=-1))
 
             with st.spinner('Fitting...'):
-                X_ = queue_and_get(fitter.fit_transform, X).result()
+                X_ = executor.queue_and_block(fitter.fit_transform, X).result()
 
             with st.spinner('Preparing Embedding Projector...'):
                 log_dir = f'log_dir_{get_report_ctx().session_id}'
                 shutil.rmtree(log_dir, ignore_errors=True)
                 os.makedirs(osp.join(project_root, log_dir), exist_ok=True)
 
-                img = queue_and_get(get_imgs, examples).result()
+                img = executor.queue_and_block(get_imgs, examples).result()
 
                 writer = torch.utils.tensorboard.SummaryWriter(log_dir=log_dir)
                 writer.add_embedding(X_, label_img=img, metadata=examples.names)
