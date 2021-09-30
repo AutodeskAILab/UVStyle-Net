@@ -100,8 +100,10 @@ def main():
 
     layers = ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
 
-    file_a = st.sidebar.file_uploader(label='B-Rep 1')
-    file_b = st.sidebar.file_uploader(label='B-Rep 2')
+    file_a = st.sidebar.file_uploader(label='B-Rep 1',
+                                      type=['step', 'stp'])
+    file_b = st.sidebar.file_uploader(label='B-Rep 2',
+                                      type=['step', 'stp'])
     # with open('/Users/meltzep/step_files/test_shape_a.step', 'rb') as f:
     #     file_a = UploadedFile(UploadedFileRec(0, 'a', 'step', f.read()))
     # with open('/Users/meltzep/step_files/test_shape_c.step', 'rb') as f:
