@@ -12,11 +12,10 @@ from streamlit.report_thread import get_report_ctx
 from torch.utils.tensorboard import SummaryWriter
 from umap import UMAP
 
-
 file_dir = osp.dirname(osp.abspath(__file__))
 project_root = osp.dirname(file_dir)
 sys.path.append(project_root)
-from st_executor import SingleThreadExecutor
+from st_executor import ManyThreadExecutor
 from st_tensorboard import StEmbeddingProjector
 from utils import solid_to_img_tensor
 from upload_pos_neg import UploadExamples
@@ -24,7 +23,7 @@ from networks.models import get_abc_encoder
 
 
 def main():
-    executor = SingleThreadExecutor.instance()
+    executor = ManyThreadExecutor.instance()
     st.set_page_config(layout='wide')
     checkpoint = osp.join(project_root, 'checkpoints', 'uvnet_abc_chkpt.pt')
     device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
