@@ -9,6 +9,7 @@ from pathlib import Path
 
 import PIL
 import PIL.Image
+import dgl
 import numpy as np
 import occwl.io
 import pandas as pd
@@ -17,12 +18,15 @@ import torch
 import torchvision
 from PIL import ImageEnhance
 from matplotlib import pyplot as plt
+from occwl.graph import face_adjacency
 from occwl.io import load_step
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.metrics.pairwise import paired_cosine_distances, paired_euclidean_distances
 from streamlit.uploaded_file_manager import UploadedFile
 from svglib.svglib import svg2rlg
+
+from datasets.feature_pipeline import feature_extractor
 
 
 class Grams(object):
@@ -287,3 +291,50 @@ def solid_to_img_tensor(solid, width=64, height=64, line_width=2):
     img = PIL.Image.open(byte_io)
     t = torchvision.transforms.ToTensor()(img)
     return t
+
+
+def compute_activation_stats(bg, layer, activations):
+    grams = []
+    for graph_activations in torch.split(activations, bg.batch_num_nodes().tolist()):
+        # graph_activations.register_hook(lambda x: print(f'activations_{layer}:', torch.norm(x)))
+        if layer == 'feats':
+            mask = graph_activations[:, 6, :, :].unsqueeze(1).flatten(start_dim=2)  # F x 1 x 100
+            graph_activations = graph_activations[:, :6, :, :].flatten(start_dim=2)  # F x 6 x 100
+            x = graph_activations * mask
+            # x.register_hook(lambda x: print('feats_grams:', torch.norm(x)))
+            # mean = x.sum(dim=-1, keepdims=True) / mask.sum(dim=-1, keepdims=True)
+            # nans_x, nans_y, nans_z = torch.where(mean.isnan())
+            # mean[nans_x, nans_y, nans_z] = 0
+            # x = x - mean
+        elif layer[:4] == 'conv':
+            x = graph_activations.flatten(start_dim=2)  # x shape: F x d x 100
+            # x.register_hook(lambda x: print(f'conv_grams_{layer[4]}:', torch.norm(x)))
+            # mean = x.mean(dim=-1, keepdims=True)
+            # x = x - mean
+        else:
+            # fc and GIN layers
+            # graph_activations shape: F x d x 1
+            x = graph_activations.permute(1, 0, 2).flatten(start_dim=1).unsqueeze(0)  # 1 x d x F
+
+        x = x.permute(1, 0, 2).flatten(start_dim=1)  # x shape: d x 100F
+
+        if layer == 'feats':
+            img_size = mask.sum()
+        else:
+            img_size = x.shape[-1]  # img_size = 100F
+
+        gram = torch.matmul(x, x.transpose(0, 1)) / img_size
+        triu_idx = torch.triu_indices(*gram.shape)
+        triu = gram[triu_idx[0, :], triu_idx[1, :]].flatten()
+        assert not triu.isnan().any()
+        grams.append(triu)
+        # triu.register_hook(lambda x: print(f'triu {layer}:', torch.norm(x)))
+    return torch.stack(grams)
+
+
+def graphs_and_feats(solids):
+    nx_graphs = [face_adjacency(solid) for solid in solids]
+    dgl_graphs = [dgl.from_networkx(g) for g in nx_graphs]
+    feats = map(feature_extractor, solids)
+    feats = list(map(torch.from_numpy, feats))
+    return nx_graphs, dgl_graphs, feats

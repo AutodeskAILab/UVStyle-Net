@@ -3,7 +3,6 @@ import pandas as pd
 import plotly.graph_objs as go
 import streamlit as st
 import trimesh
-from sklearn.preprocessing import StandardScaler
 
 from datasets.solid_letters import SolidLETTERSSubset
 
@@ -95,7 +94,8 @@ def uv_samples_plot(xyz, mask,
     if xyz_grads is not None:
         if mask is not None:
             xyz_grads = xyz_grads[mask == 1]
-        xyz_grads = StandardScaler(with_mean=False).fit_transform(xyz_grads) * scale_xyz_grads
+        # xyz_grads = StandardScaler(with_mean=False).fit_transform(xyz_grads) * scale_xyz_grads
+        xyz_grads = xyz_grads / xyz_grads.max() * scale_xyz_grads
         # hist = ff.create_distplot([xyz_grads[:, 0].tolist(), xyz_grads[:, 1].tolist(), xyz_grads[:, 2].tolist()], bin_size=0.5, group_labels=['x', 'y', 'z'])
         # st.plotly_chart(go.Figure(hist))
         for i in range(len(xyz)):

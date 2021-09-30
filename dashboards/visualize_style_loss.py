@@ -21,7 +21,8 @@ class CosineLoss(torch.nn.Module):
         super(CosineLoss, self).__init__()
 
     def forward(self, x0, x1):
-        return 1 - (torch.dot(x0, x1) / (torch.norm(x0) * torch.norm(x1)))
+        # return 1 - (torch.dot(x0, x1) / (torch.norm(x0) * torch.norm(x1)))
+        return 1 - torch.cosine_similarity(x0, x1, dim=-1)
 
 
 def compute_grams(activations, bg):

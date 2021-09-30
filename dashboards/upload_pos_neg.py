@@ -1,5 +1,7 @@
 import os
 import os.path as osp
+import random
+import string
 import sys
 from abc import abstractmethod
 
@@ -15,9 +17,8 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
 from few_shot import optimize
-from gradients_from_step import graphs_and_feats, compute_activation_stats
 from networks.models import get_abc_encoder
-from utils import Grams, solid_from_file
+from utils import Grams, solid_from_file, compute_activation_stats, graphs_and_feats
 
 
 class Examples:
