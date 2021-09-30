@@ -31,7 +31,7 @@ def main():
     layers = ['feats', 'conv1', 'conv2', 'conv3', 'fc', 'GIN_1', 'GIN_2']
 
     step_files = st.sidebar.file_uploader(label='Set of B-Reps',
-                                          type=['step', 'stp', '.zip'],
+                                          type=['step', 'stp', 'zip'],
                                           accept_multiple_files=True)
     if len(step_files) == 0:
         st.write('Upload a set of STEP files in the sidebar to get started.')
