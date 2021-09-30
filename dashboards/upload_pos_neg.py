@@ -40,7 +40,7 @@ class UploadExamples(Examples):
         self._names = []
         for file in files:
             try:
-                solid = solid_from_file(file)
+                solid = solid_from_file(file, temp_name=''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50)))
                 self._solids.append(solid)
                 self._names.append(file.name)
             except Exception as e:
