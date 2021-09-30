@@ -7,11 +7,12 @@ import streamlit as st
 import torch.cuda
 import trimesh
 from streamlit.report_thread import get_report_ctx
-from streamlit.uploaded_file_manager import UploadedFile, UploadedFileRec
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
 sys.path.append(project_root)
+from test_classifier import Model
+import helper
 from utils import compute_activation_stats, graphs_and_feats
 from dashboards.st_executor import ManyThreadExecutor
 from dashboards.st_executor import _StExecutor
@@ -37,7 +38,6 @@ def get_occwl_viewers(grads, solids):
     viewers = []
     for i, solid in enumerate(solids):
         viewer = StreamlitOCCViewer(size=(480, 480))
-        face_areas = []
         grad = grads[i][:, :, :, :3]
         face_levels = grad.norm(1, dim=-1, keepdim=True).mean(dim=[1, 2])
         viewer.display_face_colormap(solid, face_levels, color_map='viridis')
@@ -75,9 +75,23 @@ def get_loss(activations, bg, layers, weights_sliders):
 def get_activations(bg, features, model):
     model.eval()
     _ = model(bg, features.permute(0, 3, 1, 2))
-    activations = model.surf_encoder.activations
-    activations.update(model.graph_encoder.activations)
+    if hasattr(model, 'nurbs_activations'):
+        activations = model.nurbs_activations
+    else:
+        activations = model.surf_encoder.activations
+    if hasattr(model, 'gnn_activations'):
+        activations.update(model.gnn_activations)
+    else:
+        activations.update(model.graph_encoder.activations)
     return activations
+
+
+def get_solidletters_encoder(checkpoint, device):
+    state = helper.load_checkpoint(checkpoint, map_to_cpu=device == 'cpu')
+    state['args'].input_channels = 'xyz_normals'
+    model = Model(26, state['args']).to(device)
+    model.load_state_dict(state['model'])
+    return model
 
 
 def main():
@@ -111,10 +125,12 @@ def main():
         if success:
             if visualization == 'Plotly':
                 scale_grads = st.sidebar.slider('Scale Displacement Gradients',
-                                                min_value=-0.2,
-                                                max_value=0.2,
-                                                value=-0.1,
-                                                step=0.01)
+                                                min_value=-1.,
+                                                max_value=1.,
+                                                value=-.3,
+                                                step=.05,
+                                                help='Negative values show the direction in which to move the points '
+                                                     'to reduce the style loss (make the solids more similar in style)')
                 marker_size = st.sidebar.slider('Marker Size',
                                                 min_value=0,
                                                 max_value=10,
@@ -136,48 +152,56 @@ def main():
                 for name, default in zip(layers, [1., 1., 1., 0., 0., 0., 0.])
             ]
 
-            with st.spinner('Computing gradients...'):
-                device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+            model_selection = st.selectbox(label='Pre-trained Model',
+                                           options=['ABC', 'SolidLETTERS'])
+            if st.button(label='Compute'):
+                with st.spinner('Computing gradients...'):
+                    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
-                model = get_abc_encoder(checkpoint=checkpoint, device=device)
+                    if model_selection == 'ABC':
+                        model = get_abc_encoder(checkpoint=checkpoint, device=device)
+                    else:
+                        model = get_solidletters_encoder(
+                            checkpoint=osp.join(project_root, 'checkpoints', 'uvnet_solidletters_chkpt.pt'),
+                            device=device)
 
-                nx_graphs, dgl_graphs, feats = executor.queue_and_block(graphs_and_feats, solids).result()
-                features = torch.cat(feats, dim=0).float()
+                    nx_graphs, dgl_graphs, feats = executor.queue_and_block(graphs_and_feats, solids).result()
+                    features = torch.cat(feats, dim=0).float()
 
-                meshes = executor.queue_and_block(get_meshes, solids).result()
+                    meshes = executor.queue_and_block(get_meshes, solids).result()
 
-                bg = dgl.batch(dgl_graphs)
-                features.requires_grad = True
+                    bg = dgl.batch(dgl_graphs)
+                    features.requires_grad = True
 
-                activations = executor.queue_and_block(get_activations, bg, features, model).result()
+                    activations = executor.queue_and_block(get_activations, bg, features, model).result()
 
-                loss = executor.queue_and_block(get_loss, activations, bg, layers, weights_sliders).result()
-                executor.queue_and_block(loss.backward).result()
-                st.text(f'Total loss for selected layers: {loss.__float__()}')
+                    loss = executor.queue_and_block(get_loss, activations, bg, layers, weights_sliders).result()
+                    executor.queue_and_block(loss.backward).result()
+                    st.text(f'Total loss for selected layers: {loss.__float__()}')
 
-                grads = torch.split(features.grad, bg.batch_num_nodes().tolist())
-            # visualization = 'Plotly'
-            # scale_grads = -0.1
-            # marker_size = 4
-            # show_mesh = False
-            # mesh_alpha = .4
-            if visualization == 'Plotly':
-                with st.spinner('Generating plots...'):
-                    # noinspection PyUnboundLocalVariable
-                    plots = executor.queue_and_block(get_plotly_plots,
-                                                     dgl_graphs, feats, grads, marker_size, mesh_alpha, meshes,
-                                                     scale_grads, show_mesh).result()
-                    for plot in plots:
-                        st.plotly_chart(plot)
+                    grads = torch.split(features.grad, bg.batch_num_nodes().tolist())
+                # visualization = 'Plotly'
+                # scale_grads = -0.1
+                # marker_size = 4
+                # show_mesh = False
+                # mesh_alpha = .4
+                if visualization == 'Plotly':
+                    with st.spinner('Generating plots...'):
+                        # noinspection PyUnboundLocalVariable
+                        plots = executor.queue_and_block(get_plotly_plots,
+                                                         dgl_graphs, feats, grads, marker_size, mesh_alpha, meshes,
+                                                         scale_grads, show_mesh).result()
+                        for plot in plots:
+                            st.plotly_chart(plot)
 
-            else:
-                # OCC
-                st.image(image=osp.join(project_root, 'dashboards', 'color_scale.png'),
-                         caption='Scale')
-                with st.spinner('Generating plots...'):
-                    viewers = executor.queue_and_block(get_occwl_viewers, grads, solids).result()
-                    for viewer in viewers:
-                        viewer.show()
+                else:
+                    # OCC
+                    st.image(image=osp.join(project_root, 'dashboards', 'color_scale.png'),
+                             caption='Scale')
+                    with st.spinner('Generating plots...'):
+                        viewers = executor.queue_and_block(get_occwl_viewers, grads, solids).result()
+                        for viewer in viewers:
+                            viewer.show()
 
 
 if __name__ == '__main__':
