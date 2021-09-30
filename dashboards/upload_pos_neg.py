@@ -59,7 +59,6 @@ class UploadExamples(Examples):
                 with st.spinner(f'Extracting {file.name}...'):
                     progress = st.progress(0)
                     for i, f in enumerate(z.infolist()):
-                        sleep(1)
                         if f.filename[-1] == '/' or f.filename.split('/')[-1][0] == '.':
                             progress.progress((i + 1) / len(z.infolist()))
                             continue
