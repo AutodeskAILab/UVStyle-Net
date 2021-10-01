@@ -37,48 +37,54 @@ def main():
         st.write('Upload a set of STEP files in the sidebar to get started.')
     else:
         # files are uploaded
-        examples = executor.queue_and_block(UploadExamples, model, layers, step_files).result()
-        st.write(f'Files uploaded: {len(examples)}')
+        examples = executor.queue_and_block(UploadExamples, model, layers, step_files, ctx=get_report_ctx()).result()
+        st.sidebar.write(f'Files uploaded: {len(examples)}')
 
-        algo = st.radio(label='Method',
-                        options=['UMAP', 't-SNE', 'PCA'])
+        options_expander = st.expander('Options', expanded=True)
+        with options_expander:
+            algo = st.radio(label='Method',
+                            options=['UMAP', 't-SNE', 'PCA'])
 
         if algo == 'PCA':
             fitter = PCA(n_components=3)
         elif algo == 'UMAP':
-            umap_metric = st.selectbox(label='metric',
-                                       options=['cosine', 'euclidean'])
-            umap_max_val = len(examples) - 1 if umap_metric == 'cosine' else len(examples) - 2
-            umap_n = st.number_input(label='n_neighbours',
-                                     min_value=1,
-                                     max_value=umap_max_val,
-                                     value=min(15, umap_max_val))
-            fitter = UMAP(n_neighbors=umap_n,
-                          n_components=3,
-                          metric=umap_metric)
+            with options_expander:
+                cols = st.columns(2)
+                umap_metric = cols[0].selectbox(label='metric',
+                                                options=['cosine', 'euclidean'])
+                umap_max_val = len(examples) - 1 if umap_metric == 'cosine' else len(examples) - 2
+                umap_n = cols[1].number_input(label='n_neighbours',
+                                              min_value=1,
+                                              max_value=umap_max_val,
+                                              value=min(15, umap_max_val))
+                fitter = UMAP(n_neighbors=umap_n,
+                              n_components=3,
+                              metric=umap_metric)
         elif algo == 't-SNE':
-            tsne_metric = st.selectbox(label='metric',
-                                       options=['cosine', 'euclidean'])
-            tsne_n_iter = st.number_input(label='iterations',
-                                          min_value=1,
-                                          max_value=10_000,
-                                          value=1_000,
-                                          step=1)
-            tsne_perplexity = st.number_input(label='perplexity',
-                                              min_value=2,
-                                              max_value=100,
-                                              value=5,
-                                              step=1)
-            tsne_lr = st.number_input(label='learning rate',
-                                      min_value=0.001,
-                                      max_value=1000.,
-                                      value=10.,
-                                      step=0.001)
-            fitter = TSNE(n_components=3,
-                          n_iter=tsne_n_iter,
-                          metric=tsne_metric,
-                          perplexity=tsne_perplexity,
-                          learning_rate=tsne_lr)
+            with options_expander:
+                cols = st.columns(4)
+                tsne_metric = cols[0].selectbox(label='metric',
+                                                options=['cosine', 'euclidean'])
+                tsne_n_iter = cols[1].number_input(label='iterations',
+                                                   min_value=1,
+                                                   max_value=10_000,
+                                                   value=1_000,
+                                                   step=1)
+                tsne_perplexity = cols[2].number_input(label='perplexity',
+                                                       min_value=2,
+                                                       max_value=100,
+                                                       value=5,
+                                                       step=1)
+                tsne_lr = cols[3].number_input(label='learning rate',
+                                               min_value=0.001,
+                                               max_value=1000.,
+                                               value=10.,
+                                               step=0.001)
+                fitter = TSNE(n_components=3,
+                              n_iter=tsne_n_iter,
+                              metric=tsne_metric,
+                              perplexity=tsne_perplexity,
+                              learning_rate=tsne_lr)
 
         if st.button('Visualize'):
             with st.spinner('Computing Gram matrices...'):
@@ -88,7 +94,8 @@ def main():
                 pca_grams = []
                 for layer in range(7):
                     x = grams[layer].detach().cpu().numpy()
-                    pca = executor.queue_and_block(PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform, x).result()
+                    pca = executor.queue_and_block(PCA(n_components=min(x.shape[-1], 3, x.shape[0])).fit_transform,
+                                                   x).result()
                     pca_grams.append(pca)
                 X = torch.from_numpy(np.concatenate(pca_grams, axis=-1))
 
