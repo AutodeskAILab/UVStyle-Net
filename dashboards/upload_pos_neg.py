@@ -5,8 +5,7 @@ import string
 import sys
 import zipfile
 from abc import abstractmethod
-from io import FileIO, BytesIO
-from time import sleep
+from io import BytesIO
 
 import dgl
 import numpy as np
@@ -14,11 +13,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import torch.cuda
-from pyunpack import Archive
-from setuptools.archive_util import unpack_zipfile
 from sklearn.decomposition import PCA
 from streamlit.report_thread import get_report_ctx
-from streamlit.uploaded_file_manager import UploadedFile, UploadedFileRec
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(file_dir)
