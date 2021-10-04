@@ -107,6 +107,7 @@ or for windows, visit: <https://www.7-zip.org/download.html>.
 To get started quickly and interact with the models, we recommend downloading only
 the pre-computed Gram matrices for the SolidLETTERS test set along with the pre-trained
 SolidLETTERS model, the test set dgl binary files, and the test set meshes (to assist visualization).
+You will need a little bit over 7GB of space for all this data. 
 All of these necessary files can be downloaded into the correct directory structure with:
 
 ```bash
