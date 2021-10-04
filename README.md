@@ -97,7 +97,7 @@ To use the download script requires a 7z extractor to be installed:
 $ sudo apt-get install p7zip-full
 
 # MacOS
-$ bew install p7zip
+$ brew install p7zip
 ```
 
 or for windows, visit: <https://www.7-zip.org/download.html>.
