@@ -54,7 +54,7 @@ if __name__ == '__main__':
                                 max_value=10)
 
     st.sidebar.subheader('Layer Weights')
-    defaults = [1., 1., 1., 1., 0., 0., 0.]
+    defaults = [1., 1., 1., 1., 0., 0., 0.] if model_name == 'uvnet' else [1., 1., 1., 1., 1.]
     weights = [st.sidebar.slider(label=str(i),
                                  min_value=0.,
                                  max_value=1.,
