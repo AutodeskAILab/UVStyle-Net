@@ -263,6 +263,7 @@ if __name__ == '__main__':
             args.dgl = True
             args.mesh = True
             args.pc = True
+            args.smt = True
             args.pngs = True
             args.labels = True
 
