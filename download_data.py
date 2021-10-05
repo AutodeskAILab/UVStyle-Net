@@ -198,7 +198,7 @@ abc = {
         RemoteItem(name='abc_bin.7z',
                    url='https://0290-mint-abc-uvnet.s3.us-west-2.amazonaws.com/bin.7z',
                    path_maps=[
-                       ('abc_bin', osp.join('data', 'ABC', 'bin'))
+                       ('bin', osp.join('data', 'ABC', 'bin'))
                    ])
     ],
     'mesh': [
