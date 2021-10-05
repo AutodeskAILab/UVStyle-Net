@@ -165,7 +165,26 @@ streamlit run dashboards/few_shot_optimization.py
 
 ## Full Datasets
 
-All data may be downloaded using the following script:
+To download the full datasets in all formats you will need approximately 111 GB (+ approx. 10 GB for
+temporary files during extraction). A breakdown is given below:
+
+- SolidLETTERS (46 GB for complete set)
+  - grams: 7.5 GB
+  - dgl binary files: 7.7 GB
+  - mesh: 9.9 GB
+  - point clouds: 3.3 GB
+  - smt: 18 GB
+  - pngs: 84 MB
+- ABC (65 GB for complete set)
+  - grams: 12.6 GB (uv-net: 8 GB, psnet: 4.6 GB)
+  - dgl binary files: 20 GB
+  - mesh: 13 GB
+  - point clouds: 2.3 GB
+  - smt: 18 GB
+  - pngs: 513 MB
+  - subset labels: 16 MB
+
+All data/parts you require may be downloaded using the following script:
 
 ```text
 $ python download_data.py
@@ -203,7 +222,7 @@ Examples:
 # Pre-trained models
 $ python download_data.py models
 
-# Complete SolidLETTERS dataset
+# Complete SolidLETTERS dataset in all formats
 $ python download_data.py solid_letters --all
 
 # ABC mesh and point clouds only
