@@ -167,7 +167,7 @@ solid_letters = {
                        ('test', osp.join('data', 'SolidLETTERS', 'smt', 'test'))
                    ]),
         RemoteItem(name='solid_letters_smt_train.7z',
-                   url='https://0290-mint-solid-mnist.s3.us-west-2.amazonaws.com/smt_train.7z',
+                   url='https://0290-mint-solid-mnist.s3.us-west-2.amazonaws.com/smt_train.zip',
                    path_maps=[
                        ('train', osp.join('data', 'SolidLETTERS', 'smt', 'train'))
                    ]),
