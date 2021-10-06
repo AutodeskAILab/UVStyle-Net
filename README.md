@@ -56,16 +56,18 @@ For full details, see our [paper](https://arxiv.org/abs/2105.02961).
 
 If you use any of the code or techniques from the paper, please cite the following:
 
-> Meltzer, P., Shayani, H., Khasahmadi, A., Jayaraman, P. K., Sanghi, A., & Lambourne, J. (2021). UVStyle-Net: Unsupervised Few-shot Learning of 3D Style Similarity Measure for B-Reps. _arXiv preprint arXiv:2105.02961_.
+> Meltzer, Peter, Hooman Shayani, Amir Khasahmadi, Pradeep Kumar Jayaraman, Aditya Sanghi, and Joseph Lambourne. ‘UVStyle-Net: Unsupervised Few-Shot Learning of 3D Style Similarity Measure for B-Reps’. In IEEE/CVF International Conference on Computer Vision (ICCV), 2021. http://arxiv.org/abs/2105.02961.
 
 ```text
-@misc{meltzer2021uvstylenet,
-      title={UVStyle-Net: Unsupervised Few-shot Learning of 3D Style Similarity Measure for B-Reps}, 
-      author={Peter Meltzer and Hooman Shayani and Amir Khasahmadi and Pradeep Kumar Jayaraman and Aditya Sanghi and Joseph Lambourne},
-      year={2021},
-      eprint={2105.02961},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@inproceedings{meltzer_uvstyle-net_2021,
+	title = {{UVStyle}-{Net}: {Unsupervised} {Few}-shot {Learning} of {3D} {Style} {Similarity} {Measure} for {B}-{Reps}},
+	shorttitle = {{UVStyle}-{Net}},
+	url = {http://arxiv.org/abs/2105.02961},
+	booktitle = {{IEEE}/{CVF} {International} {Conference} on {Computer} {Vision} ({ICCV})},
+	author = {Meltzer, Peter and Shayani, Hooman and Khasahmadi, Amir and Jayaraman, Pradeep Kumar and Sanghi, Aditya and Lambourne, Joseph},
+	year = {2021},
+	note = {arXiv: 2105.02961},
+	keywords = {Computer Science - Computer Vision and Pattern Recognition, 68T07, 68T10, Computer Science - Machine Learning, I.3.5, I.5.1},
 }
 ```
 
