@@ -50,8 +50,13 @@ The way it works can be summarized as follows:
 4. OPTIONAL: Determine the best weights for the style distance according to a few
  user selected examples that share a common style
 
-For full details, see our [paper](https://arxiv.org/abs/2105.02961).
+For a 5 minute overview, take a look at our ICCV presentation video/poster below, or for full details, see the [paper](https://arxiv.org/abs/2105.02961).
 
+[UVStyle-Net ICCV Poster.pdf](https://github.com/AutodeskAILab/UVStyle-Net/files/7452640/UVStyle-Net.ICCV.2021.5.min.pdf)
+
+[![Screenshot 2021-11-01 at 11 08 30](https://user-images.githubusercontent.com/23616959/139662655-11eb6cbd-347f-4f92-a580-49647f4c0ebf.png)](https://www.youtube.com/watch?v=E6fMVjyqtGs)
+
+	
 ## Citing this Work
 
 If you use any of the code or techniques from the paper, please cite the following:
